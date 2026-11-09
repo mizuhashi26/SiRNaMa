@@ -1,0 +1,13 @@
+Options -Indexes -MultiViews
+
+ErrorDocument 403 /crm_layanan_mahasiswa/public/index.php/_404
+ErrorDocument 404 /crm_layanan_mahasiswa/public/index.php/_404
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Semua akses ke root atau folder selain /public dikembalikan sebagai 404 Not Found
+    RewriteCond %{REQUEST_URI} !^/crm_layanan_mahasiswa/public(?:/|$) [NC]
+    RewriteRule ^ - [R=404,L]
+</IfModule>
+
