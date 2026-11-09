@@ -33,6 +33,7 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
+            $request->session()->forget('manual_logout');
 
             return redirect()->intended(route('admin.dashboard'))
                 ->with('success', 'Berhasil masuk ke Dashboard Admin CRM.');
@@ -49,6 +50,7 @@ class AuthController extends Controller
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+        $request->session()->put('manual_logout', true);
 
         return redirect()->route('login')
             ->with('success', 'Anda telah keluar dari sesi Admin.');
