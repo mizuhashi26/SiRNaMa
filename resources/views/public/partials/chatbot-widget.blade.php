@@ -31,12 +31,12 @@
     }
     .panel-state-closed-top {
         opacity: 0 !important;
-        transform: translateY(-20px) scale(0.94) !important;
+        transform: translateY(-16px) scale(0.95) !important;
         pointer-events: none !important;
     }
     .panel-state-closed-bottom {
         opacity: 0 !important;
-        transform: translateY(20px) scale(0.94) !important;
+        transform: translateY(16px) scale(0.95) !important;
         pointer-events: none !important;
     }
     .panel-state-open {
@@ -44,56 +44,65 @@
         transform: translateY(0) scale(1) !important;
         pointer-events: auto !important;
     }
+    /* Scrollbar halus untuk daftar tombol options */
+    #chatbot-options-list::-webkit-scrollbar {
+        width: 4px;
+    }
+    #chatbot-options-list::-webkit-scrollbar-thumb {
+        background-color: #cbd5e1;
+        border-radius: 4px;
+    }
 </style>
 
 <div id="unpam-chatbot-root" class="fixed bottom-5 right-5 z-50 flex flex-col items-end">
     <!-- Panel Chat Pop-up -->
     <section id="chatbot-panel"
              aria-label="Layanan Chat"
-             class="panel-hidden panel-state-closed-bottom w-[calc(100vw-2rem)] sm:w-96 max-h-[82vh] bg-white border-2 border-unpam-navy rounded-2xl shadow-2xl flex-col overflow-hidden mb-3">
+             class="panel-hidden panel-state-closed-bottom w-[calc(100vw-2rem)] sm:w-96 max-h-[76vh] sm:max-h-[500px] bg-white border-2 border-unpam-navy rounded-2xl shadow-2xl flex-col overflow-hidden mb-3">
         <!-- Header Widget: Judul Singkat & Ikon Aksi Bold -->
-        <div id="chatbot-header-handle" class="bg-unpam-navy text-white px-4 py-3 flex items-center justify-between gap-2 border-b-2 border-unpam-gold cursor-grab active:cursor-grabbing select-none">
+        <div id="chatbot-header-handle" class="bg-unpam-navy text-white px-3.5 py-2.5 flex items-center justify-between gap-2 border-b-2 border-unpam-gold cursor-grab active:cursor-grabbing select-none shrink-0">
             <div class="flex items-center gap-2.5">
                 <!-- Bulat Berkedip Nyata -->
                 <span class="unpam-blinking-dot" aria-hidden="true"></span>
                 <div>
-                    <!-- Judul Disederhanakan -->
+                    <!-- Judul Ringkas -->
                     <h2 class="font-bold text-sm text-white leading-snug">Layanan Chat</h2>
-                    <p id="chatbot-status-badge" class="text-[11px] text-amber-200">Status: Memuat sesi...</p>
+                    <p id="chatbot-status-badge" class="text-[11px] text-amber-200 leading-none">Status: Memuat sesi...</p>
                 </div>
             </div>
 
-            <!-- Tombol Aksi di Header Chat (Ikon Bergaya Bold) -->
+            <!-- Tombol Aksi di Header Chat (Ikon Bold) -->
             <div class="flex items-center gap-1.5">
-                <!-- Tombol Posisi Semula: Ikon Reset Bold Tanpa Teks -->
+                <!-- Tombol Posisi Semula: Ikon Reset Putar Bold Tanpa Teks -->
                 <button type="button"
                         id="chatbot-reset-pos-panel-btn"
-                        title="Kembalikan letak widget ke posisi semula (kanan-bawah)"
+                        title="Kembalikan posisi semula (kanan-bawah layar)"
                         aria-label="Kembalikan posisi semula"
-                        class="min-h-[36px] min-w-[36px] inline-flex items-center justify-center rounded-lg bg-slate-800 text-amber-300 hover:bg-slate-700 hover:text-white border border-amber-400/50 transition-colors">
+                        class="min-h-[34px] min-w-[34px] inline-flex items-center justify-center rounded-lg bg-slate-800 text-amber-300 hover:bg-slate-700 hover:text-white border border-amber-400/50 transition-colors">
                     <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
                         <path d="M3 3v5h5"/>
                     </svg>
                 </button>
 
-                <!-- Tombol Minimize / Bawah: Ikon Chevron Down Bold -->
+                <!-- Tombol Scroll to Bottom (Ikon Panah Bawah Bold: Scroll ke pesan akhir, BUKAN minimize) -->
                 <button type="button"
-                        id="chatbot-minimize-btn"
-                        title="Kecilkan chat"
-                        aria-label="Kecilkan chat"
-                        class="min-h-[36px] min-w-[36px] inline-flex items-center justify-center rounded-lg bg-slate-800 text-white hover:bg-slate-700 border border-slate-600 transition-colors">
+                        id="chatbot-scroll-bottom-header-btn"
+                        title="Scroll ke pesan paling akhir"
+                        aria-label="Ke pesan paling akhir"
+                        class="min-h-[34px] min-w-[34px] inline-flex items-center justify-center rounded-lg bg-slate-800 text-white hover:bg-slate-700 border border-slate-600 transition-colors">
                     <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="m6 9 6 6 6-6"/>
+                        <path d="M12 5v14"/>
+                        <path d="m19 12-7 7-7-7"/>
                     </svg>
                 </button>
 
                 <!-- Tombol Tutup: Ikon Silang (✕) Bold -->
                 <button type="button"
                         id="chatbot-close-btn"
-                        title="Tutup chat"
+                        title="Tutup jendela chat"
                         aria-label="Tutup jendela chat"
-                        class="min-h-[36px] min-w-[36px] inline-flex items-center justify-center rounded-lg bg-slate-800 text-white hover:bg-red-700 border border-slate-600 transition-colors">
+                        class="min-h-[34px] min-w-[34px] inline-flex items-center justify-center rounded-lg bg-slate-800 text-white hover:bg-red-700 border border-slate-600 transition-colors">
                     <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <path d="M18 6 6 18"/>
                         <path d="m6 6 12 12"/>
@@ -103,52 +112,53 @@
         </div>
 
         <!-- Identitas Opsional Pengunjung saat meminta Admin -->
-        <div id="chatbot-identity-bar" class="bg-slate-100 border-b border-slate-300 px-3.5 py-2 text-xs">
-            <label for="chatbot-visitor-name" class="block font-semibold text-slate-800 mb-1">
+        <div id="chatbot-identity-bar" class="bg-slate-100 border-b border-slate-300 px-3.5 py-1.5 text-xs shrink-0">
+            <label for="chatbot-visitor-name" class="block font-semibold text-slate-800 mb-0.5 text-[11px]">
                 Nama / NIM (Opsional untuk Admin):
             </label>
             <input type="text"
                    id="chatbot-visitor-name"
                    placeholder="Contoh: Budi Santoso - 2110114001"
-                   class="w-full min-h-[38px] px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-900 text-xs focus:outline-unpam-gold">
+                   class="w-full min-h-[34px] px-2.5 py-1 rounded-lg border border-slate-300 bg-white text-slate-900 text-xs focus:outline-unpam-gold">
         </div>
 
         <!-- Daftar Pesan -->
         <div id="chatbot-messages"
              role="log"
              aria-live="polite"
-             class="flex-1 overflow-y-auto p-3.5 space-y-3 bg-slate-50 min-h-[240px] max-h-[340px] text-sm">
+             class="flex-1 overflow-y-auto p-3.5 space-y-3 bg-slate-50 min-h-[200px] text-sm">
             <div id="chatbot-loading-state" class="text-slate-700 bg-white border border-slate-200 rounded-lg p-3 text-xs">
                 Memuat layanan menu Chatbot UNPAM...
             </div>
         </div>
 
         <!-- Area Error State -->
-        <div id="chatbot-error-state" class="hidden bg-red-50 border-t border-red-300 px-3 py-2 text-xs text-red-900">
+        <div id="chatbot-error-state" class="hidden bg-red-50 border-t border-red-300 px-3 py-1.5 text-xs text-red-900 shrink-0">
             Gagal terhubung ke server chat. Silakan coba kembali.
         </div>
 
-        <!-- Tombol Pilihan Menu & Sub-Layanan -->
-        <div id="chatbot-options-container" class="bg-white border-t border-slate-200 px-3 py-2.5">
-            <div class="flex items-center justify-between mb-2">
-                <p class="text-xs font-bold text-slate-800">Pilihan Menu & Sub-Layanan:</p>
-                <span class="text-[11px] text-slate-500">Pilih nomor atau opsi</span>
+        <!-- Tombol Pilihan Menu & Sub-Layanan (Layout Rapi, Proporsional, Tidak Terpotong) -->
+        <div id="chatbot-options-container" class="bg-slate-50 border-t border-slate-200 px-3 py-2 shrink-0">
+            <div class="flex items-center justify-between mb-1.5">
+                <p class="text-[11px] font-bold text-slate-700 tracking-tight">Pilihan Menu & Sub-Layanan:</p>
+                <span class="text-[10px] text-slate-500">Pilih opsi</span>
             </div>
-            <div id="chatbot-options-list" class="flex flex-wrap gap-1.5"></div>
+            <!-- Container Opsi dengan max-height dan overflow-y auto agar tidak meluap keluar kartu -->
+            <div id="chatbot-options-list" class="flex flex-wrap gap-1.5 max-h-24 sm:max-h-28 overflow-y-auto pr-0.5"></div>
         </div>
 
         <!-- Form Kirim Pesan / Kode Menu -->
-        <form id="chatbot-form" class="bg-slate-100 border-t border-slate-300 p-2.5 flex items-center gap-2">
+        <form id="chatbot-form" class="bg-slate-100 border-t border-slate-300 p-2.5 flex items-center gap-2 shrink-0">
             <label for="chatbot-input" class="sr-only">Ketik angka menu atau pesan untuk Admin</label>
             <input type="text"
                    id="chatbot-input"
                    name="message"
                    required
                    placeholder="Ketik 1, 2, 3 atau pesan Anda..."
-                   class="flex-1 min-h-[44px] px-3.5 py-2 rounded-lg border border-slate-400 bg-white text-slate-900 text-sm focus:outline-unpam-gold">
+                   class="flex-1 min-h-[40px] px-3 py-1.5 rounded-lg border border-slate-400 bg-white text-slate-900 text-sm focus:outline-unpam-gold">
             <button type="submit"
                     id="chatbot-submit-btn"
-                    class="min-h-[44px] px-4 py-2 rounded-lg bg-unpam-gold text-slate-950 font-bold text-sm hover:bg-unpam-goldHover shadow-sm shrink-0">
+                    class="min-h-[40px] px-4 py-1.5 rounded-lg bg-unpam-gold text-slate-950 font-bold text-sm hover:bg-unpam-goldHover shadow-sm shrink-0">
                 Kirim
             </button>
         </form>
@@ -160,7 +170,7 @@
                 id="chatbot-trigger"
                 aria-expanded="false"
                 aria-controls="chatbot-panel"
-                class="min-h-[48px] px-4 py-2.5 rounded-full bg-unpam-navy text-white font-bold text-xs sm:text-sm shadow-2xl border-2 border-unpam-gold hover:bg-unpam-navyDark flex items-center gap-2.5 cursor-grab active:cursor-grabbing transition-all select-none">
+                class="min-h-[46px] px-4 py-2.5 rounded-full bg-unpam-navy text-white font-bold text-xs sm:text-sm shadow-2xl border-2 border-unpam-gold hover:bg-unpam-navyDark flex items-center gap-2.5 cursor-grab active:cursor-grabbing transition-all select-none">
             <!-- Bulat Berkedip Nyata (UNPAM Gold) -->
             <span class="unpam-blinking-dot" aria-hidden="true"></span>
 
@@ -169,7 +179,7 @@
 
             <!-- Tombol Kembalikan Posisi: Ikon Putar Kecil Menyatu di Kapsul (Aktif jika di-drag) -->
             <span id="chatbot-reset-pos-pill"
-                  title="Kembalikan letak widget ke posisi semula (kanan-bawah)"
+                  title="Kembalikan posisi semula (kanan-bawah layar)"
                   aria-label="Kembalikan posisi semula"
                   role="button"
                   tabindex="0"
@@ -197,7 +207,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const headerHandle = document.getElementById('chatbot-header-handle');
     const triggerBtn = document.getElementById('chatbot-trigger');
     const closeBtn = document.getElementById('chatbot-close-btn');
-    const minimizeBtn = document.getElementById('chatbot-minimize-btn');
+    const scrollBottomHeaderBtn = document.getElementById('chatbot-scroll-bottom-header-btn');
     const resetPosPill = document.getElementById('chatbot-reset-pos-pill');
     const resetPosPanelBtn = document.getElementById('chatbot-reset-pos-panel-btn');
     const messagesBox = document.getElementById('chatbot-messages');
@@ -216,6 +226,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let lastStatus = '';
     let isInitialOpen = true;
     let currentOptionsJson = '';
+    let isCustomDragged = false;
 
     // --- RESET POSISI KE TEMPAT SEMULA ---
     function resetPosition(e) {
@@ -223,6 +234,7 @@ document.addEventListener('DOMContentLoaded', function () {
             e.stopPropagation();
             e.preventDefault();
         }
+        isCustomDragged = false;
         root.style.left = 'auto';
         root.style.top = 'auto';
         root.style.right = '1.25rem';
@@ -241,6 +253,18 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     if (resetPosPanelBtn) resetPosPanelBtn.addEventListener('click', resetPosition);
 
+    // --- TOMBOL SCROLL TO BOTTOM (Panah Bawah di Header) ---
+    if (scrollBottomHeaderBtn) {
+        scrollBottomHeaderBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            messagesBox.scrollTo({
+                top: messagesBox.scrollHeight,
+                behavior: 'smooth'
+            });
+        });
+    }
+
     // --- FITUR DRAGGABLE (Dapat digeser mouse & touch) ---
     let isPointerDown = false;
     let didDrag = false;
@@ -249,7 +273,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function onPointerDown(e) {
         if (e.target.closest('#chatbot-close-btn') ||
-            e.target.closest('#chatbot-minimize-btn') ||
+            e.target.closest('#chatbot-scroll-bottom-header-btn') ||
             e.target.closest('#chatbot-reset-pos-pill') ||
             e.target.closest('#chatbot-reset-pos-panel-btn') ||
             e.target.closest('input') ||
@@ -285,6 +309,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (Math.abs(deltaX) > 4 || Math.abs(deltaY) > 4) {
             didDrag = true;
+            isCustomDragged = true;
             if (e.cancelable) e.preventDefault();
         }
 
@@ -324,21 +349,23 @@ document.addEventListener('DOMContentLoaded', function () {
     headerHandle.addEventListener('mousedown', onPointerDown);
     headerHandle.addEventListener('touchstart', onPointerDown, { passive: true });
 
-    // --- ANIMASI BUKA & TUTUP DINAMIS ---
+    // --- LOGIKA BUKA & TUTUP TETAP PERSISTEN DI TEMPAT (STAY) ---
     function openChat() {
         isOpen = true;
         panel.classList.remove('panel-hidden', 'panel-state-closed-top', 'panel-state-closed-bottom');
         panel.classList.add('flex');
 
-        // Bounding check agar panel pas di layar
-        const rect = root.getBoundingClientRect();
-        if (rect.top < 10) {
-            root.style.top = '10px';
-            root.style.bottom = 'auto';
-        }
-        if (rect.right > window.innerWidth - 8) {
-            root.style.left = Math.max(8, window.innerWidth - root.offsetWidth - 8) + 'px';
-            root.style.right = 'auto';
+        // Bounding check hanya jika widget pernah di-drag oleh pengguna
+        if (isCustomDragged) {
+            const rect = root.getBoundingClientRect();
+            if (rect.top < 10) {
+                root.style.top = '10px';
+                root.style.bottom = 'auto';
+            }
+            if (rect.right > window.innerWidth - 8) {
+                root.style.left = Math.max(8, window.innerWidth - root.offsetWidth - 8) + 'px';
+                root.style.right = 'auto';
+            }
         }
 
         // Trigger reflow untuk CSS transition
@@ -378,7 +405,7 @@ document.addEventListener('DOMContentLoaded', function () {
         isOpen = false;
         triggerBtn.setAttribute('aria-expanded', 'false');
 
-        // Animasi menutup ke arah bawah (trigger)
+        // Animasi menutup ke arah bawah (trigger), posisi container tetap stay di tempatnya!
         panel.classList.remove('panel-state-open');
         panel.classList.add('panel-state-closed-bottom');
 
@@ -395,7 +422,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     window.openUnpamChat = openChat;
 
-    // Klik trigger bawah: buka atau tutup ke arah bawah
+    // Klik trigger bawah: buka atau tutup ke arah bawah (stay di tempat)
     triggerBtn.addEventListener('click', function (e) {
         if (e.target.closest('#chatbot-reset-pos-pill')) return;
         if (didDrag) {
@@ -409,11 +436,10 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Klik tombol di header: tutup/minimize ke arah atas
+    // Klik tombol silang di header: tutup
     closeBtn.addEventListener('click', closeChatFromHeader);
-    minimizeBtn.addEventListener('click', closeChatFromHeader);
 
-    // --- RENDER PERCAKAPAN & PERSISTENCE MENU STATE ---
+    // --- RENDER PERCAKAPAN (Terpisah sepenuhnya dari Event Scrolling) ---
     function formatSafeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text || '';
@@ -432,6 +458,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         const msgs = Array.isArray(data.messages) ? data.messages : [];
+        // HANYA update DOM pesan jika ada pesan baru atau status berubah!
         if (msgs.length !== lastRenderedCount || data.status !== lastStatus) {
             lastRenderedCount = msgs.length;
             lastStatus = data.status;
@@ -451,11 +478,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (isSystem) {
                         wrapper.className = 'bg-slate-900 text-amber-200 border border-amber-400/50 rounded-lg p-2.5 text-xs';
                     } else if (isUser) {
-                        wrapper.className = 'ml-6 bg-unpam-navy text-white rounded-xl p-3 text-xs sm:text-sm shadow-sm';
+                        wrapper.className = 'ml-6 bg-unpam-navy text-white rounded-xl p-2.5 text-xs sm:text-sm shadow-sm';
                     } else if (isAdmin) {
-                        wrapper.className = 'mr-6 bg-amber-50 border border-amber-300 text-slate-900 rounded-xl p-3 text-xs sm:text-sm shadow-sm';
+                        wrapper.className = 'mr-6 bg-amber-50 border border-amber-300 text-slate-900 rounded-xl p-2.5 text-xs sm:text-sm shadow-sm';
                     } else {
-                        wrapper.className = 'mr-4 bg-white border border-slate-300 text-slate-900 rounded-xl p-3 text-xs sm:text-sm shadow-sm';
+                        wrapper.className = 'mr-4 bg-white border border-slate-300 text-slate-900 rounded-xl p-2.5 text-xs sm:text-sm shadow-sm';
                     }
 
                     const header = document.createElement('div');
@@ -480,7 +507,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
-        // Render Opsi Menu: Pertahankan state sub-layanan
+        // Render Opsi Menu: HANYA jika options benar-benar berbeda
         const newOptionsJson = JSON.stringify(data.options || []);
         if (newOptionsJson !== currentOptionsJson) {
             currentOptionsJson = newOptionsJson;
@@ -496,9 +523,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 options.forEach(function (opt) {
                     const btn = document.createElement('button');
                     btn.type = 'button';
-                    btn.className = 'min-h-[38px] px-3 py-1.5 rounded-lg border border-slate-300 bg-slate-100 hover:bg-unpam-gold hover:text-slate-950 hover:border-amber-500 text-slate-900 font-semibold text-xs transition-colors';
+                    btn.className = 'min-h-[32px] px-2.5 py-1.5 rounded-md text-[11px] sm:text-xs font-semibold border border-slate-300 bg-white hover:bg-unpam-gold hover:text-slate-950 hover:border-amber-400 text-slate-800 transition-colors shrink-0 shadow-xs';
                     btn.textContent = opt.label;
-                    btn.addEventListener('click', function () {
+                    btn.addEventListener('click', function (e) {
+                        e.stopPropagation();
                         sendChatMessage(opt.code);
                     });
                     optionsList.appendChild(btn);

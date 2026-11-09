@@ -234,7 +234,7 @@ class ChatbotMenuService
 
     /**
      * Tentukan daftar options yang sedang aktif berdasarkan state percakapan dan pesan terakhir.
-     * Mencegah options sub-layanan ter-reset otomatis saat polling berkala.
+     * Mencegah options sub-layanan ter-reset otomatis saat polling berkala atau scrolling.
      *
      * @return array<int, array{code: string, label: string}>
      */
@@ -250,6 +250,17 @@ class ChatbotMenuService
             return [];
         }
 
+        // Cek pesan terakhir percakapan secara keseluruhan
+        $latestMessage = $conversation->messages()->latest('id')->first();
+        if (! $latestMessage) {
+            return $this->getMainMenuOptions();
+        }
+
+        // Jika pesan terakhir dari bot adalah sambutan Menu Utama
+        if ($latestMessage->sender_type === 'bot' && str_contains($latestMessage->message, 'Selamat datang di Layanan Informasi')) {
+            return $this->getMainMenuOptions();
+        }
+
         // Ambil pesan user terakhir untuk mendeteksi konteks sub-menu yang sedang dibuka
         $lastUserMsg = $conversation->messages()
             ->where('sender_type', 'user')
@@ -262,7 +273,7 @@ class ChatbotMenuService
 
         $input = trim(mb_strtolower($lastUserMsg->message));
 
-        // Jika user secara eksplisit kembali ke menu utama
+        // Jika user secara eksplisit kembali ke menu utama (0, menu, batal, kembali)
         if (in_array($input, ['0', 'menu', 'batal', 'kembali'], true)) {
             return $this->getMainMenuOptions();
         }
@@ -291,22 +302,6 @@ class ChatbotMenuService
                 return $this->getPaymentSubMenuOptions();
             }
             return $this->getCampusCategoryOptions();
-        }
-
-        // Fallback: periksa pesan bot terakhir
-        $lastBotMsg = $conversation->messages()
-            ->where('sender_type', 'bot')
-            ->latest('id')
-            ->first();
-
-        if ($lastBotMsg) {
-            $botText = $lastBotMsg->message;
-            if (str_contains($botText, '2. INFORMASI PEMBAYARAN') || str_contains($botText, '2.1 JADWAL') || str_contains($botText, '2.2 PANDUAN') || str_contains($botText, '2.3 ALUR')) {
-                return $this->getPaymentSubMenuOptions();
-            }
-            if (str_contains($botText, '1. INFORMASI KAMPUS') || str_contains($botText, 'Sub-Layanan:') || str_contains($botText, 'Pilih sub-kategori')) {
-                return $this->getCampusCategoryOptions();
-            }
         }
 
         return $this->getMainMenuOptions();
