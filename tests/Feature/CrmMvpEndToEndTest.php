@@ -36,9 +36,7 @@ class CrmMvpEndToEndTest extends TestCase
             'is_published' => false,
         ]);
 
-        $this->get('/')->assertRedirect('/admin');
-
-        $response = $this->get('/portal');
+        $response = $this->get('/');
 
         $response->assertOk();
         $response->assertSee('Simulasi Akademik');
@@ -91,7 +89,7 @@ class CrmMvpEndToEndTest extends TestCase
             'is_pinned' => '1',
         ])->assertRedirect('/admin/informations');
 
-        $this->get('/portal')->assertSee('Jadwal UAS Semester Ganjil Simulasi');
+        $this->get('/')->assertSee('Jadwal UAS Semester Ganjil Simulasi');
     }
 
     public function test_web_chatbot_shares_single_source_of_truth_and_transitions_to_waiting_admin(): void

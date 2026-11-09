@@ -9,9 +9,10 @@ class ExampleTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_root_redirects_to_admin_dashboard_and_portal_returns_200(): void
+    public function test_the_application_returns_a_successful_response(): void
     {
-        $this->get('/')->assertRedirect('/admin');
-        $this->get('/portal')->assertStatus(200);
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
     }
 }
