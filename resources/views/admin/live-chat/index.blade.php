@@ -7,7 +7,7 @@
         <div>
             <h1 class="text-2xl font-extrabold text-slate-900">Live Chat Admin Terpusat (Website & WhatsApp)</h1>
             <p class="text-sm text-slate-700">
-                Kelola percakapan mahasiswa dari kedua kanal dengan alur: <strong>Menunggu Admin</strong> &rarr; <strong>Ambil Alih (Admin Aktif)</strong> &rarr; <strong>Akhiri Percakapan (Selesai)</strong>.
+                Kelola percakapan mahasiswa dari kedua kanal dengan alur: <strong>Menunggu Admin</strong> &rarr; <strong>Ambil Alih (Admin Aktif)</strong> &rarr; <strong>Tinggalkan (Kembali ke Bot Aktif)</strong>.
             </p>
         </div>
     </div>
@@ -145,11 +145,11 @@
                         @if($activeConversation->status !== 'CLOSED')
                             <form action="{{ route('admin.live-chat.close', $activeConversation) }}"
                                   method="POST"
-                                  onsubmit="return confirm('Akhiri percakapan ini? Status akan menjadi Selesai dan Chatbot akan kembali aktif untuk sesi berikutnya.');">
+                                  onsubmit="return confirm('Tinggalkan percakapan ini? Status akan dialihkan kembali ke Bot Aktif agar mahasiswa langsung dilayani oleh Chatbot.');">
                                 @csrf
                                 <button type="submit"
                                         class="min-h-[44px] px-4 py-2 rounded bg-slate-800 text-white font-semibold text-xs sm:text-sm hover:bg-red-700">
-                                    Akhiri Percakapan
+                                    Tinggalkan (Kembali ke Bot)
                                 </button>
                             </form>
                         @endif

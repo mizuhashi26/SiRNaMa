@@ -30,7 +30,7 @@
     <header class="bg-unpam-navy text-white py-3 px-4 border-b border-slate-800">
         <div class="max-w-5xl mx-auto flex items-center justify-between">
             <div class="inline-flex items-center gap-2.5 font-bold text-sm sm:text-base text-white">
-                <span class="px-2 py-1 rounded bg-unpam-gold text-slate-950 font-extrabold text-xs">UNPAM</span>
+                <span class="px-2 py-1 rounded bg-teal-500 text-white font-extrabold text-xs border border-teal-300">UNPAM</span>
                 <span>Layanan Mahasiswa</span>
             </div>
         </div>

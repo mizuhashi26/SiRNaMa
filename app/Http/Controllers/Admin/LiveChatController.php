@@ -153,13 +153,15 @@ class LiveChatController extends Controller
     {
         $admin = Auth::user();
 
+        // Saat admin leave, alihkan status kembali ke BOT_ACTIVE (bukan selesai/closed)
         $conversation->update([
-            'status' => Conversation::STATUS_CLOSED,
+            'status' => Conversation::STATUS_BOT_ACTIVE,
+            'assigned_admin_id' => null,
             'closed_at' => now(),
             'last_message_at' => now(),
         ]);
 
-        $closingText = 'Percakapan dengan Admin telah diakhiri (Status: Selesai). Anda dapat kembali mengetik 0 atau memilih menu untuk dilayani oleh Chatbot.';
+        $closingText = 'Admin telah menyelesaikan pendampingan dan meninggalkan percakapan. Sesi otomatis dialihkan kembali ke Chatbot Layanan Mahasiswa (Status: Bot Aktif). Silakan pilih menu atau ketik pesan Anda.';
 
         $systemMsg = $conversation->messages()->create([
             'sender_type' => 'system',
@@ -178,7 +180,7 @@ class LiveChatController extends Controller
         }
 
         return redirect()->route('admin.live-chat.index', ['conversation_id' => $conversation->id])
-            ->with('success', 'Percakapan telah diakhiri (Status: Selesai). Chatbot siap melayani interaksi berikutnya.');
+            ->with('success', 'Admin telah meninggalkan percakapan. Sesi berhasil dialihkan kembali ke Chatbot aktif (Status: Bot Aktif).');
     }
 
     public function poll(Conversation $conversation): JsonResponse

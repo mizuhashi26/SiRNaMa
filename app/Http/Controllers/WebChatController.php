@@ -95,18 +95,7 @@ class WebChatController extends Controller
     ): array {
         $conversation->load('messages');
 
-        $options = $customOptions;
-        if ($options === null) {
-            if ($conversation->status === Conversation::STATUS_WAITING_ADMIN) {
-                $options = [
-                    ['code' => '0', 'label' => '0. Kembali ke Menu Bot'],
-                ];
-            } elseif ($conversation->status === Conversation::STATUS_ADMIN_ACTIVE) {
-                $options = [];
-            } else {
-                $options = $chatbot->getMainMenuOptions();
-            }
-        }
+        $options = $customOptions ?? $chatbot->resolveCurrentOptions($conversation);
 
         return [
             'conversation_id' => $conversation->id,

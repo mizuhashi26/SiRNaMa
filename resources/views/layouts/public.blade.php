@@ -9,11 +9,11 @@
 </head>
 <body class="min-h-screen flex flex-col bg-slate-50 text-slate-900 antialiased">
     <!-- Header & Navigasi Publik -->
-    <header class="bg-unpam-navy text-white border-b border-slate-800 sticky top-0 z-30">
+    <header class="bg-unpam-navy text-white sticky top-0 z-30 shadow-md">
         <div class="max-w-6xl mx-auto px-4 sm:px-6">
             <div class="flex items-center justify-between py-3.5 gap-4">
                 <a href="{{ route('public.index') }}" class="flex items-center gap-3 min-h-[44px] focus-visible:outline-unpam-gold">
-                    <div class="w-10 h-10 rounded-lg bg-unpam-gold text-slate-950 font-extrabold flex items-center justify-center text-sm tracking-tight shrink-0 shadow-sm">
+                    <div class="w-10 h-10 rounded-lg bg-unpam-gold text-slate-950 font-extrabold flex items-center justify-center text-sm tracking-tight shrink-0 shadow-sm border border-amber-300">
                         UNPAM
                     </div>
                     <div>
@@ -24,20 +24,20 @@
 
                 <nav aria-label="Navigasi Utama" class="hidden md:flex items-center gap-2">
                     <a href="{{ route('public.index') }}"
-                       class="min-h-[44px] inline-flex items-center px-3.5 py-2 rounded text-sm font-medium {{ request()->routeIs('public.index') && !request('kategori') ? 'bg-unpam-gold text-slate-950 font-semibold' : 'text-white hover:bg-slate-800' }}">
+                       class="min-h-[44px] inline-flex items-center px-3.5 py-2 rounded text-sm font-medium {{ request()->routeIs('public.index') && !request('kategori') ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
                         Semua Informasi
                     </a>
                     <a href="{{ route('public.index', ['kategori' => 'akademik']) }}"
-                       class="min-h-[44px] inline-flex items-center px-3.5 py-2 rounded text-sm font-medium {{ request('kategori') === 'akademik' ? 'bg-unpam-gold text-slate-950 font-semibold' : 'text-white hover:bg-slate-800' }}">
+                       class="min-h-[44px] inline-flex items-center px-3.5 py-2 rounded text-sm font-medium {{ request('kategori') === 'akademik' ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
                         Akademik
                     </a>
                     <a href="{{ route('public.index', ['kategori' => 'pembayaran']) }}"
-                       class="min-h-[44px] inline-flex items-center px-3.5 py-2 rounded text-sm font-medium {{ request('kategori') === 'pembayaran' ? 'bg-unpam-gold text-slate-950 font-semibold' : 'text-white hover:bg-slate-800' }}">
+                       class="min-h-[44px] inline-flex items-center px-3.5 py-2 rounded text-sm font-medium {{ request('kategori') === 'pembayaran' ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
                         Info Pembayaran
                     </a>
                     @auth
                         <a href="{{ route('admin.dashboard') }}"
-                           class="min-h-[44px] inline-flex items-center px-4 py-2 rounded text-sm font-semibold bg-unpam-gold text-slate-950 hover:bg-unpam-goldHover ml-2">
+                           class="min-h-[44px] inline-flex items-center px-4 py-2 rounded text-sm font-semibold bg-unpam-gold text-slate-950 hover:bg-unpam-goldHover ml-2 shadow-sm">
                             Dashboard Admin
                         </a>
                     @else
@@ -79,6 +79,8 @@
                 @endauth
             </nav>
         </div>
+        <!-- Garis Pemisah Tegas Antara Header dan Konten Halaman (Aksen Gold UNPAM) -->
+        <div class="h-1 bg-gradient-to-r from-amber-400 via-unpam-gold to-amber-500 w-full" role="presentation"></div>
     </header>
 
     <!-- Konten Utama -->

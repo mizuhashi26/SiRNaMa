@@ -19,7 +19,7 @@
         <article class="bg-white border border-slate-300 rounded-lg p-6 sm:p-8 space-y-6">
             <header class="space-y-3 border-b border-slate-200 pb-5">
                 <div class="flex flex-wrap items-center gap-2">
-                    <span class="inline-block text-xs font-bold px-2.5 py-1 rounded {{ $information->category === 'pembayaran' ? 'bg-amber-200 text-slate-950' : 'bg-slate-200 text-slate-900' }}">
+                    <span class="inline-block text-xs font-bold px-2.5 py-1 rounded {{ $information->category === 'pembayaran' ? 'bg-amber-100 text-slate-950 border border-amber-300' : 'bg-slate-200 text-slate-900' }}">
                         {{ $information->category_label }}
                     </span>
                     <span class="text-xs text-slate-600">

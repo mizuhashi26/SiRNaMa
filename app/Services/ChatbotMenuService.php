@@ -17,6 +17,12 @@ class ChatbotMenuService
         '1.6' => 'administrasi',
     ];
 
+    public const PAYMENT_SUBMENU_MAP = [
+        '2.1' => 'jadwal',
+        '2.2' => 'saluran',
+        '2.3' => 'kendala',
+    ];
+
     /**
      * Proses pesan masuk dari pengunjung website atau WhatsApp.
      *
@@ -32,8 +38,7 @@ class ChatbotMenuService
         $input = trim($rawInput);
         $normalized = mb_strtolower($input);
 
-        // Jika percakapan sebelumnya sudah CLOSED, interaksi baru membuka kembali sesi BOT_ACTIVE
-        // kecuali pengguna langsung memilih 3 (Hubungi Admin) yang akan diproses di bawah.
+        // Jika percakapan sebelumnya CLOSED, pesan baru membuka kembali sesi BOT_ACTIVE
         if ($conversation->status === Conversation::STATUS_CLOSED) {
             $conversation->status = Conversation::STATUS_BOT_ACTIVE;
             $conversation->closed_at = null;
@@ -63,7 +68,7 @@ class ChatbotMenuService
 
         // Jika sedang WAITING_ADMIN, izinkan kembali ke menu bot jika ketik 0 / menu / batal.
         if ($conversation->status === Conversation::STATUS_WAITING_ADMIN) {
-            if (in_array($normalized, ['0', 'menu', 'batal'], true)) {
+            if (in_array($normalized, ['0', 'menu', 'batal', 'kembali'], true)) {
                 $conversation->status = Conversation::STATUS_BOT_ACTIVE;
                 $conversation->save();
 
@@ -78,7 +83,7 @@ class ChatbotMenuService
                 ];
             }
 
-            // Jika mahasiswa memilih ulang tombol 3 saat sudah WAITING_ADMIN, beri konfirmasi singkat.
+            // Jika memilih 3 kembali saat sudah WAITING_ADMIN
             if (in_array($normalized, ['3', 'hubungi admin', 'admin'], true)) {
                 $replyText = 'Percakapan Anda sudah berada dalam antrean Menunggu Admin. Silakan tulis pesan atau pertanyaan Anda, Admin akan segera mengambil alih.';
                 $botMessage = $this->recordBotReply($conversation, $replyText);
@@ -88,18 +93,18 @@ class ChatbotMenuService
                     'user_message' => $userMessage,
                     'bot_message' => $botMessage,
                     'options' => [
-                        ['code' => '0', 'label' => '0. Kembali ke Menu Bot'],
+                        ['code' => '0', 'label' => '0. Kembali ke Menu Layanan'],
                     ],
                 ];
             }
 
-            // Pesan teks bebas dari mahasiswa saat WAITING_ADMIN disimpan untuk dibaca admin tanpa ditimpa menu bot.
+            // Pesan teks bebas dari mahasiswa disimpan untuk dibaca admin
             return [
                 'conversation' => $conversation->fresh(),
                 'user_message' => $userMessage,
                 'bot_message' => null,
                 'options' => [
-                    ['code' => '0', 'label' => '0. Kembali ke Menu Bot'],
+                    ['code' => '0', 'label' => '0. Kembali ke Menu Layanan'],
                 ],
             ];
         }
@@ -128,9 +133,9 @@ class ChatbotMenuService
             $conversation->save();
 
             return [
-                'text' => "Permintaan Anda telah masuk ke antrean dashboard CRM dengan status *Menunggu Admin*.\n\nSilakan ketik pertanyaan atau kendala Anda di bawah ini. Admin akan segera mengambil alih percakapan.\n(Ketik *0* jika ingin membatalkan dan kembali ke menu bot).",
+                'text' => "Permintaan Anda telah masuk ke antrean dashboard CRM dengan status *Menunggu Admin*.\n\nSilakan ketik pertanyaan atau kendala Anda di bawah ini. Admin akan segera mengambil alih percakapan.\n(Ketik *0* jika ingin membatalkan dan kembali ke menu layanan).",
                 'options' => [
-                    ['code' => '0', 'label' => '0. Kembali ke Menu Bot'],
+                    ['code' => '0', 'label' => '0. Kembali ke Menu Layanan'],
                 ],
             ];
         }
@@ -139,7 +144,15 @@ class ChatbotMenuService
         if (in_array($normalized, ['2', 'informasi pembayaran', 'pembayaran', 'bayar', 'tagihan', 'ukt'], true)) {
             return [
                 'text' => $this->buildPaymentInformationText(),
-                'options' => $this->getMainMenuOptions(),
+                'options' => $this->getPaymentSubMenuOptions(),
+            ];
+        }
+
+        // Sub-layanan Menu 2: 2.1, 2.2, 2.3
+        if (isset(self::PAYMENT_SUBMENU_MAP[$normalized]) || in_array($normalized, ['2.1', '2.2', '2.3', 'jadwal pembayaran', 'saluran pembayaran', 'kendala pembayaran'], true)) {
+            return [
+                'text' => $this->buildPaymentSubDetailText($normalized),
+                'options' => $this->getPaymentSubMenuOptions(), // Tetap di sub-layanan pembayaran sampai tekan 0!
             ];
         }
 
@@ -156,21 +169,29 @@ class ChatbotMenuService
         if ($matchedCategory !== null) {
             return [
                 'text' => $this->buildCategoryItemsText($matchedCategory),
-                'options' => $this->getCampusCategoryOptions(),
+                'options' => $this->getCampusCategoryOptions(), // Tetap di sub-layanan kampus sampai tekan 0!
             ];
         }
 
         // Detail item spesifik: format "info <id>" atau "detail <id>"
         if (preg_match('/^(?:info|detail)\s*(\d+)$/', $normalized, $matches)) {
             $infoId = (int) $matches[1];
+            $item = CampusInformation::published()->find($infoId);
+
+            if ($item && $item->category === 'pembayaran') {
+                return [
+                    'text' => $this->buildSingleInformationText($infoId),
+                    'options' => $this->getPaymentSubMenuOptions(),
+                ];
+            }
 
             return [
                 'text' => $this->buildSingleInformationText($infoId),
-                'options' => $this->getMainMenuOptions(),
+                'options' => $this->getCampusCategoryOptions(),
             ];
         }
 
-        // Default / Menu Utama (0, menu, halo, mulai, dll.)
+        // Default / Menu Utama (0, menu, halo, mulai, batal, kembali, dll.)
         return [
             'text' => $this->buildMainMenuText(),
             'options' => $this->getMainMenuOptions(),
@@ -193,7 +214,7 @@ class ChatbotMenuService
     public function buildMainMenuText(): string
     {
         return "Halo! Selamat datang di Layanan Informasi Mahasiswa UNPAM.\n\n"
-            . "Silakan pilih menu layanan dengan mengetik angka atau menekan tombol berikut:\n"
+            . "Silakan pilih menu layanan dengan mengetik angka atau menekan tombol di bawah:\n"
             . "1. Informasi Kampus\n"
             . "2. Informasi Pembayaran\n"
             . "3. Hubungi Admin";
@@ -212,6 +233,88 @@ class ChatbotMenuService
     }
 
     /**
+     * Tentukan daftar options yang sedang aktif berdasarkan state percakapan dan pesan terakhir.
+     * Mencegah options sub-layanan ter-reset otomatis saat polling berkala.
+     *
+     * @return array<int, array{code: string, label: string}>
+     */
+    public function resolveCurrentOptions(Conversation $conversation): array
+    {
+        if ($conversation->status === Conversation::STATUS_WAITING_ADMIN) {
+            return [
+                ['code' => '0', 'label' => '0. Kembali ke Menu Layanan'],
+            ];
+        }
+
+        if ($conversation->status === Conversation::STATUS_ADMIN_ACTIVE) {
+            return [];
+        }
+
+        // Ambil pesan user terakhir untuk mendeteksi konteks sub-menu yang sedang dibuka
+        $lastUserMsg = $conversation->messages()
+            ->where('sender_type', 'user')
+            ->latest('id')
+            ->first();
+
+        if (! $lastUserMsg) {
+            return $this->getMainMenuOptions();
+        }
+
+        $input = trim(mb_strtolower($lastUserMsg->message));
+
+        // Jika user secara eksplisit kembali ke menu utama
+        if (in_array($input, ['0', 'menu', 'batal', 'kembali'], true)) {
+            return $this->getMainMenuOptions();
+        }
+
+        // Konteks Menu 2: Informasi Pembayaran & Sub-Layanannya (2, 2.1, 2.2, 2.3)
+        if ($input === '2' ||
+            isset(self::PAYMENT_SUBMENU_MAP[$input]) ||
+            str_starts_with($input, '2.') ||
+            in_array($input, ['informasi pembayaran', 'pembayaran', 'bayar', 'tagihan', 'ukt'], true)) {
+            return $this->getPaymentSubMenuOptions();
+        }
+
+        // Konteks Menu 1: Informasi Kampus & Sub-Kategorinya (1, 1.1 s/d 1.6)
+        if ($input === '1' ||
+            isset(self::CATEGORY_MENU_MAP[$input]) ||
+            str_starts_with($input, '1.') ||
+            $this->matchCategoryByKeyword($input) !== null ||
+            in_array($input, ['informasi kampus', 'kampus'], true)) {
+            return $this->getCampusCategoryOptions();
+        }
+
+        // Konteks detail info spesifik: "info <id>"
+        if (preg_match('/^(?:info|detail)\s*(\d+)$/', $input, $matches)) {
+            $info = CampusInformation::published()->find((int) $matches[1]);
+            if ($info && $info->category === 'pembayaran') {
+                return $this->getPaymentSubMenuOptions();
+            }
+            return $this->getCampusCategoryOptions();
+        }
+
+        // Fallback: periksa pesan bot terakhir
+        $lastBotMsg = $conversation->messages()
+            ->where('sender_type', 'bot')
+            ->latest('id')
+            ->first();
+
+        if ($lastBotMsg) {
+            $botText = $lastBotMsg->message;
+            if (str_contains($botText, '2. INFORMASI PEMBAYARAN') || str_contains($botText, '2.1 JADWAL') || str_contains($botText, '2.2 PANDUAN') || str_contains($botText, '2.3 ALUR')) {
+                return $this->getPaymentSubMenuOptions();
+            }
+            if (str_contains($botText, '1. INFORMASI KAMPUS') || str_contains($botText, 'Sub-Layanan:') || str_contains($botText, 'Pilih sub-kategori')) {
+                return $this->getCampusCategoryOptions();
+            }
+        }
+
+        return $this->getMainMenuOptions();
+    }
+
+    /**
+     * Opsi sub-layanan untuk Menu 1 (Informasi Kampus).
+     *
      * @return array<int, array{code: string, label: string}>
      */
     public function getCampusCategoryOptions(): array
@@ -223,7 +326,22 @@ class ChatbotMenuService
             ['code' => '1.4', 'label' => '1.4 Pengumuman'],
             ['code' => '1.5', 'label' => '1.5 Kegiatan Kampus'],
             ['code' => '1.6', 'label' => '1.6 Administrasi'],
-            ['code' => '0', 'label' => '0. Menu Utama'],
+            ['code' => '0', 'label' => '0. Kembali ke Menu Layanan'],
+        ];
+    }
+
+    /**
+     * Opsi sub-layanan untuk Menu 2 (Informasi Pembayaran).
+     *
+     * @return array<int, array{code: string, label: string}>
+     */
+    public function getPaymentSubMenuOptions(): array
+    {
+        return [
+            ['code' => '2.1', 'label' => '2.1 Jadwal & Ketentuan'],
+            ['code' => '2.2', 'label' => '2.2 Saluran & VA Bank'],
+            ['code' => '2.3', 'label' => '2.3 Kendala Pembayaran'],
+            ['code' => '0', 'label' => '0. Kembali ke Menu Layanan'],
         ];
     }
 
@@ -239,7 +357,7 @@ class ChatbotMenuService
 
         $lines = [
             "*1. INFORMASI KAMPUS UNPAM*",
-            "Pilih sub-kategori informasi:",
+            "Pilih sub-kategori informasi kampus di bawah ini:",
             "1.1 Akademik",
             "1.2 Kalender Akademik",
             "1.3 Jadwal Perkuliahan & Ujian",
@@ -258,7 +376,7 @@ class ChatbotMenuService
             $lines[] = "\nBelum ada informasi kampus yang dipublikasikan saat ini.";
         }
 
-        $lines[] = "\nKetik kode sub-kategori (misal *1.1*) atau *0* untuk kembali ke Menu Utama.";
+        $lines[] = "\nKetik kode sub-kategori (misal *1.1*) atau tekan tombol. Anda akan tetap di menu ini sampai memilih *0* (Kembali ke Menu Layanan).";
 
         return implode("\n", $lines);
     }
@@ -274,16 +392,16 @@ class ChatbotMenuService
             ->get();
 
         if ($items->isEmpty()) {
-            return "*Kategori: {$label}*\nBelum ada informasi yang dipublikasikan pada kategori ini.\n\nKetik *1* untuk kategori lain atau *0* untuk Menu Utama.";
+            return "*Sub-Layanan: {$label}*\nBelum ada informasi yang dipublikasikan pada kategori ini.\n\nPilih sub-kategori lain atau ketik *0* untuk kembali ke Menu Layanan.";
         }
 
-        $lines = ["*Kategori: {$label}*"];
+        $lines = ["*Sub-Layanan: {$label}*"];
         foreach ($items as $index => $item) {
             $no = $index + 1;
             $lines[] = "\n{$no}. *{$item->title}*\n{$item->content}";
         }
 
-        $lines[] = "\nKetik *1* untuk sub-kategori lain, *2* untuk Informasi Pembayaran, *3* untuk Hubungi Admin, atau *0* untuk Menu Utama.";
+        $lines[] = "\nSilakan pilih sub-kategori lain pada tombol di bawah, atau tekan *0* untuk kembali ke Menu Layanan.";
 
         return implode("\n", $lines);
     }
@@ -299,21 +417,70 @@ class ChatbotMenuService
 
         $lines = [
             "*2. INFORMASI PEMBAYARAN KULIAH*",
-            "Informasi jadwal pembayaran dan administrasi perkuliahan semester berjalan.",
+            "Informasi resmi jadwal pembayaran, tata cara transaksi, dan administrasi keuangan mahasiswa UNPAM.\n",
+            "Pilih sub-layanan informasi pembayaran:",
+            "2.1 Jadwal & Ketentuan Pembayaran Kuliah",
+            "2.2 Saluran Pembayaran & Nomor Rekening / VA Bank",
+            "2.3 Alur Konfirmasi & Penyelesaian Kendala Pembayaran",
         ];
 
-        if ($items->isEmpty()) {
-            $lines[] = "\nSaat ini belum ada pengumuman jadwal pembayaran kuliah umum yang dipublikasikan.";
-        } else {
-            foreach ($items as $index => $item) {
-                $no = $index + 1;
-                $lines[] = "\n{$no}. *{$item->title}*\n{$item->content}";
+        if ($items->isNotEmpty()) {
+            $lines[] = "\n*Pengumuman Pembayaran Terbit:*";
+            foreach ($items as $item) {
+                $summary = $item->summary ?: mb_strimwidth(strip_tags($item->content), 0, 110, '...');
+                $lines[] = "- *{$item->title}*\n  {$summary}\n  _(Ketik *INFO {$item->id}* untuk detail lengkap)_";
             }
         }
 
-        $lines[] = "\nKetik *1* untuk Informasi Kampus, *3* untuk Hubungi Admin, atau *0* untuk Menu Utama.";
+        $lines[] = "\nKetik kode sub-layanan (misal *2.1*) atau tekan tombol di bawah. Anda akan tetap di menu ini sampai memilih *0* (Kembali ke Menu Layanan).";
 
         return implode("\n", $lines);
+    }
+
+    protected function buildPaymentSubDetailText(string $subCode): string
+    {
+        $code = self::PAYMENT_SUBMENU_MAP[$subCode] ?? $subCode;
+
+        if ($code === '2.1' || $code === 'jadwal' || str_contains($subCode, 'jadwal')) {
+            $info = CampusInformation::published()
+                ->where('category', 'pembayaran')
+                ->where(function ($q) {
+                    $q->where('slug', 'like', '%jadwal%')
+                      ->orWhere('title', 'like', '%jadwal%');
+                })
+                ->first();
+
+            $content = $info?->content ?? "Jadwal & Ketentuan Pembayaran Kuliah Semester Berjalan:\n1. Pembayaran Registrasi Awal: Tanggal 1 s/d 15 setiap awal semester.\n2. Pembayaran Angsuran UTS: Tanggal 1 s/d 10 sebelum UTS.\n3. Pembayaran Angsuran UAS: Tanggal 1 s/d 10 sebelum UAS.\n- Pastikan melakukan pembayaran sesuai rentang waktu yang telah ditetapkan.";
+
+            return "*2.1 JADWAL & KETENTUAN PEMBAYARAN KULIAH*\n\n"
+                . "{$content}\n\n"
+                . "Pilih sub-layanan pembayaran lainnya (2.2 / 2.3) atau tekan *0* untuk kembali ke Menu Layanan.";
+        }
+
+        if ($code === '2.2' || $code === 'saluran' || str_contains($subCode, 'saluran') || str_contains($subCode, 'bank')) {
+            $info = CampusInformation::published()
+                ->where('category', 'pembayaran')
+                ->where(function ($q) {
+                    $q->where('slug', 'like', '%panduan%')
+                      ->orWhere('slug', 'like', '%saluran%')
+                      ->orWhere('title', 'like', '%saluran%');
+                })
+                ->first();
+
+            $content = $info?->content ?? "Panduan Saluran Pembayaran Pendidikan UNPAM:\n1. Pembayaran melalui nomor Virtual Account (VA) Bank pada slip tagihan.\n2. Dapat dibayar melalui Teller, ATM, Mobile Banking, atau Internet Banking.\n3. Simpan struk/bukti transaksi pembayaran Anda sebagai arsip pribadi.";
+
+            return "*2.2 PANDUAN SALURAN & NOMOR REKENING / VA BANK*\n\n"
+                . "{$content}\n\n"
+                . "Pilih sub-layanan pembayaran lainnya (2.1 / 2.3) atau tekan *0* untuk kembali ke Menu Layanan.";
+        }
+
+        // 2.3 atau kendala
+        return "*2.3 ALUR KONFIRMASI & KENDALA PEMBAYARAN*\n\n"
+            . "Jika Anda mengalami kendala pembayaran:\n"
+            . "1. Pembayaran berhasil tapi status di sistem belum terverifikasi: Simpan bukti transfer dan sampaikan ke Admin Layanan.\n"
+            . "2. Pengajuan dispensasi/penundaan pembayaran karena kondisi khusus: Buat permohonan dispensasi dan koordinasikan dengan bagian keuangan.\n"
+            . "3. Anda dapat langsung memilih menu *3. Hubungi Admin* untuk terhubung dengan petugas CRM.\n\n"
+            . "Pilih sub-layanan pembayaran lainnya (2.1 / 2.2) atau tekan *0* untuk kembali ke Menu Layanan.";
     }
 
     protected function buildSingleInformationText(int $id): string
@@ -321,10 +488,10 @@ class ChatbotMenuService
         $item = CampusInformation::published()->find($id);
 
         if (! $item) {
-            return "Informasi dengan kode #{$id} tidak ditemukan atau belum dipublikasikan.\n\nKetik *1* untuk daftar Informasi Kampus atau *0* untuk Menu Utama.";
+            return "Informasi dengan kode #{$id} tidak ditemukan atau belum dipublikasikan.\n\nKetik *0* untuk kembali ke Menu Layanan.";
         }
 
-        return "*{$item->title}*\nKategori: {$item->category_label}\n\n{$item->content}\n\nKetik *1* untuk Informasi Kampus, *2* untuk Informasi Pembayaran, atau *3* untuk Hubungi Admin.";
+        return "*{$item->title}*\nKategori: {$item->category_label}\n\n{$item->content}\n\nSilakan pilih sub-layanan lain pada tombol di bawah, atau tekan *0* untuk kembali ke Menu Layanan.";
     }
 
     protected function recordBotReply(Conversation $conversation, string $message): ConversationMessage
@@ -342,4 +509,3 @@ class ChatbotMenuService
         return $botMsg;
     }
 }
-

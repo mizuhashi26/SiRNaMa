@@ -119,6 +119,16 @@ class CrmMvpEndToEndTest extends TestCase
             'Info Pembayaran UKT Semester Ini',
             collect($menu2Res->json('messages'))->last()['message']
         );
+        // Pastikan opsi Menu 2 menyajikan sub-layanan pembayaran 2.1, 2.2, 2.3 dan 0
+        $this->assertSame('2.1', $menu2Res->json('options.0.code'));
+
+        // Pilih Sub-layanan 2.1 -> Bot menjawab dan opsi TETAP berada di sub-layanan pembayaran (stay)
+        $sub21Res = $this->postJson('/chat/message', [
+            'message' => '2.1',
+        ]);
+        $sub21Res->assertOk();
+        $this->assertSame('2.1', $sub21Res->json('options.0.code'));
+        $this->assertSame('0', $sub21Res->json('options.3.code'));
 
         // Pilih Menu 3 (Hubungi Admin) -> status berubah menjadi WAITING_ADMIN
         $menu3Res = $this->postJson('/chat/message', [
@@ -204,15 +214,15 @@ class CrmMvpEndToEndTest extends TestCase
             'delivery_status' => 'sent_gateway',
         ]);
 
-        // 5. Admin mengakhiri percakapan -> status menjadi CLOSED
+        // 5. Admin leave / mengakhiri sesi admin -> status kembali menjadi BOT_ACTIVE (bukan CLOSED)
         $this->actingAs($admin)
             ->post("/admin/live-chat/{$conversation->id}/close")
             ->assertRedirect();
 
         $conversation->refresh();
-        $this->assertSame(Conversation::STATUS_CLOSED, $conversation->status);
+        $this->assertSame(Conversation::STATUS_BOT_ACTIVE, $conversation->status);
 
-        // 6. Mahasiswa mengirim pesan lagi setelah CLOSED -> bot kembali aktif melayani menu
+        // 6. Mahasiswa mengirim pesan lagi setelah admin leave -> bot langsung aktif melayani menu
         $reopenRes = $this->postJson('/api/webhook/fonnte', [
             'sender' => '6281200000001',
             'message' => '0',

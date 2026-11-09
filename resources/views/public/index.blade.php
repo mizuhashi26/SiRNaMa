@@ -4,8 +4,14 @@
 
 @section('content')
     <!-- Hero Fungsional & Pencarian -->
-    <section class="bg-unpam-navy text-white border-b border-slate-800 py-10 sm:py-12">
+    <section class="bg-unpam-navy text-white border-b-2 border-unpam-gold/40 py-10 sm:py-12 relative">
         <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <!-- Pemisah Visual dan Penanda Konteks -->
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-unpam-navyDark border border-unpam-gold/50 text-unpam-gold text-xs font-semibold mb-4 shadow-sm">
+                <span class="inline-block w-2 h-2 rounded-full bg-unpam-gold"></span>
+                <span>Pusat Informasi & Layanan Terpadu Mahasiswa</span>
+            </div>
+
             <div class="max-w-3xl space-y-4">
                 <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
                     Pusat Informasi Akademik, Jadwal Pembayaran, dan Layanan Mahasiswa
@@ -25,10 +31,10 @@
                                name="q"
                                value="{{ $search }}"
                                placeholder="Cari jadwal ujian, kalender akademik, atau informasi pembayaran..."
-                               class="w-full min-h-[44px] px-4 py-2.5 rounded bg-white text-slate-900 placeholder-slate-500 text-sm border border-slate-300">
+                               class="w-full min-h-[44px] px-4 py-2.5 rounded bg-white text-slate-900 placeholder-slate-500 text-sm border border-slate-300 focus:outline-unpam-gold">
                     </div>
                     <button type="submit"
-                            class="min-h-[44px] px-5 py-2.5 rounded bg-unpam-gold text-slate-950 font-bold text-sm hover:bg-unpam-goldHover shrink-0">
+                            class="min-h-[44px] px-5 py-2.5 rounded bg-unpam-gold text-slate-950 font-bold text-sm hover:bg-unpam-goldHover shadow-sm shrink-0">
                         Cari Informasi
                     </button>
                     @if($search !== '' || $selectedCategory !== '')
@@ -63,9 +69,9 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
                     @foreach($paymentInformations as $payInfo)
-                        <article class="bg-white border border-amber-300 rounded p-4 flex flex-col justify-between">
+                        <article class="bg-white border border-amber-200 rounded p-4 flex flex-col justify-between shadow-sm">
                             <div class="space-y-2">
-                                <span class="inline-block text-xs font-bold bg-amber-200 text-slate-900 px-2.5 py-0.5 rounded">
+                                <span class="inline-block text-xs font-bold bg-amber-100 text-slate-950 border border-amber-300 px-2.5 py-0.5 rounded">
                                     {{ $payInfo->category_label }}
                                 </span>
                                 <h3 class="font-bold text-base text-slate-900 leading-snug">
@@ -136,7 +142,7 @@
                         <article class="bg-white border border-slate-300 rounded-lg p-5 flex flex-col justify-between hover:border-slate-500 transition-colors">
                             <div class="space-y-2.5">
                                 <div class="flex items-center justify-between gap-2 flex-wrap">
-                                    <span class="inline-block text-xs font-semibold px-2.5 py-1 rounded {{ $info->category === 'pembayaran' ? 'bg-amber-200 text-slate-950' : 'bg-slate-200 text-slate-900' }}">
+                                    <span class="inline-block text-xs font-semibold px-2.5 py-1 rounded {{ $info->category === 'pembayaran' ? 'bg-amber-100 text-slate-950 border border-amber-300' : 'bg-slate-200 text-slate-900' }}">
                                         {{ $info->category_label }}
                                     </span>
                                     @if($info->is_pinned)

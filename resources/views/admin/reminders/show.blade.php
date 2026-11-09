@@ -17,7 +17,7 @@
                       onsubmit="return confirm('Kirim pengingat ini sekarang ke seluruh mahasiswa aktif?');">
                     @csrf
                     <button type="submit"
-                            class="min-h-[44px] px-4 py-2 rounded bg-unpam-gold text-slate-950 text-sm font-bold hover:bg-unpam-goldHover">
+                            class="min-h-[44px] px-4 py-2 rounded bg-unpam-gold text-slate-950 text-sm font-bold hover:bg-unpam-goldHover shadow-sm">
                         Kirim Manual Sekarang via Fonnte
                     </button>
                 </form>

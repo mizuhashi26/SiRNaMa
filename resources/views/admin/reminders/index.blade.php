@@ -103,7 +103,7 @@
                                               onsubmit="return confirm('Kirim reminder ini sekarang ke seluruh mahasiswa aktif?');">
                                             @csrf
                                             <button type="submit"
-                                                    class="min-h-[40px] px-3 py-1.5 rounded bg-unpam-gold text-slate-950 text-xs font-bold hover:bg-unpam-goldHover">
+                                                    class="min-h-[40px] px-3 py-1.5 rounded bg-unpam-gold text-slate-950 text-xs font-bold hover:bg-unpam-goldHover shadow-sm">
                                                 Kirim Manual
                                             </button>
                                         </form>

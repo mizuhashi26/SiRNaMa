@@ -19,7 +19,7 @@
                 + Tambah Informasi Kampus
             </a>
             <a href="{{ route('admin.reminders.create') }}"
-               class="min-h-[44px] inline-flex items-center px-4 py-2 rounded bg-unpam-gold text-slate-950 text-sm font-bold hover:bg-unpam-goldHover">
+               class="min-h-[44px] inline-flex items-center px-4 py-2 rounded bg-unpam-gold text-slate-950 text-sm font-bold hover:bg-unpam-goldHover shadow-sm">
                 + Buat Reminder Pembayaran
             </a>
         </div>
