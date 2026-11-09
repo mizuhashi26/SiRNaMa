@@ -1,16 +1,16 @@
 @extends('layouts.admin')
 
-@section('title', ($isEdit ? 'Ubah Data Mahasiswa' : 'Tambah Mahasiswa Dummy') . ' - Admin CRM UNPAM')
+@section('title', ($isEdit ? 'Ubah Data Mahasiswa' : 'Tambah Mahasiswa') . ' - Admin UNPAM')
 
 @section('content')
     <div class="max-w-2xl mx-auto space-y-6">
         <div class="flex items-center justify-between gap-4 border-b border-slate-300 pb-4">
             <div>
                 <h1 class="text-2xl font-extrabold text-slate-900">
-                    {{ $isEdit ? 'Ubah Data Mahasiswa Simulasi' : 'Tambah Data Mahasiswa Simulasi' }}
+                    {{ $isEdit ? 'Ubah Data Mahasiswa' : 'Tambah Data Mahasiswa' }}
                 </h1>
                 <p class="text-sm text-slate-700">
-                    Gunakan data dummy atau nomor pengujian Anda sendiri (jangan menyimpan data pribadi mahasiswa sungguhan tanpa izin).
+                    Kelola data mahasiswa dan nomor kontak WhatsApp aktif.
                 </p>
             </div>
             <a href="{{ route('admin.students.index') }}"
@@ -30,7 +30,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label for="nim" class="block text-sm font-bold text-slate-900 mb-1">
-                        NIM Simulasi <span class="text-red-700">*</span>
+                        NIM <span class="text-red-700">*</span>
                     </label>
                     <input type="text"
                            id="nim"
@@ -52,20 +52,20 @@
                            required
                            placeholder="Contoh: 081234567890 atau 6281234567890"
                            class="w-full min-h-[44px] px-3.5 py-2 rounded border border-slate-400 text-sm text-slate-900 font-mono">
-                    <p class="text-xs text-slate-600 mt-1">Otomatis dinormalisasi ke awalan 628 saat disimpan.</p>
+                    <p class="text-xs text-slate-600 mt-1">Otomatis dinormalisasi ke format 628 saat disimpan.</p>
                 </div>
             </div>
 
             <div>
                 <label for="name" class="block text-sm font-bold text-slate-900 mb-1">
-                    Nama Lengkap Mahasiswa (Dummy) <span class="text-red-700">*</span>
+                    Nama Lengkap Mahasiswa <span class="text-red-700">*</span>
                 </label>
                 <input type="text"
                        id="name"
                        name="name"
                        value="{{ old('name', $student->name) }}"
                        required
-                       placeholder="Contoh: Rizky Pratama (Simulasi)"
+                       placeholder="Contoh: Rizky Pratama"
                        class="w-full min-h-[44px] px-3.5 py-2 rounded border border-slate-400 text-sm text-slate-900">
             </div>
 
@@ -100,13 +100,13 @@
 
             <div>
                 <label for="notes" class="block text-sm font-bold text-slate-900 mb-1">
-                    Catatan Simulasi (Opsional)
+                    Catatan (Opsional)
                 </label>
                 <input type="text"
                        id="notes"
                        name="notes"
                        value="{{ old('notes', $student->notes) }}"
-                       placeholder="Contoh: Nomor HP penguji untuk demo presentasi"
+                       placeholder="Catatan tambahan mahasiswa"
                        class="w-full min-h-[44px] px-3.5 py-2 rounded border border-slate-400 text-sm text-slate-900">
             </div>
 

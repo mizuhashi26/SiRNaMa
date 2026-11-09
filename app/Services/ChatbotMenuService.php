@@ -192,7 +192,7 @@ class ChatbotMenuService
 
     public function buildMainMenuText(): string
     {
-        return "Halo! Selamat datang di Layanan Informasi Mahasiswa UNPAM *(Simulasi Akademik CRM)*.\n\n"
+        return "Halo! Selamat datang di Layanan Informasi Mahasiswa UNPAM.\n\n"
             . "Silakan pilih menu layanan dengan mengetik angka atau menekan tombol berikut:\n"
             . "1. Informasi Kampus\n"
             . "2. Informasi Pembayaran\n"
@@ -238,7 +238,7 @@ class ChatbotMenuService
             ->get();
 
         $lines = [
-            "*1. INFORMASI KAMPUS (SIMULASI UNPAM)*",
+            "*1. INFORMASI KAMPUS UNPAM*",
             "Pilih sub-kategori informasi:",
             "1.1 Akademik",
             "1.2 Kalender Akademik",
@@ -277,7 +277,7 @@ class ChatbotMenuService
             return "*Kategori: {$label}*\nBelum ada informasi yang dipublikasikan pada kategori ini.\n\nKetik *1* untuk kategori lain atau *0* untuk Menu Utama.";
         }
 
-        $lines = ["*Kategori: {$label} (Simulasi)*"];
+        $lines = ["*Kategori: {$label}*"];
         foreach ($items as $index => $item) {
             $no = $index + 1;
             $lines[] = "\n{$no}. *{$item->title}*\n{$item->content}";
@@ -298,8 +298,8 @@ class ChatbotMenuService
             ->get();
 
         $lines = [
-            "*2. INFORMASI PEMBAYARAN KULIAH UMUM (SIMULASI)*",
-            "_(Catatan: Informasi ini bersifat umum untuk seluruh mahasiswa pada simulasi akademik, bukan tagihan individual.)_",
+            "*2. INFORMASI PEMBAYARAN KULIAH*",
+            "Informasi jadwal pembayaran dan administrasi perkuliahan semester berjalan.",
         ];
 
         if ($items->isEmpty()) {
@@ -324,7 +324,7 @@ class ChatbotMenuService
             return "Informasi dengan kode #{$id} tidak ditemukan atau belum dipublikasikan.\n\nKetik *1* untuk daftar Informasi Kampus atau *0* untuk Menu Utama.";
         }
 
-        return "*{$item->title}*\nKategori: {$item->category_label} _(Simulasi)_\n\n{$item->content}\n\nKetik *1* untuk Informasi Kampus, *2* untuk Informasi Pembayaran, atau *3* untuk Hubungi Admin.";
+        return "*{$item->title}*\nKategori: {$item->category_label}\n\n{$item->content}\n\nKetik *1* untuk Informasi Kampus, *2* untuk Informasi Pembayaran, atau *3* untuk Hubungi Admin.";
     }
 
     protected function recordBotReply(Conversation $conversation, string $message): ConversationMessage

@@ -1,16 +1,16 @@
 @extends('layouts.admin')
 
-@section('title', 'Ringkasan Tugas Admin - CRM Layanan Mahasiswa UNPAM')
+@section('title', 'Ringkasan Tugas Admin - Layanan Mahasiswa UNPAM')
 
 @section('content')
     <!-- Header Halaman & Tindakan Cepat -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-300 pb-5">
         <div>
             <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">
-                Pusat Kendali Admin CRM
+                Pusat Kendali Admin
             </h1>
             <p class="text-sm text-slate-700 mt-1">
-                Kelola antrean percakapan mahasiswa, publikasi informasi satu pintu, dan pengiriman reminder pembayaran umum.
+                Kelola antrean percakapan mahasiswa, publikasi informasi satu pintu, dan pengiriman pengingat pembayaran.
             </p>
         </div>
         <div class="flex flex-wrap gap-2.5">
@@ -33,17 +33,17 @@
                 <h2 class="text-sm font-bold text-slate-900">
                     Status WhatsApp Gateway (Fonnte):
                     @if($fonnteConfigured)
-                        <span class="text-emerald-800">Token Terkonfigurasi di .env</span>
+                        <span class="text-emerald-800">Token Terkonfigurasi</span>
                     @else
-                        <span class="text-amber-900">Token Belum Diisi (Mode Fallback Demo Lokal)</span>
+                        <span class="text-amber-900">Token Belum Diisi</span>
                     @endif
                 </h2>
             </div>
             <p class="text-xs text-slate-700">
                 @if($fonnteConfigured)
-                    Pengiriman reminder dan balasan WhatsApp akan dikirim ke API Fonnte. Untuk menerima pesan masuk secara lokal, pastikan tunnel publik (ngrok) mengarah ke <code class="font-mono bg-slate-100 px-1 py-0.5 rounded">/api/webhook/fonnte</code>.
+                    Pengiriman pengingat dan balasan WhatsApp dikirim melalui gateway Fonnte.
                 @else
-                    Isi variabel <code class="font-mono bg-slate-100 px-1 py-0.5 rounded">FONNTE_TOKEN</code> pada file <code class="font-mono bg-slate-100 px-1 py-0.5 rounded">.env</code> untuk menguji pengiriman WhatsApp sungguhan. Tanpa token, pengiriman dicatat secara jujur sebagai <em>belum terverifikasi</em>.
+                    Masukkan token Fonnte pada file konfigurasi untuk menghubungkan layanan WhatsApp.
                 @endif
             </p>
         </div>

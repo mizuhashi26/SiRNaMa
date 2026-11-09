@@ -1,39 +1,38 @@
 @extends('layouts.admin')
 
-@section('title', 'Reminder Pembayaran Umum - Dashboard Admin CRM UNPAM')
+@section('title', 'Reminder Pembayaran - Dashboard Admin UNPAM')
 
 @section('content')
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-300 pb-4">
         <div>
-            <h1 class="text-2xl font-extrabold text-slate-900">Reminder Pembayaran Kuliah Umum</h1>
+            <h1 class="text-2xl font-extrabold text-slate-900">Pengingat Pembayaran Kuliah</h1>
             <p class="text-sm text-slate-700">
-                Kirim pengingat jadwal pembayaran umum ke seluruh mahasiswa aktif ({{ $activeStudentCount }} nomor terdaftar) secara manual maupun terjadwal.
+                Kirim pengingat jadwal pembayaran ke seluruh mahasiswa aktif ({{ $activeStudentCount }} nomor terdaftar) secara manual maupun terjadwal.
             </p>
         </div>
         <a href="{{ route('admin.reminders.create') }}"
            class="min-h-[44px] inline-flex items-center px-4 py-2.5 rounded bg-unpam-navy text-white text-sm font-bold hover:bg-unpam-navyDark self-start sm:self-auto">
-            + Buat Reminder Baru
+            + Buat Pengingat Baru
         </a>
     </div>
 
-    <div class="bg-amber-50 border border-amber-300 rounded-lg p-4 text-xs sm:text-sm text-slate-900 space-y-1">
-        <p class="font-bold">Batasan MVP & Status Integrasi Fonnte:</p>
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-xs sm:text-sm text-slate-900 space-y-1">
+        <p class="font-bold">Status Layanan Gateway WhatsApp (Fonnte):</p>
         <p>
-            Reminder ini berlaku untuk pengingat pembayaran umum seluruh mahasiswa, bukan perhitungan tagihan individual.
-            Status Token Fonnte saat ini:
-            <strong>{{ $fonnteConfigured ? 'TERKONFIGURASI (Siap Kirim ke API Fonnte)' : 'BELUM DIISI DI .ENV (Mode Pencatatan Log Belum Terverifikasi)' }}</strong>.
+            Status koneksi Fonnte:
+            <strong>{{ $fonnteConfigured ? 'TERHUBUNG (Pesan dikirim via API Fonnte)' : 'BELUM DIKONFIGURASI (Masukkan token Fonnte pada file konfigurasi)' }}</strong>.
         </p>
     </div>
 
     @if($reminders->isEmpty())
         <div class="bg-white border border-slate-300 rounded-lg p-8 text-center space-y-3">
-            <h2 class="text-base font-bold text-slate-900">Belum Ada Jadwal Reminder Pembayaran</h2>
+            <h2 class="text-base font-bold text-slate-900">Belum Ada Jadwal Pengingat Pembayaran</h2>
             <p class="text-sm text-slate-700">
-                Buat jadwal pengingat pembayaran umum untuk dikirimkan ke daftar nomor WhatsApp mahasiswa simulasi.
+                Buat jadwal pengingat pembayaran untuk dikirimkan ke daftar nomor WhatsApp mahasiswa.
             </p>
             <a href="{{ route('admin.reminders.create') }}"
                class="min-h-[44px] inline-flex items-center px-4 py-2 rounded bg-unpam-navy text-white text-sm font-bold">
-                + Buat Reminder Pembayaran
+                + Buat Pengingat Pembayaran
             </a>
         </div>
     @else

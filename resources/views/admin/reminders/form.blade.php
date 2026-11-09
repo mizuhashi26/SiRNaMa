@@ -1,16 +1,16 @@
 @extends('layouts.admin')
 
-@section('title', ($isEdit ? 'Ubah Reminder Pembayaran' : 'Buat Reminder Pembayaran') . ' - Admin CRM UNPAM')
+@section('title', ($isEdit ? 'Ubah Pengingat Pembayaran' : 'Buat Pengingat Pembayaran') . ' - Admin UNPAM')
 
 @section('content')
     <div class="max-w-2xl mx-auto space-y-6">
         <div class="flex items-center justify-between gap-4 border-b border-slate-300 pb-4">
             <div>
                 <h1 class="text-2xl font-extrabold text-slate-900">
-                    {{ $isEdit ? 'Ubah Reminder Pembayaran Umum' : 'Buat Reminder Pembayaran Umum' }}
+                    {{ $isEdit ? 'Ubah Pengingat Pembayaran' : 'Buat Pengingat Pembayaran' }}
                 </h1>
                 <p class="text-sm text-slate-700">
-                    Target pengiriman saat ini: <strong>{{ $activeStudentCount }} mahasiswa simulasi aktif</strong>.
+                    Target pengiriman saat ini: <strong>{{ $activeStudentCount }} mahasiswa aktif</strong>.
                 </p>
             </div>
             <a href="{{ route('admin.reminders.index') }}"
@@ -29,14 +29,14 @@
 
             <div>
                 <label for="title" class="block text-sm font-bold text-slate-900 mb-1">
-                    Judul Reminder Pembayaran <span class="text-red-700">*</span>
+                    Judul Pengingat Pembayaran <span class="text-red-700">*</span>
                 </label>
                 <input type="text"
                        id="title"
                        name="title"
                        value="{{ old('title', $reminder->title) }}"
                        required
-                       placeholder="Contoh: Pengingat Pembayaran Registrasi & UKT Semester Ganjil (Simulasi)"
+                       placeholder="Contoh: Pengingat Pembayaran Registrasi & UKT Semester Ganjil"
                        class="w-full min-h-[44px] px-3.5 py-2 rounded border border-slate-400 text-sm text-slate-900">
             </div>
 
@@ -65,7 +65,7 @@
                           placeholder="Tuliskan informasi batas waktu pembayaran umum, tata cara pembayaran, atau imbauan akademik..."
                           class="w-full px-3.5 py-2 rounded border border-slate-400 text-sm text-slate-900">{{ old('message', $reminder->message) }}</textarea>
                 <p class="text-xs text-slate-600 mt-1">
-                    Sistem otomatis menambahkan sapaan nama/NIM mahasiswa dan penanda bahwa pesan ini adalah simulasi akademik.
+                    Sistem otomatis menambahkan sapaan nama/NIM mahasiswa pada pesan pengingat.
                 </p>
             </div>
 

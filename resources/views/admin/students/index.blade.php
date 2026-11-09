@@ -1,18 +1,18 @@
 @extends('layouts.admin')
 
-@section('title', 'Data Mahasiswa Simulasi - Dashboard Admin CRM UNPAM')
+@section('title', 'Data Mahasiswa - Dashboard Admin UNPAM')
 
 @section('content')
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-300 pb-4">
         <div>
-            <h1 class="text-2xl font-extrabold text-slate-900">Data Mahasiswa Simulasi (Dummy)</h1>
+            <h1 class="text-2xl font-extrabold text-slate-900">Data Mahasiswa</h1>
             <p class="text-sm text-slate-700">
-                Daftar nomor WhatsApp mahasiswa simulasi yang menerima pengiriman Reminder Pembayaran Umum.
+                Daftar nomor WhatsApp mahasiswa penerima pengingat pembayaran dan layanan informasi.
             </p>
         </div>
         <a href="{{ route('admin.students.create') }}"
            class="min-h-[44px] inline-flex items-center px-4 py-2.5 rounded bg-unpam-navy text-white text-sm font-bold hover:bg-unpam-navyDark self-start sm:self-auto">
-            + Tambah Mahasiswa Dummy
+            + Tambah Mahasiswa
         </a>
     </div>
 
@@ -50,13 +50,13 @@
 
     @if($students->isEmpty())
         <div class="bg-white border border-slate-300 rounded-lg p-8 text-center space-y-3">
-            <h2 class="text-base font-bold text-slate-900">Belum Ada Data Mahasiswa Simulasi</h2>
+            <h2 class="text-base font-bold text-slate-900">Belum Ada Data Mahasiswa</h2>
             <p class="text-sm text-slate-700">
-                Tambahkan data mahasiswa dummy beserta nomor WhatsApp pengujian untuk mencoba pengiriman reminder pembayaran.
+                Tambahkan data mahasiswa beserta nomor WhatsApp untuk mengaktifkan pengiriman pengingat pembayaran.
             </p>
             <a href="{{ route('admin.students.create') }}"
                class="min-h-[44px] inline-flex items-center px-4 py-2 rounded bg-unpam-navy text-white text-sm font-bold">
-                + Tambah Mahasiswa Dummy
+                + Tambah Mahasiswa
             </a>
         </div>
     @else

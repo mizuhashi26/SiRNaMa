@@ -31,7 +31,7 @@
         <div class="max-w-5xl mx-auto flex items-center justify-between">
             <div class="inline-flex items-center gap-2.5 font-bold text-sm sm:text-base text-white">
                 <span class="px-2 py-1 rounded bg-unpam-gold text-slate-950 font-extrabold text-xs">UNPAM</span>
-                <span>CRM Layanan Mahasiswa (Simulasi)</span>
+                <span>Layanan Mahasiswa</span>
             </div>
         </div>
     </header>
@@ -61,7 +61,7 @@
     </main>
 
     <footer class="py-4 text-center text-xs text-slate-600">
-        Simulasi Akademik CRM Layanan Mahasiswa - Studi Kasus UNPAM
+        Portal Informasi & Layanan Mahasiswa Universitas Pamulang
     </footer>
 </body>
 </html>

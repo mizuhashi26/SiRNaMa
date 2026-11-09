@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Detail & Log Reminder Pembayaran - Admin CRM UNPAM')
+@section('title', 'Detail & Log Pengingat Pembayaran - Admin UNPAM')
 
 @section('content')
     <div class="space-y-6">
@@ -8,13 +8,13 @@
             <div>
                 <h1 class="text-2xl font-extrabold text-slate-900">{{ $reminder->title }}</h1>
                 <p class="text-sm text-slate-700">
-                    Detail pesan reminder pembayaran umum dan riwayat pengiriman per mahasiswa dummy.
+                    Detail pesan pengingat pembayaran dan riwayat pengiriman per mahasiswa.
                 </p>
             </div>
             <div class="flex flex-wrap gap-2">
                 <form action="{{ route('admin.reminders.send-now', $reminder) }}"
                       method="POST"
-                      onsubmit="return confirm('Kirim reminder ini sekarang ke seluruh mahasiswa aktif?');">
+                      onsubmit="return confirm('Kirim pengingat ini sekarang ke seluruh mahasiswa aktif?');">
                     @csrf
                     <button type="submit"
                             class="min-h-[44px] px-4 py-2 rounded bg-unpam-gold text-slate-950 text-sm font-bold hover:bg-unpam-goldHover">

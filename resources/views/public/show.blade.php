@@ -1,6 +1,6 @@
 @extends('layouts.public')
 
-@section('title', $information->title . ' - Informasi Mahasiswa UNPAM (Simulasi)')
+@section('title', $information->title . ' - Informasi Mahasiswa UNPAM')
 
 @section('content')
     <div class="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-8">
@@ -21,9 +21,6 @@
                 <div class="flex flex-wrap items-center gap-2">
                     <span class="inline-block text-xs font-bold px-2.5 py-1 rounded {{ $information->category === 'pembayaran' ? 'bg-amber-200 text-slate-950' : 'bg-slate-200 text-slate-900' }}">
                         {{ $information->category_label }}
-                    </span>
-                    <span class="inline-block text-xs font-semibold px-2.5 py-1 rounded bg-amber-100 text-slate-900 border border-amber-300">
-                        Konten Simulasi Akademik
                     </span>
                     <span class="text-xs text-slate-600">
                         Dipublikasikan pada {{ $information->published_at?->format('d F Y, H:i') ?? $information->created_at->format('d F Y, H:i') }} WIB

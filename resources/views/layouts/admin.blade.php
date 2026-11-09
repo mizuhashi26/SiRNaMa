@@ -19,11 +19,11 @@
                 <div class="flex items-center gap-3">
                     <a href="{{ route('admin.dashboard') }}" class="min-h-[44px] inline-flex items-center gap-2.5">
                         <span class="px-2.5 py-1 rounded bg-unpam-gold text-slate-950 font-extrabold text-xs tracking-tight">
-                            CRM UNPAM
+                            UNPAM
                         </span>
                         <div>
                             <span class="block font-bold text-sm sm:text-base text-white leading-tight">Dashboard Admin Layanan</span>
-                            <span class="block text-[11px] text-slate-200">Mode Simulasi Akademik</span>
+                            <span class="block text-[11px] text-slate-300">Universitas Pamulang</span>
                         </div>
                     </a>
                 </div>
@@ -145,8 +145,8 @@
 
     <footer class="bg-white border-t border-slate-300 py-4 px-4 sm:px-6 text-xs text-slate-600">
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-            <span>CRM Layanan Mahasiswa UNPAM (Aplikasi Mandiri Simulasi Tugas Kuliah)</span>
-            <span>Seluruh data mahasiswa, nomor WhatsApp, dan jadwal pembayaran bersifat simulasi (dummy).</span>
+            <span>Portal Pengelolaan Layanan Mahasiswa UNPAM</span>
+            <span>Universitas Pamulang</span>
         </div>
     </footer>
 

@@ -36,7 +36,7 @@
                        name="title"
                        value="{{ old('title', $information->title) }}"
                        required
-                       placeholder="Contoh: Jadwal Ujian Akhir Semester (UAS) Ganjil Simulasi"
+                       placeholder="Contoh: Jadwal Ujian Akhir Semester (UAS) Ganjil"
                        class="w-full min-h-[44px] px-3.5 py-2 rounded border border-slate-400 text-sm text-slate-900">
             </div>
 

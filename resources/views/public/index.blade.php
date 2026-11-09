@@ -1,6 +1,6 @@
 @extends('layouts.public')
 
-@section('title', 'Pusat Informasi Kampus & Layanan Mahasiswa - Studi Kasus UNPAM')
+@section('title', 'Pusat Informasi Kampus & Layanan Mahasiswa UNPAM')
 
 @section('content')
     <!-- Hero Fungsional & Pencarian -->
@@ -49,10 +49,10 @@
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-amber-200">
                     <div>
                         <h2 id="heading-payment-highlight" class="text-lg sm:text-xl font-bold text-slate-900">
-                            Pengumuman & Jadwal Pembayaran Kuliah Umum (Simulasi)
+                            Pengumuman & Jadwal Pembayaran Kuliah
                         </h2>
                         <p class="text-xs sm:text-sm text-slate-700">
-                            Berlaku sebagai informasi pengingat pembayaran umum bagi mahasiswa, bukan perhitungan tagihan individual.
+                            Informasi jadwal pembayaran dan administrasi perkuliahan semester berjalan.
                         </p>
                     </div>
                     <a href="{{ route('public.index', ['kategori' => 'pembayaran']) }}"

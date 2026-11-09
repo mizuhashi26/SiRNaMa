@@ -33,7 +33,7 @@ class ReminderDispatchService
                 'total_targets' => 0,
                 'sent_count' => 0,
                 'failed_count' => 0,
-                'last_error' => 'Tidak ada mahasiswa aktif pada daftar simulasi.',
+                'last_error' => 'Tidak ada mahasiswa aktif terdaftar.',
             ]);
 
             return [
@@ -51,11 +51,11 @@ class ReminderDispatchService
         $unverifiedNoToken = false;
 
         foreach ($students as $student) {
-            $formattedMessage = "[SIMULASI AKADEMIK UNPAM - REMINDER PEMBAYARAN UMUM]\n"
+            $formattedMessage = "[PENGINGAT PEMBAYARAN - UNIVERSITAS PAMULANG]\n"
                 . "Yth. {$student->name} ({$student->nim}),\n\n"
                 . "*{$reminder->title}*\n"
                 . "{$reminder->message}\n\n"
-                . "_Pesan ini adalah simulasi sistem CRM tugas kuliah, bukan tagihan resmi UNPAM._";
+                . "Biro Administrasi & Keuangan Universitas Pamulang";
 
             $result = $this->fonnteService->sendMessage($student->whatsapp_number, $formattedMessage);
 

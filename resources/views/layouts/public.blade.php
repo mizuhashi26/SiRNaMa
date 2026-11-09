@@ -4,34 +4,21 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Pusat Informasi & Layanan Mahasiswa - Studi Kasus UNPAM')</title>
+    <title>@yield('title', 'Pusat Informasi & Layanan Mahasiswa UNPAM')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen flex flex-col bg-slate-50 text-slate-900 antialiased">
-    <!-- Banner Simulasi Akademik Wajib -->
-    <div class="bg-unpam-goldSoft border-b border-amber-300 text-slate-900 text-xs sm:text-sm py-2 px-4">
-        <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2">
-            <p class="font-medium">
-                <span class="inline-block font-bold uppercase tracking-wider bg-amber-300 text-slate-950 px-2 py-0.5 rounded mr-1.5">Simulasi Akademik</span>
-                Aplikasi CRM mandiri untuk tugas mata kuliah (Studi Kasus UNPAM). Bukan sistem atau pengumuman resmi Universitas Pamulang.
-            </p>
-            <a href="#chatbot-trigger" onclick="window.openUnpamChat && window.openUnpamChat(); return false;" class="underline font-semibold text-slate-900 hover:text-unpam-navy">
-                Buka Layanan Chat Mahasiswa
-            </a>
-        </div>
-    </div>
-
     <!-- Header & Navigasi Publik -->
     <header class="bg-unpam-navy text-white border-b border-slate-800 sticky top-0 z-30">
         <div class="max-w-6xl mx-auto px-4 sm:px-6">
-            <div class="flex items-center justify-between py-3 gap-4">
+            <div class="flex items-center justify-between py-3.5 gap-4">
                 <a href="{{ route('public.index') }}" class="flex items-center gap-3 min-h-[44px] focus-visible:outline-unpam-gold">
-                    <div class="w-10 h-10 rounded bg-unpam-gold text-slate-950 font-extrabold flex items-center justify-center text-sm tracking-tight shrink-0">
+                    <div class="w-10 h-10 rounded-lg bg-unpam-gold text-slate-950 font-extrabold flex items-center justify-center text-sm tracking-tight shrink-0 shadow-sm">
                         UNPAM
                     </div>
                     <div>
-                        <span class="block font-bold text-base sm:text-lg leading-tight text-white">CRM Layanan Mahasiswa</span>
-                        <span class="block text-xs text-slate-200">Studi Kasus Universitas Pamulang (Simulasi)</span>
+                        <span class="block font-bold text-base sm:text-lg leading-tight text-white">Layanan Mahasiswa</span>
+                        <span class="block text-xs text-slate-300">Universitas Pamulang</span>
                     </div>
                 </a>
 
@@ -103,9 +90,9 @@
     <footer class="bg-slate-900 text-slate-200 border-t border-slate-800 mt-12">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 text-sm">
             <div class="space-y-1 max-w-xl">
-                <p class="font-bold text-white">CRM Pengelolaan Informasi, Reminder, dan Layanan Mahasiswa</p>
+                <p class="font-bold text-white">Portal Informasi & Layanan Mahasiswa UNPAM</p>
                 <p class="text-slate-300">
-                    Studi Kasus: Universitas Pamulang (UNPAM). Aplikasi ini berdiri sendiri (standalone) dengan data simulasi untuk keperluan demonstrasi akademik.
+                    Layanan resmi pengelolaan informasi kampus, pengingat pembayaran, dan bantuan mahasiswa Universitas Pamulang.
                 </p>
             </div>
             <div class="flex flex-wrap gap-3">

@@ -15,11 +15,11 @@ class CrmMvpEndToEndTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_public_portal_shows_only_published_information_and_simulation_banner(): void
+    public function test_public_portal_shows_only_published_information(): void
     {
         CampusInformation::create([
-            'title' => 'Pengumuman Akademik Terbit Simulasi',
-            'slug' => 'pengumuman-akademik-terbit-simulasi',
+            'title' => 'Pengumuman Akademik Terbit UNPAM',
+            'slug' => 'pengumuman-akademik-terbit-unpam',
             'category' => 'akademik',
             'summary' => 'Ringkasan pengumuman terbit',
             'content' => 'Isi lengkap pengumuman terbit.',
@@ -39,15 +39,15 @@ class CrmMvpEndToEndTest extends TestCase
         $response = $this->get('/');
 
         $response->assertOk();
-        $response->assertSee('Simulasi Akademik');
-        $response->assertSee('Pengumuman Akademik Terbit Simulasi');
+        $response->assertSee('Layanan Mahasiswa');
+        $response->assertSee('Pengumuman Akademik Terbit UNPAM');
         $response->assertDontSee('Draft Rahasia Belum Terbit');
     }
 
     public function test_admin_authentication_and_student_and_information_crud(): void
     {
         $admin = User::factory()->create([
-            'email' => 'admin@unpam-simulasi.ac.id',
+            'email' => 'admin@unpam.ac.id',
             'password' => bcrypt('password123'),
         ]);
 
@@ -56,7 +56,7 @@ class CrmMvpEndToEndTest extends TestCase
 
         // Login admin
         $loginResponse = $this->post('/login', [
-            'email' => 'admin@unpam-simulasi.ac.id',
+            'email' => 'admin@unpam.ac.id',
             'password' => 'password123',
         ]);
         $loginResponse->assertRedirect('/admin');
@@ -65,12 +65,12 @@ class CrmMvpEndToEndTest extends TestCase
         // Tambah mahasiswa dummy dengan nomor 0812... -> dinormalisasi ke 62812...
         $this->post('/admin/students', [
             'nim' => '2110114099',
-            'name' => 'Andi Wijaya (Simulasi)',
+            'name' => 'Andi Wijaya',
             'study_program' => 'Teknik Informatika S1',
             'semester' => 5,
             'whatsapp_number' => '0812-9988-7766',
             'is_active' => '1',
-            'notes' => 'Dummy test',
+            'notes' => 'Kontak mahasiswa',
         ])->assertRedirect('/admin/students');
 
         $this->assertDatabaseHas('students', [
@@ -81,7 +81,7 @@ class CrmMvpEndToEndTest extends TestCase
 
         // Tambah informasi kampus baru -> langsung tampil di website publik
         $this->post('/admin/informations', [
-            'title' => 'Jadwal UAS Semester Ganjil Simulasi',
+            'title' => 'Jadwal UAS Semester Ganjil UNPAM',
             'category' => 'jadwal_ujian',
             'summary' => 'Info pelaksanaan UAS',
             'content' => 'Ujian dilaksanakan mulai tanggal 15 Desember.',
@@ -89,13 +89,13 @@ class CrmMvpEndToEndTest extends TestCase
             'is_pinned' => '1',
         ])->assertRedirect('/admin/informations');
 
-        $this->get('/')->assertSee('Jadwal UAS Semester Ganjil Simulasi');
+        $this->get('/')->assertSee('Jadwal UAS Semester Ganjil UNPAM');
     }
 
     public function test_web_chatbot_shares_single_source_of_truth_and_transitions_to_waiting_admin(): void
     {
         CampusInformation::create([
-            'title' => 'Info Pembayaran UKT Semester Ini (Simulasi)',
+            'title' => 'Info Pembayaran UKT Semester Ini',
             'slug' => 'info-pembayaran-ukt-semester-ini',
             'category' => 'pembayaran',
             'content' => 'Batas akhir pembayaran umum tanggal 10 setiap bulan.',
@@ -116,7 +116,7 @@ class CrmMvpEndToEndTest extends TestCase
         $menu2Res->assertOk()
             ->assertJsonPath('status', Conversation::STATUS_BOT_ACTIVE);
         $this->assertStringContainsString(
-            'Info Pembayaran UKT Semester Ini (Simulasi)',
+            'Info Pembayaran UKT Semester Ini',
             collect($menu2Res->json('messages'))->last()['message']
         );
 
@@ -149,7 +149,7 @@ class CrmMvpEndToEndTest extends TestCase
 
         Student::create([
             'nim' => '2110114001',
-            'name' => 'Rizky Pratama (Simulasi)',
+            'name' => 'Rizky Pratama',
             'study_program' => 'Teknik Informatika S1',
             'semester' => 5,
             'whatsapp_number' => '6281200000001',
@@ -171,7 +171,7 @@ class CrmMvpEndToEndTest extends TestCase
             ->where('external_user_id', '6281200000001')
             ->firstOrFail();
 
-        $this->assertSame('Rizky Pratama (Simulasi)', $conversation->user_name);
+        $this->assertSame('Rizky Pratama', $conversation->user_name);
 
         // 2. Admin login dan menekan Ambil Alih
         $admin = User::factory()->create(['name' => 'Admin Akademik']);
