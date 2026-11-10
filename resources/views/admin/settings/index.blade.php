@@ -51,20 +51,6 @@
                 </div>
 
                 <div>
-                    <label for="app_logo_text" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                        Teks / Singkatan Logo (Badge) <span class="text-red-500">*</span>
-                    </label>
-                    <input type="text"
-                           id="app_logo_text"
-                           name="app_logo_text"
-                           value="{{ old('app_logo_text', $logoText) }}"
-                           required
-                           maxlength="20"
-                           class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm font-bold tracking-wider uppercase focus:ring-2 focus:ring-unpam-navy focus:border-unpam-navy">
-                    <p class="text-[11px] text-slate-500 mt-1">Badge kuning pada header (contoh: UNPAM, SAS-UNPAM).</p>
-                </div>
-
-                <div>
                     <label for="app_tagline" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                         Tagline / Subjudul Portal <span class="text-red-500">*</span>
                     </label>
@@ -77,29 +63,43 @@
                     <p class="text-[11px] text-slate-500 mt-1">Slogan yang tampil pada banner website dan chatbot.</p>
                 </div>
 
-                <div>
-                    <label for="logo_file" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                        Upload Logo Gambar (Opsional)
+                <div class="md:col-span-2 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <label for="logo_file" class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
+                        Upload Logo Resmi (Hanya Logo Gambar Transparan)
                     </label>
+                    <p class="text-xs text-slate-600 mb-3">
+                        Logo akan otomatis berlatar belakang transparan mengikuti gambar PNG / SVG yang diunggah dan diperbesar secara proporsional di header publik, dashboard, dan login.
+                    </p>
                     <input type="file"
                            id="logo_file"
                            name="logo_file"
                            accept="image/png,image/jpeg,image/svg+xml,image/webp"
-                           class="w-full px-3.5 py-2 rounded-lg border border-slate-300 text-sm text-slate-600 file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-unpam-navy file:text-white hover:file:bg-slate-800">
-                    <p class="text-[11px] text-slate-500 mt-1">Format: PNG, JPG, SVG, WebP. Maks 2MB.</p>
+                           class="w-full px-3.5 py-2 rounded-lg border border-slate-300 bg-white text-sm text-slate-600 file:mr-4 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-bold file:bg-unpam-navy file:text-white hover:file:bg-slate-800">
+                    <p class="text-[11px] text-slate-500 mt-1.5">Format disarankan: PNG transparan atau SVG. Ukuran maksimal 2MB.</p>
 
-                    @if(!empty($logoImage))
-                        <div class="mt-3 p-3 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <img src="{{ asset($logoImage) }}" alt="Logo Saat Ini" class="h-8 w-auto object-contain bg-white border border-slate-200 rounded p-1">
-                                <span class="text-xs text-slate-600">Logo aktif saat ini</span>
+                    <div class="mt-4 p-4 bg-unpam-navy rounded-lg border border-slate-700 flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="p-2 bg-slate-900/50 rounded-lg flex items-center justify-center">
+                                @if(!empty($logoImage) && file_exists(public_path($logoImage)))
+                                    <img src="{{ asset($logoImage) }}" alt="Logo Aktif" class="h-14 sm:h-16 w-auto max-w-[140px] object-contain bg-transparent">
+                                @else
+                                    <img src="{{ asset('images/unpam-logo.svg') }}" alt="Logo Default" class="h-14 sm:h-16 w-14 sm:w-16 object-contain bg-transparent drop-shadow">
+                                @endif
                             </div>
-                            <label class="inline-flex items-center gap-1.5 text-xs text-red-600 hover:text-red-800 cursor-pointer">
-                                <input type="checkbox" name="remove_logo_image" value="1" class="rounded border-slate-300 text-red-600 focus:ring-red-500">
-                                <span>Hapus Logo Gambar</span>
-                            </label>
+                            <div>
+                                <span class="block text-xs font-bold text-white">Preview Logo di Header (Latar Gelap Navy)</span>
+                                <span class="block text-[11px] text-slate-300">
+                                    {{ !empty($logoImage) ? 'Menggunakan logo khusus yang diupload.' : 'Menggunakan logo default SVG transparan.' }}
+                                </span>
+                            </div>
                         </div>
-                    @endif
+                        @if(!empty($logoImage))
+                            <label class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-red-900/80 hover:bg-red-800 text-xs text-red-200 border border-red-700 cursor-pointer">
+                                <input type="checkbox" name="remove_logo_image" value="1" class="rounded border-red-500 text-red-600 focus:ring-red-500">
+                                <span class="font-bold">Reset ke Logo Bawaan</span>
+                            </label>
+                        @endif
+                    </div>
                 </div>
 
                 <div class="md:col-span-2">

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" class="w-full h-full">
+  <!-- Outer Ring Gold -->
+  <circle cx="50" cy="50" r="46" stroke="#FACC15" stroke-width="4" stroke-dasharray="2 1" opacity="0.9"/>
+  <circle cx="50" cy="50" r="42" stroke="#FACC15" stroke-width="2.5"/>
+  
+  <!-- Shield Background Semi-transparent / Navy -->
+  <path d="M50 14 L78 26 V52 C78 70 50 84 50 84 C50 84 22 70 22 52 V26 Z" fill="#0F294A" stroke="#FACC15" stroke-width="2.5"/>
+  
+  <!-- Open Book Symbol (Pendidikan) Gold & White -->
+  <path d="M50 64 C42 58 32 58 28 60 V42 C32 40 42 40 50 46 C58 40 68 40 72 42 V60 C68 58 58 58 50 64 Z" fill="#FFFFFF" fill-opacity="0.95" stroke="#FACC15" stroke-width="1.5"/>
+  <path d="M50 46 V64" stroke="#0F294A" stroke-width="2"/>
+  
+  <!-- Torch / Flame of Knowledge (Obor Emas) -->
+  <path d="M50 22 C52 26 55 28 55 32 C55 36 52 38 50 40 C48 38 45 36 45 32 C45 28 48 26 50 22 Z" fill="#FACC15"/>
+  <circle cx="50" cy="32" r="2.5" fill="#EF4444"/>
+  
+  <!-- Stars -->
+  <polygon points="50,16 51.5,19.5 55,19.5 52,21.5 53.5,25 50,23 46.5,25 48,21.5 45,19.5 48.5,19.5" fill="#FACC15"/>
+  <polygon points="35,28 36,30.5 38.5,30.5 36.5,32 37.5,34.5 35,33 32.5,34.5 33.5,32 31.5,30.5 34,30.5" fill="#FACC15"/>
+  <polygon points="65,28 66,30.5 68.5,30.5 66.5,32 67.5,34.5 65,33 62.5,34.5 63.5,32 61.5,30.5 64,30.5" fill="#FACC15"/>
+</svg>
+

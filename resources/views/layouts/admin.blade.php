@@ -18,15 +18,14 @@
     <!-- Top Navigation Bar Admin -->
     <header class="bg-unpam-navy text-white sticky top-0 z-30 shadow-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6">
-            <div class="flex items-center justify-between py-3 gap-4">
+            <div class="flex items-center justify-between py-2.5 gap-4">
                 <div class="flex items-center gap-3">
-                    <a href="{{ route('admin.dashboard') }}" class="min-h-[44px] inline-flex items-center gap-2.5">
-                        @if($brandLogoImage)
-                            <img src="{{ $brandLogoImage }}" alt="{{ $brandLogoText }}" class="h-8 w-auto object-contain rounded bg-white p-0.5" />
+                    <a href="{{ route('admin.dashboard') }}" class="min-h-[44px] inline-flex items-center gap-3 focus-visible:outline-unpam-gold">
+                        @if($brandLogoImage && file_exists(public_path($brandLogoImage)))
+                            <img src="{{ asset($brandLogoImage) }}" alt="Logo Kampus" class="h-11 sm:h-12 w-auto max-w-[120px] object-contain bg-transparent shrink-0" />
+                        @else
+                            <img src="{{ asset('images/unpam-logo.svg') }}" alt="Logo Kampus" class="h-11 sm:h-12 w-11 sm:w-12 object-contain bg-transparent shrink-0 drop-shadow" />
                         @endif
-                        <span class="px-2.5 py-1 rounded bg-unpam-gold text-slate-950 font-extrabold text-xs tracking-tight border border-amber-300">
-                            {{ $brandLogoText }}
-                        </span>
                         <div>
                             <span class="block font-bold text-sm sm:text-base text-white leading-tight">Dashboard Admin Layanan</span>
                             <span class="block text-[11px] text-slate-300">{{ $brandAppName }}</span>

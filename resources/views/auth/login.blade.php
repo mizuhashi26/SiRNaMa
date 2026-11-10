@@ -8,14 +8,21 @@
 </head>
 <body class="min-h-screen bg-slate-100 text-slate-900 flex flex-col justify-between antialiased">
     @php
-        $brandLogoText = \App\Models\AppSetting::getValue('app_logo_text', 'UNPAM');
-        $brandAppName = \App\Models\AppSetting::getValue('app_name', 'Universitas Pamulang');
+        $brandLogoImage = \App\Models\AppSetting::getValue('app_logo_image', null);
+        $brandAppName = \App\Models\AppSetting::getValue('app_institution_name', 'Universitas Pamulang');
     @endphp
-    <header class="bg-unpam-navy text-white py-3 px-4 border-b border-slate-800">
+    <header class="bg-unpam-navy text-white py-2.5 px-4 border-b border-slate-800">
         <div class="max-w-5xl mx-auto flex items-center justify-between">
-            <a href="{{ route('public.index') }}" class="min-h-[44px] inline-flex items-center gap-2.5 font-bold text-sm sm:text-base text-white">
-                <span class="px-2 py-1 rounded bg-unpam-gold text-slate-950 font-extrabold text-xs">{{ $brandLogoText }}</span>
-                <span>Layanan Mahasiswa</span>
+            <a href="{{ route('public.index') }}" class="min-h-[44px] inline-flex items-center gap-3 font-bold text-sm sm:text-base text-white">
+                @if($brandLogoImage && file_exists(public_path($brandLogoImage)))
+                    <img src="{{ asset($brandLogoImage) }}" alt="Logo Kampus" class="h-11 sm:h-12 w-auto max-w-[110px] object-contain bg-transparent shrink-0" />
+                @else
+                    <img src="{{ asset('images/unpam-logo.svg') }}" alt="Logo Kampus" class="h-11 sm:h-12 w-11 sm:w-12 object-contain bg-transparent shrink-0 drop-shadow" />
+                @endif
+                <div>
+                    <span class="block font-bold leading-tight">Layanan Mahasiswa</span>
+                    <span class="block text-xs font-normal text-slate-300">{{ $brandAppName }}</span>
+                </div>
             </a>
             <a href="{{ route('public.index') }}" class="min-h-[44px] inline-flex items-center text-xs sm:text-sm text-slate-200 hover:text-white underline">
                 Ke Halaman Publik

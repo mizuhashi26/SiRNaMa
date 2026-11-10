@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Student;
+use App\Services\StudentImportService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -119,7 +121,86 @@ class StudentController extends Controller
         $student->delete();
 
         return redirect()->route('admin.students.index')
-            ->with('success', 'Data mahasiswa simulasi berhasil dihapus.');
+            ->with('success', 'Data mahasiswa berhasil dihapus.');
+    }
+
+    /**
+     * Import students from Excel (.xlsx) or CSV file.
+     */
+    public function import(Request $request, StudentImportService $importService): RedirectResponse
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'max:5120'], // 5MB max
+        ], [
+            'file.required' => 'Pilih file Excel (.xlsx) atau CSV (.csv) untuk diunggah.',
+            'file.max' => 'Ukuran file maksimal 5MB.',
+        ]);
+
+        $file = $request->file('file');
+        $ext = strtolower($file->getClientOriginalExtension());
+
+        if (! in_array($ext, ['csv', 'txt', 'xlsx', 'xls'])) {
+            return redirect()->route('admin.students.index')
+                ->withErrors(['file' => 'Format file tidak didukung. Harap unggah file .xlsx atau .csv.']);
+        }
+
+        try {
+            $result = $importService->import($file);
+
+            $msg = "Proses impor selesai: {$result['imported']} data baru ditambahkan, {$result['updated']} data diperbarui.";
+            if ($result['skipped'] > 0) {
+                $msg .= " ({$result['skipped']} baris dilewati karena format tidak sesuai).";
+            }
+
+            return redirect()->route('admin.students.index')
+                ->with('success', $msg);
+        } catch (\Throwable $e) {
+            return redirect()->route('admin.students.index')
+                ->withErrors(['file' => 'Gagal memproses file: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Download template CSV for batch student import.
+     */
+    public function downloadTemplate(StudentImportService $importService): Response
+    {
+        $csvContent = $importService->generateTemplateCsv();
+
+        return response($csvContent, 200, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="template_data_mahasiswa_unpam.csv"',
+        ]);
+    }
+
+    /**
+     * Bulk delete selected students.
+     */
+    public function bulkDelete(Request $request): RedirectResponse
+    {
+        $ids = $request->input('selected_ids', []);
+
+        if (empty($ids) || ! is_array($ids)) {
+            return redirect()->route('admin.students.index')
+                ->with('warning', 'Tidak ada mahasiswa yang dipilih untuk dihapus.');
+        }
+
+        $count = Student::whereIn('id', $ids)->delete();
+
+        return redirect()->route('admin.students.index')
+            ->with('success', "{$count} data mahasiswa terpilih berhasil dihapus.");
+    }
+
+    /**
+     * Delete all students from database.
+     */
+    public function deleteAll(): RedirectResponse
+    {
+        $count = Student::count();
+        Student::query()->delete();
+
+        return redirect()->route('admin.students.index')
+            ->with('success', "Seluruh data mahasiswa ({$count} data) berhasil dikosongkan.");
     }
 }
 

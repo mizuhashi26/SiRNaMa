@@ -43,7 +43,11 @@ Route::prefix('admin')
         // CRUD Informasi Kampus
         Route::resource('informations', CampusInformationController::class)->except(['show']);
 
-        // CRUD Mahasiswa Dummy
+        // Pengelolaan & Batch Import Data Mahasiswa
+        Route::post('students/import', [StudentController::class, 'import'])->name('students.import');
+        Route::get('students/template', [StudentController::class, 'downloadTemplate'])->name('students.template');
+        Route::post('students/bulk-delete', [StudentController::class, 'bulkDelete'])->name('students.bulk-delete');
+        Route::delete('students/delete-all', [StudentController::class, 'deleteAll'])->name('students.delete-all');
         Route::resource('students', StudentController::class)->except(['show']);
 
         // CRUD & Kirim Manual Reminder Pembayaran Umum

@@ -31,7 +31,7 @@ class SettingController extends Controller
     {
         $validated = $request->validate([
             'app_institution_name' => ['required', 'string', 'max:150'],
-            'app_logo_text' => ['required', 'string', 'max:20'],
+            'app_logo_text' => ['nullable', 'string', 'max:20'],
             'app_tagline' => ['required', 'string', 'max:150'],
             'app_footer_note' => ['nullable', 'string', 'max:255'],
             'admin_contact_phone' => ['nullable', 'string', 'max:30'],
@@ -48,7 +48,9 @@ class SettingController extends Controller
         ]);
 
         AppSetting::setValue('app_institution_name', trim($validated['app_institution_name']), 'identity', 'Nama Institusi Kampus');
-        AppSetting::setValue('app_logo_text', strtoupper(trim($validated['app_logo_text'])), 'identity', 'Singkatan / Teks Logo');
+        if (!empty($validated['app_logo_text'])) {
+            AppSetting::setValue('app_logo_text', strtoupper(trim($validated['app_logo_text'])), 'identity', 'Singkatan / Teks Logo');
+        }
         AppSetting::setValue('app_tagline', trim($validated['app_tagline']), 'identity', 'Tagline Layanan');
         AppSetting::setValue('app_footer_note', trim($validated['app_footer_note'] ?? ''), 'identity', 'Teks Footer');
         AppSetting::setValue('admin_contact_phone', trim($validated['admin_contact_phone'] ?? ''), 'contact', 'Nomor Kontak Admin');

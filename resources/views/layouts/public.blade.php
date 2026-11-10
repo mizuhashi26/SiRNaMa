@@ -18,14 +18,13 @@
     <!-- Header & Navigasi Publik -->
     <header class="bg-unpam-navy text-white sticky top-0 z-30 shadow-md">
         <div class="max-w-6xl mx-auto px-4 sm:px-6">
-            <div class="flex items-center justify-between py-3.5 gap-4">
-                <a href="{{ route('public.index') }}" class="flex items-center gap-3 min-h-[44px] focus-visible:outline-unpam-gold">
-                    @if($brandLogoImage)
-                        <img src="{{ $brandLogoImage }}" alt="{{ $brandLogoText }}" class="h-10 w-auto object-contain rounded bg-white p-0.5 shadow-sm" />
+            <div class="flex items-center justify-between py-3 gap-4">
+                <a href="{{ route('public.index') }}" class="flex items-center gap-3.5 min-h-[44px] focus-visible:outline-unpam-gold">
+                    @if($brandLogoImage && file_exists(public_path($brandLogoImage)))
+                        <img src="{{ asset($brandLogoImage) }}" alt="Logo Kampus" class="h-12 sm:h-14 w-auto max-w-[120px] object-contain bg-transparent shrink-0" />
+                    @else
+                        <img src="{{ asset('images/unpam-logo.svg') }}" alt="Logo Kampus" class="h-12 sm:h-14 w-12 sm:w-14 object-contain bg-transparent shrink-0 drop-shadow" />
                     @endif
-                    <div class="w-10 h-10 rounded-lg bg-unpam-gold text-slate-950 font-extrabold flex items-center justify-center text-sm tracking-tight shrink-0 shadow-sm border border-amber-300">
-                        {{ $brandLogoText }}
-                    </div>
                     <div>
                         <span class="block font-bold text-base sm:text-lg leading-tight text-white">Layanan Mahasiswa</span>
                         <span class="block text-xs text-slate-300">{{ $brandAppName }}</span>
@@ -102,7 +101,7 @@
     <footer class="bg-slate-900 text-slate-200 border-t border-slate-800 mt-12">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 text-sm">
             <div class="space-y-1 max-w-xl">
-                <p class="font-bold text-white">Portal Layanan {{ $brandAppName }} ({{ $brandLogoText }})</p>
+                <p class="font-bold text-white">Portal Layanan {{ $brandAppName }}</p>
                 <p class="text-slate-300">
                     {{ $brandFooterText }}
                 </p>
