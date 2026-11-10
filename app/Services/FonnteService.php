@@ -2,15 +2,34 @@
 
 namespace App\Services;
 
+use App\Models\AppSetting;
 use App\Models\Student;
 use Illuminate\Support\Facades\Http;
 use Throwable;
 
 class FonnteService
 {
+    public function getToken(): string
+    {
+        try {
+            return (string) (AppSetting::getValue('fonnte_token') ?: config('services.fonnte.token'));
+        } catch (Throwable) {
+            return (string) config('services.fonnte.token');
+        }
+    }
+
+    public function getApiUrl(): string
+    {
+        try {
+            return (string) (AppSetting::getValue('fonnte_api_url') ?: config('services.fonnte.api_url', 'https://api.fonnte.com/send'));
+        } catch (Throwable) {
+            return (string) config('services.fonnte.api_url', 'https://api.fonnte.com/send');
+        }
+    }
+
     public function isConfigured(): bool
     {
-        return filled(config('services.fonnte.token'));
+        return filled($this->getToken());
     }
 
     /**
@@ -35,16 +54,16 @@ class FonnteService
             return [
                 'success' => false,
                 'status' => 'unverified_no_token',
-                'message' => 'FONNTE_TOKEN belum diisi pada file .env. Pengiriman WhatsApp belum dapat diuji ke gateway Fonnte.',
+                'message' => 'FONNTE_TOKEN belum diisi di Pengaturan atau file .env. Pengiriman WhatsApp belum dapat diuji ke gateway Fonnte.',
                 'response' => [
                     'simulated_target' => $normalizedPhone,
-                    'note' => 'Belum terverifikasi karena FONNTE_TOKEN kosong.',
+                    'note' => 'Belum terverifikasi karena Token Fonnte kosong.',
                 ],
             ];
         }
 
-        $apiUrl = (string) config('services.fonnte.api_url', 'https://api.fonnte.com/send');
-        $token = (string) config('services.fonnte.token');
+        $apiUrl = $this->getApiUrl();
+        $token = $this->getToken();
 
         try {
             $response = Http::withHeaders([

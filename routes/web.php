@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\CampusInformationController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\LiveChatController;
 use App\Http\Controllers\Admin\PaymentReminderController;
+use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PublicPortalController;
@@ -60,4 +61,8 @@ Route::prefix('admin')
             ->name('live-chat.close');
         Route::get('live-chat/{conversation}/poll', [LiveChatController::class, 'poll'])
             ->name('live-chat.poll');
+
+        // Pengaturan Sistem & API
+        Route::get('settings', [SettingController::class, 'index'])->name('settings.index');
+        Route::put('settings', [SettingController::class, 'update'])->name('settings.update');
     });

@@ -7,10 +7,14 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-slate-100 text-slate-900 flex flex-col justify-between antialiased">
+    @php
+        $brandLogoText = \App\Models\AppSetting::getValue('app_logo_text', 'UNPAM');
+        $brandAppName = \App\Models\AppSetting::getValue('app_name', 'Universitas Pamulang');
+    @endphp
     <header class="bg-unpam-navy text-white py-3 px-4 border-b border-slate-800">
         <div class="max-w-5xl mx-auto flex items-center justify-between">
             <a href="{{ route('public.index') }}" class="min-h-[44px] inline-flex items-center gap-2.5 font-bold text-sm sm:text-base text-white">
-                <span class="px-2 py-1 rounded bg-unpam-gold text-slate-950 font-extrabold text-xs">UNPAM</span>
+                <span class="px-2 py-1 rounded bg-unpam-gold text-slate-950 font-extrabold text-xs">{{ $brandLogoText }}</span>
                 <span>Layanan Mahasiswa</span>
             </a>
             <a href="{{ route('public.index') }}" class="min-h-[44px] inline-flex items-center text-xs sm:text-sm text-slate-200 hover:text-white underline">

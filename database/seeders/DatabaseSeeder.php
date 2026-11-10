@@ -22,10 +22,10 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // 2. Data Mahasiswa
+        // 2. Data Mahasiswa (NIM 12 Digit Sesuai Standar UNPAM)
         $students = [
             [
-                'nim' => '2110114001',
+                'nim' => '211011400001',
                 'name' => 'Rizky Pratama',
                 'study_program' => 'Teknik Informatika S1',
                 'semester' => 5,
@@ -34,7 +34,7 @@ class DatabaseSeeder extends Seeder
                 'notes' => 'Kontak pengujian WhatsApp #1',
             ],
             [
-                'nim' => '2110114002',
+                'nim' => '211011400002',
                 'name' => 'Siti Nurhaliza Putri',
                 'study_program' => 'Sistem Informasi S1',
                 'semester' => 5,
@@ -43,7 +43,7 @@ class DatabaseSeeder extends Seeder
                 'notes' => 'Kontak pengujian WhatsApp #2',
             ],
             [
-                'nim' => '2210112015',
+                'nim' => '221011200015',
                 'name' => 'Dimas Aditya Saputra',
                 'study_program' => 'Manajemen S1',
                 'semester' => 3,
@@ -52,7 +52,7 @@ class DatabaseSeeder extends Seeder
                 'notes' => 'Kontak pengujian WhatsApp #3',
             ],
             [
-                'nim' => '2210113008',
+                'nim' => '221011300008',
                 'name' => 'Nadia Maharani',
                 'study_program' => 'Akuntansi S1',
                 'semester' => 3,
@@ -61,7 +61,7 @@ class DatabaseSeeder extends Seeder
                 'notes' => 'Kontak pengujian WhatsApp #4',
             ],
             [
-                'nim' => '2310114042',
+                'nim' => '231011400042',
                 'name' => 'Bagas Kurniawan',
                 'study_program' => 'Teknik Informatika S1',
                 'semester' => 1,
@@ -77,6 +77,15 @@ class DatabaseSeeder extends Seeder
                 $studentData
             );
         }
+
+        // Pengaturan Sistem Awal (Settings)
+        \App\Models\AppSetting::setValue('app_institution_name', 'Universitas Pamulang', 'identity', 'Nama Institusi Kampus');
+        \App\Models\AppSetting::setValue('app_logo_text', 'UNPAM', 'identity', 'Singkatan / Teks Logo');
+        \App\Models\AppSetting::setValue('app_tagline', 'Layanan Mahasiswa', 'identity', 'Tagline Layanan');
+        \App\Models\AppSetting::setValue('app_footer_note', 'Portal Informasi & Layanan Mahasiswa Universitas Pamulang', 'identity', 'Teks Footer');
+        \App\Models\AppSetting::setValue('fonnte_api_url', 'https://api.fonnte.com/send', 'api', 'Endpoint URL API Fonnte');
+        \App\Models\AppSetting::setValue('fonnte_token', env('FONNTE_TOKEN', ''), 'api', 'Token WhatsApp Fonnte');
+        \App\Models\AppSetting::setValue('admin_contact_phone', '6281234567890', 'contact', 'Nomor Kontak Layanan Admin');
 
         // 3. Sumber Data Informasi Kampus Terpadu (Website, Chatbot Web, & Chatbot WhatsApp)
         $informations = [

@@ -30,15 +30,20 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label for="nim" class="block text-sm font-bold text-slate-900 mb-1">
-                        NIM <span class="text-red-700">*</span>
+                        NIM (12 Digit) <span class="text-red-700">*</span>
                     </label>
                     <input type="text"
                            id="nim"
                            name="nim"
                            value="{{ old('nim', $student->nim) }}"
                            required
-                           placeholder="Contoh: 2110114001"
-                           class="w-full min-h-[44px] px-3.5 py-2 rounded border border-slate-400 text-sm text-slate-900 font-mono">
+                           maxlength="12"
+                           minlength="12"
+                           pattern="[0-9]{12}"
+                           inputmode="numeric"
+                           placeholder="Contoh: 211011400001"
+                           class="w-full min-h-[44px] px-3.5 py-2 rounded border border-slate-400 text-sm text-slate-900 font-mono tracking-wider">
+                    <p class="text-xs text-slate-600 mt-1">Harus tepat 12 digit angka sesuai standar UNPAM.</p>
                 </div>
 
                 <div>
@@ -72,15 +77,19 @@
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div class="sm:col-span-2">
                     <label for="study_program" class="block text-sm font-bold text-slate-900 mb-1">
-                        Program Studi <span class="text-red-700">*</span>
+                        Program Studi / Jurusan <span class="text-red-700">*</span>
                     </label>
-                    <input type="text"
-                           id="study_program"
-                           name="study_program"
-                           value="{{ old('study_program', $student->study_program ?: 'Teknik Informatika S1') }}"
-                           required
-                           placeholder="Teknik Informatika S1"
-                           class="w-full min-h-[44px] px-3.5 py-2 rounded border border-slate-400 text-sm text-slate-900">
+                    <select id="study_program"
+                            name="study_program"
+                            required
+                            class="w-full min-h-[44px] px-3.5 py-2 rounded border border-slate-400 text-sm text-slate-900 bg-white">
+                        <option value="">-- Pilih Program Studi --</option>
+                        @foreach($studyPrograms as $program)
+                            <option value="{{ $program }}" @selected(old('study_program', $student->study_program) === $program)>
+                                {{ $program }}
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
 
                 <div>
@@ -92,7 +101,7 @@
                            name="semester"
                            min="1"
                            max="14"
-                           value="{{ old('semester', $student->semester ?? 5) }}"
+                           value="{{ old('semester', $student->semester ?? 1) }}"
                            required
                            class="w-full min-h-[44px] px-3.5 py-2 rounded border border-slate-400 text-sm text-slate-900">
                 </div>

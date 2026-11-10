@@ -62,9 +62,9 @@ class CrmMvpEndToEndTest extends TestCase
         $loginResponse->assertRedirect('/admin');
         $this->assertAuthenticatedAs($admin);
 
-        // Tambah mahasiswa dummy dengan nomor 0812... -> dinormalisasi ke 62812...
+        // Tambah mahasiswa dummy dengan NIM 12 digit dan nomor 0812... -> dinormalisasi ke 62812...
         $this->post('/admin/students', [
-            'nim' => '2110114099',
+            'nim' => '211011400099',
             'name' => 'Andi Wijaya',
             'study_program' => 'Teknik Informatika S1',
             'semester' => 5,
@@ -74,7 +74,7 @@ class CrmMvpEndToEndTest extends TestCase
         ])->assertRedirect('/admin/students');
 
         $this->assertDatabaseHas('students', [
-            'nim' => '2110114099',
+            'nim' => '211011400099',
             'whatsapp_number' => '6281299887766',
             'is_active' => true,
         ]);
@@ -158,7 +158,7 @@ class CrmMvpEndToEndTest extends TestCase
         ]);
 
         Student::create([
-            'nim' => '2110114001',
+            'nim' => '211011400001',
             'name' => 'Rizky Pratama',
             'study_program' => 'Teknik Informatika S1',
             'semester' => 5,
@@ -235,7 +235,7 @@ class CrmMvpEndToEndTest extends TestCase
     public function test_payment_reminder_manual_dispatch_and_scheduled_command(): void
     {
         Student::create([
-            'nim' => '2110114001',
+            'nim' => '211011400001',
             'name' => 'Mahasiswa Aktif 1',
             'study_program' => 'Teknik Informatika S1',
             'semester' => 3,
@@ -244,7 +244,7 @@ class CrmMvpEndToEndTest extends TestCase
         ]);
 
         Student::create([
-            'nim' => '2110114002',
+            'nim' => '211011400002',
             'name' => 'Mahasiswa Nonaktif',
             'study_program' => 'Teknik Informatika S1',
             'semester' => 3,
