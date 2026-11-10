@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Conversation;
+use App\Models\Student;
+use App\Services\ChatbotMenuService;
 use App\Services\FonnteService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -200,6 +202,59 @@ class LiveChatController extends Controller
                 'time' => $msg->created_at?->format('H:i'),
             ])->values(),
         ]);
+    }
+
+    /**
+     * Simulasi pesan masuk dari WhatsApp untuk demo dan pengujian lokal.
+     */
+    public function simulateWebhook(
+        Request $request,
+        ChatbotMenuService $chatbot,
+        FonnteService $fonnteService
+    ): RedirectResponse {
+        $validated = $request->validate([
+            'sender' => ['required', 'string', 'max:30'],
+            'message' => ['required', 'string', 'max:2000'],
+            'name' => ['nullable', 'string', 'max:150'],
+        ]);
+
+        $normalizedSender = Student::normalizePhone($validated['sender']);
+        $messageText = trim($validated['message']);
+        $pushName = trim($validated['name'] ?? '');
+
+        $student = Student::where('whatsapp_number', $normalizedSender)->first();
+        $resolvedName = $student?->name ?? ($pushName !== '' ? $pushName : 'Mahasiswa WA +' . $normalizedSender);
+
+        $conversation = Conversation::firstOrCreate(
+            [
+                'channel' => 'whatsapp',
+                'external_user_id' => $normalizedSender,
+            ],
+            [
+                'user_name' => $resolvedName,
+                'contact_number' => $normalizedSender,
+                'status' => Conversation::STATUS_BOT_ACTIVE,
+                'last_message_at' => now(),
+            ]
+        );
+
+        $result = $chatbot->handleIncomingMessage($conversation, $messageText, $resolvedName);
+        $botMessage = $result['bot_message'];
+
+        // Jika gateway Fonnte terkonfigurasi dan ada pesan bot keluar, kirim ke WhatsApp riil
+        if ($botMessage !== null && $fonnteService->isConfigured()) {
+            $gatewayResult = $fonnteService->sendMessage($normalizedSender, $botMessage->message);
+            $botMessage->update([
+                'delivery_status' => $gatewayResult['success'] ? 'sent_gateway' : 'failed_gateway',
+                'metadata' => [
+                    'fonnte_status' => $gatewayResult['status'],
+                    'fonnte_message' => $gatewayResult['message'],
+                ],
+            ]);
+        }
+
+        return redirect()->route('admin.live-chat.index', ['conversation_id' => $conversation->id])
+            ->with('success', "Simulasi pesan WhatsApp dari {$resolvedName} berhasil diproses.");
     }
 }
 

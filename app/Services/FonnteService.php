@@ -69,6 +69,12 @@ class FonnteService
             $response = Http::withHeaders([
                 'Authorization' => $token,
             ])
+                ->withOptions([
+                    'curl' => [
+                        CURLOPT_RESOLVE => ['api.fonnte.com:443:103.52.212.50'],
+                        CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
+                    ],
+                ])
                 ->timeout(15)
                 ->asForm()
                 ->post($apiUrl, [

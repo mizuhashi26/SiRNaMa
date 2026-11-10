@@ -9,6 +9,7 @@ use App\Services\ChatbotMenuService;
 use App\Services\FonnteService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class FonnteWebhookController extends Controller
 {
@@ -17,6 +18,18 @@ class FonnteWebhookController extends Controller
         ChatbotMenuService $chatbot,
         FonnteService $fonnteService
     ): JsonResponse {
+        Log::info('FONNTE WEBHOOK RECEIVED', [
+            'method' => $request->method(),
+            'inputs' => $request->all(),
+            'raw' => $request->getContent(),
+        ]);
+
+        if ($request->isMethod('get')) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Webhook endpoint Fonnte aktif dan siap menerima pesan.',
+            ]);
+        }
         $configuredSecret = (string) config('services.fonnte.webhook_secret', '');
         if ($configuredSecret !== '') {
             $providedSecret = (string) ($request->header('X-Webhook-Secret') ?? $request->input('secret', ''));

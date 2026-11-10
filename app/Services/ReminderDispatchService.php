@@ -50,12 +50,14 @@ class ReminderDispatchService
         $lastError = null;
         $unverifiedNoToken = false;
 
+        $categoryUpper = strtoupper($reminder->category_label);
+
         foreach ($students as $student) {
-            $formattedMessage = "[PENGINGAT PEMBAYARAN - UNIVERSITAS PAMULANG]\n"
+            $formattedMessage = "[PENGINGAT RESMI - {$categoryUpper}]\n"
                 . "Yth. {$student->name} ({$student->nim}),\n\n"
                 . "*{$reminder->title}*\n"
                 . "{$reminder->message}\n\n"
-                . "Biro Administrasi & Keuangan Universitas Pamulang";
+                . "Layanan Informasi & Kemahasiswaan Universitas Pamulang";
 
             $result = $this->fonnteService->sendMessage($student->whatsapp_number, $formattedMessage);
 

@@ -10,8 +10,19 @@ class PaymentReminder extends Model
 {
     use HasFactory;
 
+    public const CATEGORIES = [
+        'pembayaran' => 'Pembayaran & Keuangan',
+        'akademik' => 'Akademik & KRS',
+        'ujian' => 'Jadwal Ujian (UTS/UAS)',
+        'pengumuman' => 'Pengumuman & Beasiswa',
+        'administrasi' => 'Administrasi & Berkas',
+        'kegiatan' => 'Kegiatan & Seminar',
+        'umum' => 'Pengingat Umum',
+    ];
+
     protected $fillable = [
         'title',
+        'category',
         'message',
         'scheduled_at',
         'status',
@@ -21,6 +32,11 @@ class PaymentReminder extends Model
         'failed_count',
         'last_error',
     ];
+
+    public function getCategoryLabelAttribute(): string
+    {
+        return self::CATEGORIES[$this->category] ?? 'Pengingat Mahasiswa';
+    }
 
     protected function casts(): array
     {

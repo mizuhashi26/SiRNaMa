@@ -10,7 +10,6 @@
 <body class="min-h-screen bg-slate-100 text-slate-900 flex flex-col antialiased">
     @php
         $waitingAdminCount = \App\Models\Conversation::where('status', \App\Models\Conversation::STATUS_WAITING_ADMIN)->count();
-        $brandLogoText = \App\Models\AppSetting::getValue('app_logo_text', 'UNPAM');
         $brandLogoImage = \App\Models\AppSetting::getValue('app_logo_image', null);
         $brandAppName = \App\Models\AppSetting::getValue('app_institution_name', 'Universitas Pamulang');
     @endphp
@@ -36,32 +35,32 @@
                 <!-- Navigasi Desktop -->
                 <nav aria-label="Navigasi Dashboard Admin" class="hidden lg:flex items-center gap-1.5">
                     <a href="{{ route('admin.dashboard') }}"
-                       class="min-h-[44px] inline-flex items-center px-3 py-2 rounded text-sm font-medium {{ request()->routeIs('admin.dashboard') ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
-                        Ringkasan
+                       class="min-h-[44px] inline-flex items-center px-3.5 py-2 rounded text-sm font-medium {{ request()->routeIs('admin.dashboard') ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
+                        Ringkasan Tugas
                     </a>
                     <a href="{{ route('admin.informations.index') }}"
-                       class="min-h-[44px] inline-flex items-center px-3 py-2 rounded text-sm font-medium {{ request()->routeIs('admin.informations.*') ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
-                        Informasi
+                       class="min-h-[44px] inline-flex items-center px-3.5 py-2 rounded text-sm font-medium {{ request()->routeIs('admin.informations.*') ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
+                        Informasi Kampus
                     </a>
                     <a href="{{ route('admin.reminders.index') }}"
-                       class="min-h-[44px] inline-flex items-center px-3 py-2 rounded text-sm font-medium {{ request()->routeIs('admin.reminders.*') ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
-                        Reminder
+                       class="min-h-[44px] inline-flex items-center px-3.5 py-2 rounded text-sm font-medium {{ request()->routeIs('admin.reminders.*') ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
+                        Pengingat Mahasiswa
                     </a>
                     <a href="{{ route('admin.live-chat.index') }}"
-                       class="min-h-[44px] inline-flex items-center gap-2 px-3 py-2 rounded text-sm font-medium {{ request()->routeIs('admin.live-chat.*') ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
+                       class="min-h-[44px] inline-flex items-center gap-2 px-3.5 py-2 rounded text-sm font-medium {{ request()->routeIs('admin.live-chat.*') ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
                         <span>Live Chat</span>
                         @if($waitingAdminCount > 0)
                             <span class="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-extrabold {{ request()->routeIs('admin.live-chat.*') ? 'bg-slate-950 text-white' : 'bg-amber-400 text-slate-950 animate-pulse' }}">
-                                {{ $waitingAdminCount }}
+                                {{ $waitingAdminCount }} Menunggu
                             </span>
                         @endif
                     </a>
                     <a href="{{ route('admin.students.index') }}"
-                       class="min-h-[44px] inline-flex items-center px-3 py-2 rounded text-sm font-medium {{ request()->routeIs('admin.students.*') ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
-                        Mahasiswa
+                       class="min-h-[44px] inline-flex items-center px-3.5 py-2 rounded text-sm font-medium {{ request()->routeIs('admin.students.*') ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
+                        Data Mahasiswa
                     </a>
                     <a href="{{ route('admin.settings.index') }}"
-                       class="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded text-sm font-medium {{ request()->routeIs('admin.settings.*') ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
+                       class="min-h-[44px] inline-flex items-center gap-1.5 px-3.5 py-2 rounded text-sm font-medium {{ request()->routeIs('admin.settings.*') ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                         <span>Pengaturan</span>
                     </a>
@@ -102,7 +101,7 @@
                     Informasi Kampus
                 </a>
                 <a href="{{ route('admin.reminders.index') }}" class="block min-h-[44px] px-3 py-2.5 rounded text-sm font-medium {{ request()->routeIs('admin.reminders.*') ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
-                    Reminder Pembayaran
+                    Pengingat Mahasiswa
                 </a>
                 <a href="{{ route('admin.live-chat.index') }}" class="block min-h-[44px] px-3 py-2.5 rounded text-sm font-medium {{ request()->routeIs('admin.live-chat.*') ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
                     Live Chat Terpusat @if($waitingAdminCount > 0) ({{ $waitingAdminCount }} Menunggu) @endif
@@ -111,7 +110,7 @@
                     Data Mahasiswa
                 </a>
                 <a href="{{ route('admin.settings.index') }}" class="block min-h-[44px] px-3 py-2.5 rounded text-sm font-medium {{ request()->routeIs('admin.settings.*') ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
-                    Pengaturan Sistem & API
+                    Pengaturan Sistem &amp; API
                 </a>
                 <div class="pt-2 border-t border-slate-700 flex flex-wrap gap-2">
                     <a href="{{ route('public.index') }}" target="_blank" rel="noopener" class="min-h-[44px] inline-flex items-center px-3 py-2 rounded border border-slate-500 text-xs font-semibold text-white">
@@ -180,4 +179,3 @@
     </script>
 </body>
 </html>
-

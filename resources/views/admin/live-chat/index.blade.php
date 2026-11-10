@@ -1,143 +1,202 @@
 @extends('layouts.admin')
 
-@section('title', 'Live Chat Terpusat - Dashboard Admin CRM UNPAM')
+@section('title', 'Meja Layanan (Live Chat Customer Service) - Admin UNPAM')
 
 @section('content')
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-300 pb-4">
+<div class="space-y-4">
+    <!-- Header Meja Layanan CS -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-300">
         <div>
-            <h1 class="text-2xl font-extrabold text-slate-900">Live Chat Admin Terpusat (Website & WhatsApp)</h1>
-            <p class="text-sm text-slate-700">
-                Kelola percakapan mahasiswa dari kedua kanal dengan alur: <strong>Menunggu Admin</strong> &rarr; <strong>Ambil Alih (Admin Aktif)</strong> &rarr; <strong>Tinggalkan (Kembali ke Bot Aktif)</strong>.
-            </p>
+            <div class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
+                <span>Pusat Layanan Mahasiswa</span>
+                <span>&bull;</span>
+                <span class="text-unpam-navy font-black">Konsol Customer Service</span>
+            </div>
+            <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2.5">
+                <span>Meja Layanan Live Chat Terpadu</span>
+                <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-800">
+                    Kanal WhatsApp &amp; Website
+                </span>
+            </h1>
+        </div>
+        <div class="flex items-center gap-2">
+            @php $waitingCount = $conversations->where('status', 'WAITING_ADMIN')->count(); @endphp
+            @if($waitingCount > 0)
+                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-100 text-amber-950 border border-amber-300 text-xs font-bold">
+                    <span class="w-2 h-2 rounded-full bg-red-600 animate-ping"></span>
+                    {{ $waitingCount }} Mahasiswa Menunggu Respons
+                </span>
+            @else
+                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    Semua Antrean Tertangani
+                </span>
+            @endif
         </div>
     </div>
 
-    <!-- Filter Status & Kanal -->
-    <form action="{{ route('admin.live-chat.index') }}" method="GET" class="bg-white border border-slate-300 rounded-lg p-4 flex flex-wrap items-end gap-3">
-        <div>
-            <label for="status" class="block text-xs font-bold text-slate-800 mb-1">Filter Status Percakapan</label>
-            <select id="status" name="status" class="min-h-[44px] px-3 py-2 rounded border border-slate-400 text-sm text-slate-900 bg-white">
-                <option value="">Semua Status</option>
-                @foreach($statusLabels as $code => $label)
-                    <option value="{{ $code }}" @selected($statusFilter === $code)>{{ $label }} ({{ $code }})</option>
-                @endforeach
-            </select>
-        </div>
+    <!-- Layout Dua Panel Workstation CS -->
+    <div class="bg-white rounded-xl border border-slate-300 shadow-sm overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[600px]">
+        
+        <!-- PANEL KIRI (4 Kolom / 33%): Kotak Masuk Tiket & Daftar Kontak -->
+        <aside aria-label="Kotak Masuk Percakapan Mahasiswa" class="lg:col-span-4 border-r border-slate-200 flex flex-col bg-slate-50/70">
+            <!-- Header Inbox & Filter CS -->
+            <div class="p-3.5 border-b border-slate-200 bg-white space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">Kotak Masuk Obrolan</span>
+                    <span class="text-xs font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">
+                        {{ $conversations->count() }} Percakapan
+                    </span>
+                </div>
 
-        <div>
-            <label for="channel" class="block text-xs font-bold text-slate-800 mb-1">Filter Kanal</label>
-            <select id="channel" name="channel" class="min-h-[44px] px-3 py-2 rounded border border-slate-400 text-sm text-slate-900 bg-white">
-                <option value="">Semua Kanal (Website & WhatsApp)</option>
-                <option value="web" @selected($channelFilter === 'web')>Website</option>
-                <option value="whatsapp" @selected($channelFilter === 'whatsapp')>WhatsApp (Fonnte)</option>
-            </select>
-        </div>
+                <!-- Search Input Mahasiswa -->
+                <div class="relative">
+                    <input type="text"
+                           id="csContactSearch"
+                           placeholder="Cari nama atau nomor WA..."
+                           class="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-unpam-navy">
+                    <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </div>
 
-        <button type="submit" class="min-h-[44px] px-4 py-2 rounded bg-unpam-navy text-white text-sm font-semibold hover:bg-unpam-navyDark">
-            Terapkan Filter
-        </button>
-
-        @if($statusFilter !== '' || $channelFilter !== '')
-            <a href="{{ route('admin.live-chat.index') }}" class="min-h-[44px] inline-flex items-center px-3.5 py-2 rounded border border-slate-300 text-sm font-medium text-slate-800 hover:bg-slate-100">
-                Reset
-            </a>
-        @endif
-    </form>
-
-    <!-- Layout Dua Panel Live Chat -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        <!-- Daftar Percakapan (Kiri: 4 Kolom) -->
-        <aside aria-label="Daftar Sesi Percakapan" class="lg:col-span-4 bg-white border border-slate-300 rounded-lg overflow-hidden">
-            <div class="bg-slate-100 border-b border-slate-300 px-4 py-3 flex items-center justify-between">
-                <h2 class="text-sm font-bold text-slate-900">Daftar Percakapan ({{ $conversations->count() }})</h2>
+                <!-- Tabs Filter Status CS -->
+                <div class="flex items-center gap-1 text-xs font-bold overflow-x-auto pb-0.5">
+                    <a href="{{ route('admin.live-chat.index') }}"
+                       class="px-2.5 py-1 rounded-md transition-colors whitespace-nowrap {{ empty($statusFilter) && empty($channelFilter) ? 'bg-unpam-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
+                        Semua
+                    </a>
+                    <a href="{{ route('admin.live-chat.index', ['status' => 'WAITING_ADMIN']) }}"
+                       class="px-2.5 py-1 rounded-md transition-colors whitespace-nowrap flex items-center gap-1 {{ $statusFilter === 'WAITING_ADMIN' ? 'bg-amber-400 text-slate-950 font-black' : 'bg-amber-50 text-amber-900 border border-amber-200 hover:bg-amber-100' }}">
+                        <span>Menunggu</span>
+                        @if($waitingCount > 0)
+                            <span class="px-1.5 py-0.2 rounded-full text-[10px] font-black bg-red-600 text-white">{{ $waitingCount }}</span>
+                        @endif
+                    </a>
+                    <a href="{{ route('admin.live-chat.index', ['channel' => 'whatsapp']) }}"
+                       class="px-2.5 py-1 rounded-md transition-colors whitespace-nowrap {{ $channelFilter === 'whatsapp' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
+                        WhatsApp
+                    </a>
+                    <a href="{{ route('admin.live-chat.index', ['channel' => 'web']) }}"
+                       class="px-2.5 py-1 rounded-md transition-colors whitespace-nowrap {{ $channelFilter === 'web' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
+                        Website
+                    </a>
+                </div>
             </div>
 
-            @if($conversations->isEmpty())
-                <div class="p-6 text-center space-y-2">
-                    <p class="text-sm font-bold text-slate-900">Belum Ada Percakapan</p>
-                    <p class="text-xs text-slate-700">
-                        Percakapan dari widget Website maupun webhook WhatsApp akan otomatis muncul di daftar ini.
-                    </p>
-                </div>
-            @else
-                <ul class="divide-y divide-slate-200 max-h-[540px] overflow-y-auto">
-                    @foreach($conversations as $item)
-                        @php
-                            $isSelected = $activeConversation && $activeConversation->id === $item->id;
-                            $statusBadge = match($item->status) {
-                                'WAITING_ADMIN' => 'bg-amber-200 text-slate-950',
-                                'ADMIN_ACTIVE' => 'bg-emerald-200 text-slate-950',
-                                'CLOSED' => 'bg-slate-200 text-slate-800',
-                                default => 'bg-blue-100 text-blue-950',
-                            };
-                        @endphp
-                        <li>
-                            <a href="{{ route('admin.live-chat.index', array_filter(['conversation_id' => $item->id, 'status' => $statusFilter, 'channel' => $channelFilter])) }}"
-                               class="block p-4 transition-colors {{ $isSelected ? 'bg-amber-50 border-l-4 border-unpam-navy' : 'hover:bg-slate-50' }}">
-                                <div class="flex items-center justify-between gap-2 mb-1">
-                                    <span class="inline-block text-[11px] font-bold px-2 py-0.5 rounded {{ $item->channel === 'whatsapp' ? 'bg-emerald-100 text-emerald-950 border border-emerald-300' : 'bg-slate-200 text-slate-900' }}">
-                                        {{ $item->channel === 'whatsapp' ? 'WhatsApp' : 'Website' }}
-                                    </span>
-                                    <span class="inline-block text-[11px] font-bold px-2 py-0.5 rounded {{ $statusBadge }}">
-                                        {{ $item->status_label }}
+            <!-- List Kontak Chat CS -->
+            <div id="csContactList" class="flex-1 overflow-y-auto max-h-[560px] divide-y divide-slate-100">
+                @forelse($conversations as $item)
+                    @php
+                        $isSelected = $activeConversation && $activeConversation->id === $item->id;
+                        $lastMsg = $item->messages->last();
+                        $statusBadge = match($item->status) {
+                            'WAITING_ADMIN' => 'bg-amber-100 text-amber-950 border-amber-300 font-black',
+                            'ADMIN_ACTIVE' => 'bg-emerald-100 text-emerald-950 border-emerald-300 font-bold',
+                            'CLOSED' => 'bg-slate-100 text-slate-600 border-slate-200',
+                            default => 'bg-slate-100 text-slate-700 border-slate-200',
+                        };
+                    @endphp
+                    <a href="{{ route('admin.live-chat.index', array_filter(['conversation_id' => $item->id, 'status' => $statusFilter, 'channel' => $channelFilter])) }}"
+                       data-search="{{ strtolower(($item->user_name ?? '') . ' ' . ($item->contact_number ?? '') . ' ' . $item->external_user_id) }}"
+                       class="cs-contact-item block p-3.5 transition-colors relative {{ $isSelected ? 'bg-white border-l-4 border-unpam-navy shadow-xs' : 'hover:bg-white/70' }}">
+                        <div class="flex items-start gap-3">
+                            <!-- Avatar CS dengan penanda kanal -->
+                            <div class="relative shrink-0">
+                                <div class="w-10 h-10 rounded-full {{ $item->channel === 'whatsapp' ? 'bg-emerald-100 text-emerald-900 border border-emerald-300' : 'bg-blue-100 text-blue-900 border border-blue-300' }} flex items-center justify-center font-black text-xs">
+                                    {{ strtoupper(substr($item->user_name ?: $item->external_user_id, 0, 2)) }}
+                                </div>
+                                <span class="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold text-white border-2 border-white {{ $item->channel === 'whatsapp' ? 'bg-emerald-600' : 'bg-blue-600' }}">
+                                    @if($item->channel === 'whatsapp') WA @else WB @endif
+                                </span>
+                            </div>
+
+                            <!-- Detail Mahasiswa -->
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <h2 class="text-sm font-bold text-slate-900 truncate">
+                                        {{ $item->user_name ?: $item->external_user_id }}
+                                    </h2>
+                                    <span class="text-[10px] text-slate-400 font-mono shrink-0">
+                                        {{ $item->last_message_at?->format('H:i') ?? '-' }}
                                     </span>
                                 </div>
-                                <p class="font-bold text-sm text-slate-900 truncate">
-                                    {{ $item->user_name ?: $item->external_user_id }}
+
+                                <div class="flex items-center justify-between gap-1 mb-1.5">
+                                    <span class="inline-block text-[10px] uppercase px-2 py-0.5 rounded-full border {{ $statusBadge }}">
+                                        {{ $item->status_label }}
+                                    </span>
+                                    @if($item->contact_number)
+                                        <span class="text-[11px] font-mono text-slate-500 truncate">+{{ $item->contact_number }}</span>
+                                    @endif
+                                </div>
+
+                                <p class="text-xs text-slate-500 truncate">
+                                    @if($lastMsg)
+                                        <span class="font-semibold text-slate-700">{{ $lastMsg->sender_type === 'user' ? 'Mhs:' : 'CS:' }}</span>
+                                        {{ $lastMsg->message }}
+                                    @else
+                                        <span class="italic text-slate-400">Belum ada percakapan</span>
+                                    @endif
                                 </p>
-                                @if($item->contact_number)
-                                    <p class="text-xs font-mono text-slate-600">+{{ $item->contact_number }}</p>
-                                @endif
-                                <p class="text-[11px] text-slate-600 mt-1">
-                                    Aktivitas: {{ $item->last_message_at?->diffForHumans() ?? '-' }}
-                                </p>
-                            </a>
-                        </li>
-                    @endforeach
-                </ul>
-            @endif
+                            </div>
+                        </div>
+                    </a>
+                @empty
+                    <div class="p-8 text-center text-slate-500 space-y-1">
+                        <p class="text-xs font-bold text-slate-700">Tidak Ada Percakapan</p>
+                        <p class="text-[11px] text-slate-400">Belum ada obrolan masuk pada filter ini.</p>
+                    </div>
+                @endforelse
+            </div>
         </aside>
 
-        <!-- Panel Ruang Chat Aktif (Kanan: 8 Kolom) -->
-        <section aria-label="Ruang Percakapan Aktif" class="lg:col-span-8 bg-white border border-slate-300 rounded-lg overflow-hidden flex flex-col">
+        <!-- PANEL KANAN (8 Kolom / 67%): Konsol Meja Layanan Customer Service -->
+        <section aria-label="Konsol Percakapan CS Aktif" class="lg:col-span-8 flex flex-col bg-white">
             @if(! $activeConversation)
-                <div class="p-12 text-center space-y-2">
-                    <h2 class="text-base font-bold text-slate-900">Pilih Percakapan di Panel Kiri</h2>
-                    <p class="text-sm text-slate-700">
-                        Pilih salah satu sesi percakapan mahasiswa untuk membaca riwayat pesan, mengambil alih percakapan, atau mengirim balasan.
-                    </p>
-                </div>
-            @else
-                <!-- Header Percakapan & Tombol Kontrol Status -->
-                <div class="bg-slate-100 border-b border-slate-300 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div class="space-y-1">
-                        <div class="flex flex-wrap items-center gap-2">
-                            <h2 class="text-base font-extrabold text-slate-900">
-                                {{ $activeConversation->user_name ?: $activeConversation->external_user_id }}
-                            </h2>
-                            <span class="text-xs font-bold px-2.5 py-0.5 rounded {{ $activeConversation->channel === 'whatsapp' ? 'bg-emerald-100 text-emerald-950 border border-emerald-300' : 'bg-blue-100 text-blue-950 border border-blue-300' }}">
-                                Kanal: {{ $activeConversation->channel === 'whatsapp' ? 'WhatsApp' : 'Website' }}
-                            </span>
-                            <span id="livechat-active-status" class="text-xs font-bold px-2.5 py-0.5 rounded bg-unpam-navy text-white">
-                                {{ $activeConversation->status_label }} ({{ $activeConversation->status }})
-                            </span>
-                        </div>
-                        <p class="text-xs text-slate-700">
-                            ID Sesi: <code class="font-mono">{{ $activeConversation->external_user_id }}</code>
-                            @if($activeConversation->assignedAdmin)
-                                | Ditangani oleh: <strong>{{ $activeConversation->assignedAdmin->name }}</strong>
-                            @endif
+                <div class="flex-1 flex flex-col items-center justify-center p-16 text-center text-slate-400 space-y-3">
+                    <div class="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                    </div>
+                    <div>
+                        <h2 class="text-base font-bold text-slate-800">Pilih Mahasiswa dari Panel Kiri</h2>
+                        <p class="text-xs text-slate-500 max-w-sm mt-1">
+                            Klik salah satu kontak mahasiswa untuk memulai pendampingan layanan, membaca riwayat, atau mengirim balasan.
                         </p>
                     </div>
+                </div>
+            @else
+                <!-- Header Percakapan CS -->
+                <div class="px-5 py-3.5 border-b border-slate-200 bg-slate-50/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-unpam-navy text-white font-black text-sm flex items-center justify-center shadow-xs">
+                            {{ strtoupper(substr($activeConversation->user_name ?: $activeConversation->external_user_id, 0, 2)) }}
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h2 class="text-base font-black text-slate-900 leading-tight">
+                                    {{ $activeConversation->user_name ?: $activeConversation->external_user_id }}
+                                </h2>
+                                <span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full {{ $activeConversation->channel === 'whatsapp' ? 'bg-emerald-100 text-emerald-900 border border-emerald-300' : 'bg-blue-100 text-blue-900 border border-blue-300' }}">
+                                    {{ $activeConversation->channel === 'whatsapp' ? 'WhatsApp' : 'Website' }}
+                                </span>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-0.5 font-mono">
+                                @if($activeConversation->contact_number)
+                                    No: +{{ $activeConversation->contact_number }} &bull;
+                                @endif
+                                Status: <strong id="livechat-active-status" class="text-slate-800">{{ $activeConversation->status_label }}</strong>
+                            </p>
+                        </div>
+                    </div>
 
-                    <!-- Tombol Aksi: Ambil Alih & Akhiri Percakapan -->
-                    <div class="flex flex-wrap items-center gap-2 shrink-0">
+                    <!-- Tombol Kendali Sesi CS -->
+                    <div class="flex items-center gap-2 shrink-0">
                         @if($activeConversation->status !== 'ADMIN_ACTIVE')
                             <form action="{{ route('admin.live-chat.take-over', $activeConversation) }}" method="POST">
                                 @csrf
                                 <button type="submit"
-                                        class="min-h-[44px] px-4 py-2 rounded bg-unpam-gold text-slate-950 font-bold text-xs sm:text-sm hover:bg-unpam-goldHover">
-                                    Ambil Alih Percakapan
+                                        class="min-h-[40px] px-4 py-2 rounded-lg bg-unpam-gold hover:bg-amber-400 text-slate-950 font-black text-xs shadow-xs transition-colors border border-amber-300 flex items-center gap-1.5">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                    <span>Ambil Alih Obrolan</span>
                                 </button>
                             </form>
                         @endif
@@ -145,101 +204,148 @@
                         @if($activeConversation->status !== 'CLOSED')
                             <form action="{{ route('admin.live-chat.close', $activeConversation) }}"
                                   method="POST"
-                                  onsubmit="return confirm('Tinggalkan percakapan ini? Status akan dialihkan kembali ke Bot Aktif agar mahasiswa langsung dilayani oleh Chatbot.');">
+                                  onsubmit="return confirm('Selesaikan pendampingan dan kembalikan obrolan ke Chatbot?');">
                                 @csrf
                                 <button type="submit"
-                                        class="min-h-[44px] px-4 py-2 rounded bg-slate-800 text-white font-semibold text-xs sm:text-sm hover:bg-red-700">
-                                    Tinggalkan (Kembali ke Bot)
+                                        class="min-h-[40px] px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs transition-colors shadow-xs flex items-center gap-1.5">
+                                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                    <span>Selesaikan (Kembali ke Bot)</span>
                                 </button>
                             </form>
                         @endif
                     </div>
                 </div>
 
-                @if($activeConversation->channel === 'whatsapp')
-                    <div class="bg-amber-50 border-b border-amber-200 px-4 py-2 text-xs text-slate-800">
-                        <strong>Catatan Sinkronisasi WhatsApp:</strong> Balasan yang Anda kirim dari form di bawah akan diteruskan ke nomor WhatsApp mahasiswa melalui API Fonnte
-                        ({{ $fonnteConfigured ? 'Token Fonnte Aktif' : 'Mode Lokal - Token Fonnte belum diisi di .env' }}).
-                        Hindari membalas langsung dari aplikasi HP WhatsApp karena Fonnte tidak menjamin sinkronisasi otomatis pesan keluar dari perangkat ke dashboard.
-                    </div>
-                @endif
-
-                <!-- Riwayat Pesan -->
+                <!-- Area Riwayat Pesan CS (Bisa Discroll Alami) -->
                 <div id="admin-chat-messages"
                      data-poll-url="{{ route('admin.live-chat.poll', $activeConversation) }}"
-                     class="p-4 space-y-3 bg-slate-50 min-h-[320px] max-h-[440px] overflow-y-auto text-sm">
+                     class="flex-1 p-5 space-y-4 bg-slate-50/60 overflow-y-auto max-h-[460px]">
                     @forelse($activeConversation->messages as $msg)
                         @php
                             $isUser = $msg->sender_type === 'user';
                             $isAdmin = $msg->sender_type === 'admin';
                             $isSystem = $msg->sender_type === 'system';
                         @endphp
-                        <div class="{{ $isSystem ? 'bg-amber-50 border border-amber-300 text-slate-900 rounded p-3 text-xs' : ($isAdmin ? 'ml-8 bg-unpam-navy text-white rounded-lg p-3.5' : ($isUser ? 'mr-8 bg-white border-2 border-slate-300 text-slate-900 rounded-lg p-3.5' : 'mr-8 bg-slate-200 text-slate-900 rounded-lg p-3.5')) }}">
-                            <div class="flex items-center justify-between gap-2 mb-1 text-xs {{ $isAdmin ? 'text-slate-200' : 'text-slate-600' }}">
-                                <span class="font-bold">
-                                    {{ $msg->sender_name ?: strtoupper($msg->sender_type) }}
-                                    ({{ strtoupper($msg->sender_type) }})
-                                </span>
-                                <span>
-                                    {{ $msg->created_at?->format('d M H:i') }}
-                                    @if($msg->delivery_status === 'sent_gateway')
-                                        | Terkirim Fonnte
-                                    @elseif($msg->delivery_status === 'local_only')
-                                        | Tersimpan Lokal (Tanpa Token WA)
-                                    @elseif($msg->delivery_status === 'failed_gateway')
-                                        | Gagal Gateway WA
-                                    @endif
+
+                        @if($isSystem)
+                            <div class="flex justify-center my-1.5">
+                                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-900 border border-amber-200/80 text-center max-w-md shadow-xs">
+                                    {{ $msg->message }}
                                 </span>
                             </div>
-                            <div class="whitespace-pre-line leading-relaxed break-words">{{ $msg->message }}</div>
-                        </div>
+                        @elseif($isAdmin)
+                            <div class="flex justify-end pl-12">
+                                <div class="max-w-md sm:max-w-lg bg-unpam-navy text-white rounded-2xl rounded-tr-xs px-4 py-3 shadow-xs space-y-1">
+                                    <div class="flex items-center justify-between gap-3 text-[10px] text-slate-300">
+                                        <span class="font-bold text-unpam-gold">{{ $msg->sender_name ?: 'CS Layanan' }} (ADMIN)</span>
+                                        <span class="font-mono">{{ $msg->created_at?->format('H:i') }}</span>
+                                    </div>
+                                    <div class="text-xs sm:text-sm whitespace-pre-line leading-relaxed break-words">
+                                        {{ $msg->message }}
+                                    </div>
+                                    @if($msg->delivery_status === 'sent_gateway')
+                                        <div class="text-[10px] text-emerald-300 text-right font-medium pt-0.5">
+                                            &check;&check; Terkirim ke WhatsApp
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        @else
+                            <div class="flex justify-start pr-12">
+                                <div class="max-w-md sm:max-w-lg bg-white border border-slate-200 text-slate-900 rounded-2xl rounded-tl-xs px-4 py-3 shadow-xs space-y-1">
+                                    <div class="flex items-center justify-between gap-3 text-[10px] text-slate-400">
+                                        <span class="font-bold text-slate-700">{{ $msg->sender_name ?: 'Mahasiswa' }} (MAHASISWA)</span>
+                                        <span class="font-mono">{{ $msg->created_at?->format('H:i') }}</span>
+                                    </div>
+                                    <div class="text-xs sm:text-sm whitespace-pre-line leading-relaxed break-words text-slate-800">
+                                        {{ $msg->message }}
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                     @empty
-                        <div class="text-center text-slate-600 py-8 text-sm">
-                            Belum ada pesan pada percakapan ini.
+                        <div class="text-center text-slate-400 py-16 text-sm">
+                            Belum ada riwayat pesan pada sesi ini.
                         </div>
                     @endforelse
                 </div>
 
-                <!-- Form Balasan Admin -->
-                <form action="{{ route('admin.live-chat.reply', $activeConversation) }}"
-                      method="POST"
-                      class="bg-white border-t border-slate-300 p-4 space-y-3">
-                    @csrf
-                    <div>
-                        <label for="reply-message" class="block text-xs font-bold text-slate-900 mb-1">
-                            Balas Pesan Mahasiswa
-                            @if($activeConversation->status !== 'ADMIN_ACTIVE')
-                                <span class="font-normal text-slate-600">(Mengirim balasan akan otomatis mengubah status menjadi Admin Aktif)</span>
-                            @endif
-                        </label>
-                        <textarea id="reply-message"
-                                  name="message"
-                                  rows="3"
-                                  required
-                                  placeholder="Ketik balasan untuk mahasiswa di sini..."
-                                  class="w-full px-3.5 py-2 rounded border border-slate-400 text-sm text-slate-900"></textarea>
-                    </div>
-                    <div class="flex items-center justify-between gap-3">
-                        <span class="text-xs text-slate-600">
-                            Kanal tujuan: <strong>{{ $activeConversation->channel === 'whatsapp' ? 'WhatsApp (+' . $activeConversation->contact_number . ')' : 'Widget Website Publik' }}</strong>
-                        </span>
-                        <button type="submit"
-                                class="min-h-[44px] px-5 py-2 rounded bg-unpam-navy text-white text-sm font-bold hover:bg-unpam-navyDark">
-                            Kirim Balasan Admin
+                <!-- CS Composer Bar (Bawah) -->
+                <div class="p-3.5 border-t border-slate-200 bg-white space-y-2.5">
+                    <!-- Template Balasan Cepat CS (Canned Responses) -->
+                    <div class="flex items-center gap-1.5 overflow-x-auto text-[11px] pb-1">
+                        <span class="font-bold text-slate-500 uppercase shrink-0 text-[10px]">Balasan Cepat:</span>
+                        <button type="button"
+                                onclick="insertQuickReply('Halo, selamat datang di Layanan Mahasiswa UNPAM. Ada yang bisa kami bantu?')"
+                                class="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold whitespace-nowrap transition-colors">
+                            Sapaan Pembuka
+                        </button>
+                        <button type="button"
+                                onclick="insertQuickReply('Baik, mohon tunggu sebentar ya. Kami sedang melakukan verifikasi data pada sistem.')"
+                                class="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold whitespace-nowrap transition-colors">
+                            Mohon Tunggu
+                        </button>
+                        <button type="button"
+                                onclick="insertQuickReply('Sama-sama, senang bisa membantu. Jika ada hal lain yang perlu ditanyakan, silakan hubungi kami kembali.')"
+                                class="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold whitespace-nowrap transition-colors">
+                            Penutup Layanan
                         </button>
                     </div>
-                </form>
+
+                    <form action="{{ route('admin.live-chat.reply', $activeConversation) }}" method="POST" class="flex items-end gap-2.5">
+                        @csrf
+                        <div class="flex-1 relative">
+                            <textarea id="csReplyInput"
+                                      name="message"
+                                      rows="2"
+                                      required
+                                      placeholder="Ketik balasan CS ke mahasiswa... (Tekan Kirim untuk membalas)"
+                                      class="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-300 text-slate-900 focus:ring-2 focus:ring-unpam-navy focus:border-unpam-navy resize-none"></textarea>
+                        </div>
+                        <button type="submit"
+                                class="min-h-[46px] px-5 py-2.5 rounded-xl bg-unpam-navy hover:bg-slate-800 text-white font-bold text-xs sm:text-sm shadow-sm transition-colors inline-flex items-center gap-2 shrink-0">
+                            <span>Kirim Balasan</span>
+                            <svg class="w-4 h-4 text-unpam-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                        </button>
+                    </form>
+                </div>
             @endif
         </section>
     </div>
+</div>
 
-    @if($activeConversation)
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const container = document.getElementById('admin-chat-messages');
-                const statusBadge = document.getElementById('livechat-active-status');
-                if (!container) return;
+<script>
+    function insertQuickReply(text) {
+        const input = document.getElementById('csReplyInput');
+        if (input) {
+            input.value = text;
+            input.focus();
+        }
+    }
 
+    // Filter pencarian kontak instan di panel kiri
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchInput = document.getElementById('csContactSearch');
+        const contactItems = document.querySelectorAll('.cs-contact-item');
+
+        if (searchInput && contactItems.length > 0) {
+            searchInput.addEventListener('input', function () {
+                const query = this.value.toLowerCase().trim();
+                contactItems.forEach(item => {
+                    const searchData = item.getAttribute('data-search') || '';
+                    if (searchData.includes(query)) {
+                        item.classList.remove('hidden');
+                    } else {
+                        item.classList.add('hidden');
+                    }
+                });
+            });
+        }
+
+        @if($activeConversation)
+            const container = document.getElementById('admin-chat-messages');
+            const statusBadge = document.getElementById('livechat-active-status');
+            if (container) {
                 container.scrollTop = container.scrollHeight;
                 const pollUrl = container.getAttribute('data-poll-url');
                 let currentCount = {{ $activeConversation->messages->count() }};
@@ -250,17 +356,17 @@
                         if (!res.ok) return;
                         const data = await res.json();
                         if (statusBadge && data.status_label) {
-                            statusBadge.textContent = data.status_label + ' (' + data.status + ')';
+                            statusBadge.textContent = data.status_label;
                         }
                         if (Array.isArray(data.messages) && data.messages.length !== currentCount) {
                             window.location.reload();
                         }
                     } catch (e) {
-                        // Abaikan gangguan jaringan sementara saat polling
+                        // Silent polling
                     }
-                }, 5000);
-            });
-        </script>
-    @endif
+                }, 3500);
+            }
+        @endif
+    });
+</script>
 @endsection
-

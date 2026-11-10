@@ -21,7 +21,7 @@ Route::get('/chat/session', [WebChatController::class, 'session'])->name('webcha
 Route::post('/chat/message', [WebChatController::class, 'sendMessage'])->name('webchat.message');
 
 // Endpoint Webhook Fonnte (WhatsApp Masuk)
-Route::post('/api/webhook/fonnte', [FonnteWebhookController::class, 'handle'])->name('webhook.fonnte');
+Route::match(['get', 'post'], '/api/webhook/fonnte', [FonnteWebhookController::class, 'handle'])->name('webhook.fonnte');
 
 // Autentikasi Admin
 Route::middleware('guest')->group(function () {
@@ -56,6 +56,8 @@ Route::prefix('admin')
             ->name('reminders.send-now');
 
         // Live Chat Terpusat (Website & WhatsApp)
+        Route::post('live-chat/simulate-whatsapp', [LiveChatController::class, 'simulateWebhook'])
+            ->name('live-chat.simulate-whatsapp');
         Route::get('live-chat', [LiveChatController::class, 'index'])->name('live-chat.index');
         Route::post('live-chat/{conversation}/take-over', [LiveChatController::class, 'takeOver'])
             ->name('live-chat.take-over');
