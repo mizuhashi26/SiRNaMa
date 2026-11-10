@@ -46,7 +46,7 @@ class CrmMvpEndToEndTest extends TestCase
 
     public function test_admin_authentication_and_student_and_information_crud(): void
     {
-        $admin = User::factory()->create([
+        $admin = User::factory()->superadmin()->create([
             'email' => 'admin@unpam.ac.id',
             'password' => bcrypt('password123'),
         ]);

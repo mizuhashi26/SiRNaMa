@@ -13,11 +13,12 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Akun Admin Default
+        // 1. Akun Superadmin Default
         User::updateOrCreate(
             ['email' => 'admin@unpam.ac.id'],
             [
-                'name' => 'Admin Layanan UNPAM',
+                'name' => 'Super Admin UNPAM',
+                'role' => User::ROLE_SUPERADMIN,
                 'password' => Hash::make('password123'),
             ]
         );

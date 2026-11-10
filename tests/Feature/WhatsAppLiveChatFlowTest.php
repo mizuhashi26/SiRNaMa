@@ -117,7 +117,8 @@ class WhatsAppLiveChatFlowTest extends TestCase
         $this->assertDatabaseHas('conversation_messages', [
             'conversation_id' => $conversation->id,
             'sender_type' => 'admin',
-            'message' => 'Halo Rian, untuk dispensasi silakan ajukan surat ke Bagian Keuangan melalui loket B.',
+            'sender_name' => 'Admin Budi',
+            'message' => "Halo Rian, untuk dispensasi silakan ajukan surat ke Bagian Keuangan melalui loket B.\n\n-Admin Budi",
         ]);
 
         // LANGKAH 6: Admin mengakhiri sesi dan mengembalikan ke Bot

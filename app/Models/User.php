@@ -12,8 +12,15 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
+    public const ROLE_SUPERADMIN = 'superadmin';
+
+    public const ROLE_ADMIN = 'admin';
+
     /**
      * The attributes that are mass assignable.
+     *
+     * Kolom `role` sengaja tidak ada di sini; ditetapkan eksplisit oleh controller
+     * agar input form tidak bisa menaikkan hak akses.
      *
      * @var list<string>
      */
@@ -44,5 +51,15 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === self::ROLE_SUPERADMIN;
+    }
+
+    public function getRoleLabelAttribute(): string
+    {
+        return $this->isSuperAdmin() ? 'Super Admin' : 'Admin';
     }
 }

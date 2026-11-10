@@ -33,6 +33,16 @@ class UserFactory extends Factory
     }
 
     /**
+     * Akun dengan hak akses penuh (Mahasiswa, Pengaturan, Kelola Admin).
+     */
+    public function superadmin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'superadmin',
+        ]);
+    }
+
+    /**
      * Indicate that the model's email address should be unverified.
      */
     public function unverified(): static

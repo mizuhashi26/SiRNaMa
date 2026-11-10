@@ -100,6 +100,14 @@ class LiveChatController extends Controller
         ]);
 
         $admin = Auth::user();
+        $adminName = $admin?->name ?? 'Admin';
+        $adminSignature = '-' . $adminName;
+
+        // Tambahkan signature pengirim admin (misal: -admin1 atau -Admin A)
+        $rawMessage = rtrim($validated['message']);
+        $messageWithSignature = str_ends_with($rawMessage, $adminSignature)
+            ? $rawMessage
+            : $rawMessage . "\n\n" . $adminSignature;
 
         // Pastikan status menjadi ADMIN_ACTIVE saat admin mengirim balasan
         if ($conversation->status !== Conversation::STATUS_ADMIN_ACTIVE) {
@@ -117,7 +125,7 @@ class LiveChatController extends Controller
         $flashNotice = 'Balasan berhasil dikirim ke mahasiswa.';
 
         if ($conversation->channel === 'whatsapp' && filled($conversation->contact_number)) {
-            $waMessage = "*[Admin Layanan UNPAM - {$admin?->name}]*\n" . $validated['message'];
+            $waMessage = "*[Admin Layanan UNPAM]*\n" . $messageWithSignature;
             $gatewayResult = $fonnteService->sendMessage($conversation->contact_number, $waMessage);
 
             if ($gatewayResult['success']) {
@@ -141,8 +149,8 @@ class LiveChatController extends Controller
 
         $conversation->messages()->create([
             'sender_type' => 'admin',
-            'sender_name' => $admin?->name ?? 'Admin CRM',
-            'message' => $validated['message'],
+            'sender_name' => $adminName,
+            'message' => $messageWithSignature,
             'delivery_status' => $deliveryStatus,
             'metadata' => $metadata,
         ]);

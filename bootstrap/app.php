@@ -15,6 +15,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'api/webhook/fonnte',
             'api/webhook/fonnte/*',
         ]);
+
+        $middleware->alias([
+            'superadmin' => \App\Http\Middleware\EnsureSuperAdmin::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\CampusInformationController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\LiveChatController;
@@ -38,19 +39,13 @@ Route::prefix('admin')
     ->name('admin.')
     ->middleware('auth')
     ->group(function () {
+        // === Akses Admin & Super Admin: Ringkasan, Informasi, Pengingat, Live Chat ===
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
         // CRUD Informasi Kampus
         Route::resource('informations', CampusInformationController::class)->except(['show']);
 
-        // Pengelolaan & Batch Import Data Mahasiswa
-        Route::post('students/import', [StudentController::class, 'import'])->name('students.import');
-        Route::get('students/template', [StudentController::class, 'downloadTemplate'])->name('students.template');
-        Route::post('students/bulk-delete', [StudentController::class, 'bulkDelete'])->name('students.bulk-delete');
-        Route::delete('students/delete-all', [StudentController::class, 'deleteAll'])->name('students.delete-all');
-        Route::resource('students', StudentController::class)->except(['show']);
-
-        // CRUD & Kirim Manual Reminder Pembayaran Umum
+        // CRUD & Kirim Manual Pengingat Mahasiswa
         Route::resource('reminders', PaymentReminderController::class);
         Route::post('reminders/{reminder}/send-now', [PaymentReminderController::class, 'sendNow'])
             ->name('reminders.send-now');
@@ -68,7 +63,20 @@ Route::prefix('admin')
         Route::get('live-chat/{conversation}/poll', [LiveChatController::class, 'poll'])
             ->name('live-chat.poll');
 
-        // Pengaturan Sistem & API
-        Route::get('settings', [SettingController::class, 'index'])->name('settings.index');
-        Route::put('settings', [SettingController::class, 'update'])->name('settings.update');
+        // === Khusus Super Admin: Mahasiswa, Pengaturan, Kelola Admin ===
+        Route::middleware('superadmin')->group(function () {
+            // Pengelolaan & Batch Import Data Mahasiswa
+            Route::post('students/import', [StudentController::class, 'import'])->name('students.import');
+            Route::get('students/template', [StudentController::class, 'downloadTemplate'])->name('students.template');
+            Route::post('students/bulk-delete', [StudentController::class, 'bulkDelete'])->name('students.bulk-delete');
+            Route::delete('students/delete-all', [StudentController::class, 'deleteAll'])->name('students.delete-all');
+            Route::resource('students', StudentController::class)->except(['show']);
+
+            // Pengaturan Sistem & API
+            Route::get('settings', [SettingController::class, 'index'])->name('settings.index');
+            Route::put('settings', [SettingController::class, 'update'])->name('settings.update');
+
+            // Kelola Akun Admin
+            Route::resource('users', AdminUserController::class)->except(['show']);
+        });
     });

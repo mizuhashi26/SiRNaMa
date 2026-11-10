@@ -17,9 +17,17 @@ class AdminSettingTest extends TestCase
         $response->assertRedirect(route('login'));
     }
 
-    public function test_admin_can_view_settings_page(): void
+    public function test_regular_admin_forbidden_from_settings(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $response = $this->actingAs($admin)->get(route('admin.settings.index'));
+        $response->assertForbidden();
+    }
+
+    public function test_superadmin_can_view_settings_page(): void
+    {
+        $admin = User::factory()->superadmin()->create();
 
         $response = $this->actingAs($admin)->get(route('admin.settings.index'));
 
@@ -29,9 +37,9 @@ class AdminSettingTest extends TestCase
         $response->assertSee('Integrasi WhatsApp Gateway (Fonnte)');
     }
 
-    public function test_admin_can_update_settings(): void
+    public function test_superadmin_can_update_settings(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->superadmin()->create();
 
         $payload = [
             'app_institution_name' => 'Universitas Pamulang Baru',

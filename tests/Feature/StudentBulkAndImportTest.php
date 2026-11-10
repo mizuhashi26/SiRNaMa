@@ -12,9 +12,17 @@ class StudentBulkAndImportTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_regular_admin_forbidden_from_student_management(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $response = $this->actingAs($admin)->get(route('admin.students.index'));
+        $response->assertForbidden();
+    }
+
     public function test_admin_can_download_csv_template(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->superadmin()->create();
 
         $response = $this->actingAs($admin)->get(route('admin.students.template'));
 
@@ -25,7 +33,7 @@ class StudentBulkAndImportTest extends TestCase
 
     public function test_admin_can_import_students_from_csv(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->superadmin()->create();
 
         $csvContent = "nim,nama,jurusan,nomor_wa,semester,catatan\n" .
                       "211011400101,Budi Santoso,Sistem Informasi S1,628123456701,5,Reguler A\n" .
@@ -57,7 +65,7 @@ class StudentBulkAndImportTest extends TestCase
 
     public function test_admin_can_bulk_delete_selected_students(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->superadmin()->create();
 
         $s1 = Student::create([
             'nim' => '211011400011',
@@ -101,7 +109,7 @@ class StudentBulkAndImportTest extends TestCase
 
     public function test_admin_can_delete_all_students(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->superadmin()->create();
 
         Student::create([
             'nim' => '211011400021',
