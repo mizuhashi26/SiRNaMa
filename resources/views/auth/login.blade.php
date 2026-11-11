@@ -10,7 +10,25 @@
     @php
         $brandLogoImage = \App\Models\AppSetting::getValue('app_logo_image', null);
         $brandAppName = \App\Models\AppSetting::getValue('app_institution_name', 'Universitas Pamulang');
+        $themePrimary = \App\Models\AppSetting::getValue('theme_primary_color', '#0F294A');
+        $themeAccent = \App\Models\AppSetting::getValue('theme_accent_color', '#EAB308');
     @endphp
+
+    <style>
+        :root {
+            --color-primary: {{ $themePrimary }};
+            --color-accent: {{ $themeAccent }};
+        }
+        .bg-unpam-navy { background-color: var(--color-primary) !important; }
+        .text-unpam-navy { color: var(--color-primary) !important; }
+        .border-unpam-navy { border-color: var(--color-primary) !important; }
+        .focus\:ring-unpam-navy:focus { --tw-ring-color: var(--color-primary) !important; }
+        .focus\:border-unpam-navy:focus { border-color: var(--color-primary) !important; }
+
+        .bg-unpam-gold { background-color: var(--color-accent) !important; }
+        .text-unpam-gold { color: var(--color-accent) !important; }
+        .border-unpam-gold { border-color: var(--color-accent) !important; }
+    </style>
     <header class="bg-unpam-navy text-white py-2.5 px-4 border-b border-slate-800">
         <div class="max-w-5xl mx-auto flex items-center justify-between">
             <a href="{{ route('public.index') }}" class="min-h-[44px] inline-flex items-center gap-3 font-bold text-sm sm:text-base text-white">
@@ -70,7 +88,7 @@
                     <input type="email"
                            id="email"
                            name="email"
-                           value="{{ old('email', 'admin@unpam.ac.id') }}"
+                           value="{{ old('email') }}"
                            required
                            autocomplete="email"
                            placeholder="admin@unpam.ac.id"
@@ -106,12 +124,6 @@
                     Masuk ke Dashboard
                 </button>
             </form>
-
-            <div class="bg-slate-50 border border-slate-200 rounded p-3 text-xs text-slate-700 space-y-1">
-                <p class="font-bold text-slate-900">Akun Pengelola Default:</p>
-                <p>Email: <code class="font-mono bg-white px-1 py-0.5 border border-slate-200 rounded">admin@unpam.ac.id</code></p>
-                <p>Password: <code class="font-mono bg-white px-1 py-0.5 border border-slate-200 rounded">password123</code></p>
-            </div>
         </div>
     </main>
 

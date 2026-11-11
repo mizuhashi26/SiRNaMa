@@ -115,6 +115,186 @@
             </div>
         </div>
 
+        <!-- Bagian 2: Kustomisasi Warna & Tema Web -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-unpam-navy to-unpam-gold text-white flex items-center justify-center font-bold text-sm shadow-xs">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4 5 5 0 013-4.594M7 21h10a4 4 0 004-4 5 5 0 00-3-4.594M7 21v-2a4 4 0 014-4h2a4 4 0 014 4v2M12 7a4 4 0 100-8 4 4 0 000 8z"/></svg>
+                    </div>
+                    <div>
+                        <h2 class="text-base font-bold text-slate-900">Kustomisasi Warna &amp; Tema Web</h2>
+                        <p class="text-xs text-slate-500">Ubah palet warna utama (primary) dan warna aksen tombol website sesuai kebutuhan.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 space-y-6">
+                <!-- Preset Cepat Warna -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                        Pilihan Preset Warna Harmonik (Anti-Slop)
+                    </label>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
+                        <button type="button" onclick="applyColorPreset('#0F294A', '#EAB308')"
+                                class="p-2.5 rounded-lg border border-slate-300 bg-white hover:border-slate-400 text-left transition-all hover:shadow-xs group">
+                            <div class="flex items-center gap-1.5 mb-1.5">
+                                <span class="w-4 h-4 rounded-full border border-black/10 shrink-0" style="background-color: #0F294A;"></span>
+                                <span class="w-4 h-4 rounded-full border border-black/10 shrink-0" style="background-color: #EAB308;"></span>
+                            </div>
+                            <span class="block text-xs font-bold text-slate-900 group-hover:text-blue-900">UNPAM Standar</span>
+                            <span class="block text-[10px] text-slate-500 font-mono">Navy &amp; Emas</span>
+                        </button>
+
+                        <button type="button" onclick="applyColorPreset('#1E3A8A', '#F59E0B')"
+                                class="p-2.5 rounded-lg border border-slate-300 bg-white hover:border-slate-400 text-left transition-all hover:shadow-xs group">
+                            <div class="flex items-center gap-1.5 mb-1.5">
+                                <span class="w-4 h-4 rounded-full border border-black/10 shrink-0" style="background-color: #1E3A8A;"></span>
+                                <span class="w-4 h-4 rounded-full border border-black/10 shrink-0" style="background-color: #F59E0B;"></span>
+                            </div>
+                            <span class="block text-xs font-bold text-slate-900 group-hover:text-blue-900">Royal Blue</span>
+                            <span class="block text-[10px] text-slate-500 font-mono">Blue &amp; Amber</span>
+                        </button>
+
+                        <button type="button" onclick="applyColorPreset('#1E1B4B', '#D97706')"
+                                class="p-2.5 rounded-lg border border-slate-300 bg-white hover:border-slate-400 text-left transition-all hover:shadow-xs group">
+                            <div class="flex items-center gap-1.5 mb-1.5">
+                                <span class="w-4 h-4 rounded-full border border-black/10 shrink-0" style="background-color: #1E1B4B;"></span>
+                                <span class="w-4 h-4 rounded-full border border-black/10 shrink-0" style="background-color: #D97706;"></span>
+                            </div>
+                            <span class="block text-xs font-bold text-slate-900 group-hover:text-blue-900">Midnight Indigo</span>
+                            <span class="block text-[10px] text-slate-500 font-mono">Indigo &amp; Warm</span>
+                        </button>
+
+                        <button type="button" onclick="applyColorPreset('#064E3B', '#EAB308')"
+                                class="p-2.5 rounded-lg border border-slate-300 bg-white hover:border-slate-400 text-left transition-all hover:shadow-xs group">
+                            <div class="flex items-center gap-1.5 mb-1.5">
+                                <span class="w-4 h-4 rounded-full border border-black/10 shrink-0" style="background-color: #064E3B;"></span>
+                                <span class="w-4 h-4 rounded-full border border-black/10 shrink-0" style="background-color: #EAB308;"></span>
+                            </div>
+                            <span class="block text-xs font-bold text-slate-900 group-hover:text-blue-900">Emerald Hijau</span>
+                            <span class="block text-[10px] text-slate-500 font-mono">Emerald &amp; Gold</span>
+                        </button>
+
+                        <button type="button" onclick="applyColorPreset('#0C4A6E', '#D97706')"
+                                class="p-2.5 rounded-lg border border-slate-300 bg-white hover:border-slate-400 text-left transition-all hover:shadow-xs group">
+                            <div class="flex items-center gap-1.5 mb-1.5">
+                                <span class="w-4 h-4 rounded-full border border-black/10 shrink-0" style="background-color: #0C4A6E;"></span>
+                                <span class="w-4 h-4 rounded-full border border-black/10 shrink-0" style="background-color: #D97706;"></span>
+                            </div>
+                            <span class="block text-xs font-bold text-slate-900 group-hover:text-blue-900">Ocean Cyan</span>
+                            <span class="block text-[10px] text-slate-500 font-mono">Cyan &amp; Bronze</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Input Custom Warna -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">
+                    <div>
+                        <label for="theme_primary_color" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                            Warna Utama Web (Header, Button Utama, Badge) <span class="text-red-500">*</span>
+                        </label>
+                        <div class="flex items-center gap-3">
+                            <input type="color"
+                                   id="primary_picker"
+                                   value="{{ old('theme_primary_color', $themePrimaryColor) }}"
+                                   oninput="updatePrimaryColor(this.value)"
+                                   class="w-12 h-11 rounded-lg border border-slate-300 cursor-pointer p-0.5 bg-white">
+                            <input type="text"
+                                   id="theme_primary_color"
+                                   name="theme_primary_color"
+                                   value="{{ old('theme_primary_color', $themePrimaryColor) }}"
+                                   oninput="updatePrimaryColor(this.value, false)"
+                                   placeholder="#0F294A"
+                                   pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"
+                                   class="flex-1 px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm font-mono uppercase focus:ring-2 focus:ring-unpam-navy">
+                        </div>
+                        <p class="text-[11px] text-slate-500 mt-1">Default UNPAM Navy: <code class="font-mono font-bold">#0F294A</code></p>
+                    </div>
+
+                    <div>
+                        <label for="theme_accent_color" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                            Warna Aksen / Sekunder (Tombol Aksi, Highlight, Garis Emas) <span class="text-red-500">*</span>
+                        </label>
+                        <div class="flex items-center gap-3">
+                            <input type="color"
+                                   id="accent_picker"
+                                   value="{{ old('theme_accent_color', $themeAccentColor) }}"
+                                   oninput="updateAccentColor(this.value)"
+                                   class="w-12 h-11 rounded-lg border border-slate-300 cursor-pointer p-0.5 bg-white">
+                            <input type="text"
+                                   id="theme_accent_color"
+                                   name="theme_accent_color"
+                                   value="{{ old('theme_accent_color', $themeAccentColor) }}"
+                                   oninput="updateAccentColor(this.value, false)"
+                                   placeholder="#EAB308"
+                                   pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"
+                                   class="flex-1 px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm font-mono uppercase focus:ring-2 focus:ring-unpam-navy">
+                        </div>
+                        <p class="text-[11px] text-slate-500 mt-1">Default UNPAM Emas: <code class="font-mono font-bold">#EAB308</code></p>
+                    </div>
+                </div>
+
+                <!-- Preview Komponen Warna Langsung -->
+                <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-3">
+                    <p class="text-xs font-bold text-slate-800 uppercase tracking-wider">Preview Hasil Warna:</p>
+                    <div id="themePreviewHeader" class="p-3 rounded-lg text-white flex items-center justify-between" style="background-color: {{ old('theme_primary_color', $themePrimaryColor) }}; border-bottom: 3px solid {{ old('theme_accent_color', $themeAccentColor) }};">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full" style="background-color: {{ old('theme_accent_color', $themeAccentColor) }};"></span>
+                            <span class="text-xs font-bold">Header &amp; Navigasi Portal Layanan</span>
+                        </div>
+                        <span id="themePreviewBadge" class="px-2.5 py-1 rounded text-[11px] font-black text-slate-950" style="background-color: {{ old('theme_accent_color', $themeAccentColor) }};">
+                            Aksen Emas
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bagian 3: Profil & Nama Akun Admin -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-slate-800 text-white flex items-center justify-center font-bold text-sm">
+                        <svg class="w-5 h-5 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                    </div>
+                    <div>
+                        <h2 class="text-base font-bold text-slate-900">Profil &amp; Nama Akun Admin</h2>
+                        <p class="text-xs text-slate-500">Nama identitas admin yang tampil di navbar dan sebagai akhiran balasan live chat (contoh: -Admin 1).</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="admin_name" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                        Nama Lengkap / Nama Admin <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text"
+                           id="admin_name"
+                           name="admin_name"
+                           value="{{ old('admin_name', $adminName) }}"
+                           required
+                           placeholder="Contoh: Admin 1 atau Nama Lengkap Anda"
+                           class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-unpam-navy focus:border-unpam-navy">
+                    <p class="text-[11px] text-slate-500 mt-1">Nama ini otomatis muncul pada tombol keluar navbar dan di akhir balasan pesan Live Chat.</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                        Alamat Email Login
+                    </label>
+                    <input type="text"
+                           value="{{ auth()->user()->email }}"
+                           disabled
+                           class="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 bg-slate-100 text-slate-600 text-sm font-mono cursor-not-allowed">
+                    <p class="text-[11px] text-slate-500 mt-1">
+                        Untuk ubah email/password admin, kelola melalui menu <a href="{{ route('admin.users.index') }}" class="font-bold text-unpam-navy hover:underline">Kelola Admin</a>.
+                    </p>
+                </div>
+            </div>
+        </div>
+
         <!-- Bagian 2: Integrasi WhatsApp API (Fonnte Gateway) -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
             <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
@@ -249,6 +429,40 @@
 </div>
 
 <script>
+    function updatePrimaryColor(val, updatePicker = true) {
+        if (!val) return;
+        if (updatePicker) {
+            const picker = document.getElementById('primary_picker');
+            if (picker) picker.value = val;
+        }
+        const text = document.getElementById('theme_primary_color');
+        if (text && text.value !== val) text.value = val;
+
+        const header = document.getElementById('themePreviewHeader');
+        if (header) header.style.backgroundColor = val;
+    }
+
+    function updateAccentColor(val, updatePicker = true) {
+        if (!val) return;
+        if (updatePicker) {
+            const picker = document.getElementById('accent_picker');
+            if (picker) picker.value = val;
+        }
+        const text = document.getElementById('theme_accent_color');
+        if (text && text.value !== val) text.value = val;
+
+        const header = document.getElementById('themePreviewHeader');
+        if (header) header.style.borderBottomColor = val;
+
+        const badge = document.getElementById('themePreviewBadge');
+        if (badge) badge.style.backgroundColor = val;
+    }
+
+    function applyColorPreset(primary, accent) {
+        updatePrimaryColor(primary);
+        updateAccentColor(accent);
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         const toggleBtn = document.getElementById('toggleTokenVisibility');
         const tokenInput = document.getElementById('fonnte_token');

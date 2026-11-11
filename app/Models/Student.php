@@ -45,15 +45,28 @@ class Student extends Model
         'Magister Manajemen Pendidikan S2',
     ];
 
+    public const REGULAR_CLASSES = [
+        'reg_a' => 'Reguler A (Pagi)',
+        'reg_b' => 'Reguler B (Malam)',
+        'reg_ck' => 'Reguler CK (Kamis)',
+        'reg_cs' => 'Reguler CS (Sabtu)',
+    ];
+
     protected $fillable = [
         'nim',
         'name',
         'study_program',
+        'regular_class',
         'semester',
         'whatsapp_number',
         'is_active',
         'notes',
     ];
+
+    public function getRegularClassLabelAttribute(): string
+    {
+        return self::REGULAR_CLASSES[$this->regular_class] ?? self::REGULAR_CLASSES['reg_a'];
+    }
 
     protected function casts(): array
     {

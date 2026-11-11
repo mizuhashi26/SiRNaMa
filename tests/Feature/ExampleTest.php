@@ -15,4 +15,16 @@ class ExampleTest extends TestCase
 
         $response->assertStatus(200);
     }
+
+    public function test_custom_404_page_has_navbar_and_back_link(): void
+    {
+        $response = $this->get('/halaman-acak-tidak-tersedia-404');
+
+        $response->assertStatus(404);
+        $response->assertSee('Semua Informasi');
+        $response->assertSee('Akademik');
+        $response->assertSee('Info Pembayaran');
+        $response->assertSee('Ke Beranda Informasi');
+        $response->assertSee('Kembali Sebelumnya');
+    }
 }

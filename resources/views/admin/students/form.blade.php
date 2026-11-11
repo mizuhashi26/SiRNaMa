@@ -74,8 +74,8 @@
                        class="w-full min-h-[44px] px-3.5 py-2 rounded border border-slate-400 text-sm text-slate-900">
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div class="sm:col-span-2">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
                     <label for="study_program" class="block text-sm font-bold text-slate-900 mb-1">
                         Program Studi / Jurusan <span class="text-red-700">*</span>
                     </label>
@@ -92,18 +92,36 @@
                     </select>
                 </div>
 
-                <div>
-                    <label for="semester" class="block text-sm font-bold text-slate-900 mb-1">
-                        Semester <span class="text-red-700">*</span>
-                    </label>
-                    <input type="number"
-                           id="semester"
-                           name="semester"
-                           min="1"
-                           max="14"
-                           value="{{ old('semester', $student->semester ?? 1) }}"
-                           required
-                           class="w-full min-h-[44px] px-3.5 py-2 rounded border border-slate-400 text-sm text-slate-900">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label for="regular_class" class="block text-sm font-bold text-slate-900 mb-1">
+                            Kelas Reguler <span class="text-red-700">*</span>
+                        </label>
+                        <select id="regular_class"
+                                name="regular_class"
+                                required
+                                class="w-full min-h-[44px] px-3 py-2 rounded border border-slate-400 text-sm text-slate-900 bg-white">
+                            @foreach($regularClasses as $key => $label)
+                                <option value="{{ $key }}" @selected(old('regular_class', $student->regular_class ?? 'reg_a') === $key)>
+                                    {{ $label }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="semester" class="block text-sm font-bold text-slate-900 mb-1">
+                            Semester <span class="text-red-700">*</span>
+                        </label>
+                        <input type="number"
+                               id="semester"
+                               name="semester"
+                               min="1"
+                               max="14"
+                               value="{{ old('semester', $student->semester ?? 1) }}"
+                               required
+                               class="w-full min-h-[44px] px-3.5 py-2 rounded border border-slate-400 text-sm text-slate-900">
+                    </div>
                 </div>
             </div>
 

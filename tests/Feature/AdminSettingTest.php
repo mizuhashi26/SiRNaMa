@@ -11,6 +11,13 @@ class AdminSettingTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function tearDown(): void
+    {
+        @unlink(AppSetting::persistentFilePath());
+        AppSetting::clearSettingCache();
+        parent::tearDown();
+    }
+
     public function test_guest_cannot_access_settings(): void
     {
         $response = $this->get(route('admin.settings.index'));
@@ -60,5 +67,70 @@ class AdminSettingTest extends TestCase
         $this->assertEquals('UNPAM JAYA', AppSetting::getValue('app_logo_text'));
         $this->assertEquals('fonnte-secret-token-12345', AppSetting::getValue('fonnte_token'));
         $this->assertEquals('628999888777', AppSetting::getValue('admin_contact_phone'));
+    }
+
+    public function test_settings_persist_across_database_reset(): void
+    {
+        $admin = User::factory()->superadmin()->create();
+
+        // 1. Simpan pengaturan API
+        $this->actingAs($admin)->put(route('admin.settings.update'), [
+            'app_institution_name' => 'Universitas Pamulang Mandiri',
+            'app_tagline' => 'Tagline Mandiri',
+            'fonnte_token' => 'my-persistent-token-999',
+            'fonnte_api_url' => 'https://api.fonnte.com/send',
+        ]);
+
+        // 2. Simulasi database ter-reset (semua baris app_settings terhapus)
+        AppSetting::query()->delete();
+        AppSetting::clearSettingCache();
+        $this->assertEquals(0, AppSetting::count());
+
+        // 3. AppSetting::getValue tetap berhasil membaca token dari persistent storage
+        $this->assertEquals('my-persistent-token-999', AppSetting::getValue('fonnte_token'));
+
+        // 4. Simulasi Seeder berjalan setelah reset database
+        AppSetting::restorePersistentToDatabase();
+        $this->assertDatabaseHas('app_settings', [
+            'key' => 'fonnte_token',
+            'value' => 'my-persistent-token-999',
+        ]);
+    }
+
+    public function test_superadmin_can_update_web_colors_and_admin_name(): void
+    {
+        $admin = User::factory()->superadmin()->create(['name' => 'Admin Lama']);
+
+        $payload = [
+            'app_institution_name' => 'Universitas Pamulang',
+            'app_tagline' => 'Pusat Informasi dan Layanan Mahasiswa',
+            'theme_primary_color' => '#1E3A8A',
+            'theme_accent_color' => '#F59E0B',
+            'admin_name' => 'Pak Bambang Pamungkas',
+        ];
+
+        $response = $this->actingAs($admin)->put(route('admin.settings.update'), $payload);
+
+        $response->assertRedirect(route('admin.settings.index'));
+        $response->assertSessionHas('success');
+
+        $this->assertEquals('#1e3a8a', AppSetting::getValue('theme_primary_color'));
+        $this->assertEquals('#f59e0b', AppSetting::getValue('theme_accent_color'));
+        $this->assertEquals('Pak Bambang Pamungkas', $admin->fresh()->name);
+        $this->assertEquals('Pak Bambang Pamungkas', AppSetting::getValue('admin_name'));
+    }
+
+    public function test_invalid_color_format_is_rejected(): void
+    {
+        $admin = User::factory()->superadmin()->create();
+
+        $payload = [
+            'app_institution_name' => 'Universitas Pamulang',
+            'theme_primary_color' => 'bukan-hex-color',
+        ];
+
+        $response = $this->actingAs($admin)->put(route('admin.settings.update'), $payload);
+
+        $response->assertSessionHasErrors(['theme_primary_color']);
     }
 }

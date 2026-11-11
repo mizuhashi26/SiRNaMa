@@ -13,10 +13,10 @@ export default {
             colors: {
                 unpam: {
                     navy: '#0F294A',
-                    navyDark: '#091A30',
-                    gold: '#FACC15',
-                    goldHover: '#EAB308',
-                    goldSoft: '#FEF9C3',
+                    navyDark: '#0A1E36',
+                    gold: '#EAB308',
+                    goldHover: '#CA8A04',
+                    goldSoft: '#FEF3C7',
                 },
             },
             fontFamily: {

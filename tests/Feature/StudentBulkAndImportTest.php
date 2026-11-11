@@ -28,16 +28,18 @@ class StudentBulkAndImportTest extends TestCase
 
         $response->assertOk();
         $response->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
-        $this->assertStringContainsString('nim,nama,jurusan,nomor_wa,semester,catatan', $response->getContent());
+        $this->assertStringContainsString('nim,nama,jurusan,reguler,nomor_wa,semester,catatan', $response->getContent());
     }
 
     public function test_admin_can_import_students_from_csv(): void
     {
         $admin = User::factory()->superadmin()->create();
 
-        $csvContent = "nim,nama,jurusan,nomor_wa,semester,catatan\n" .
-                      "211011400101,Budi Santoso,Sistem Informasi S1,628123456701,5,Reguler A\n" .
-                      "211011400102,Dewi Sartika,Teknik Informatika S1,08123456702,3,Reguler B\n";
+        $csvContent = "nim,nama,jurusan,reguler,nomor_wa,semester,catatan\n" .
+                      "211011400101,Budi Santoso,Sistem Informasi S1,Reguler A (Pagi),628123456701,5,Reguler A\n" .
+                      "211011400102,Dewi Sartika,Teknik Informatika S1,Reguler B (Malam),08123456702,3,Reguler B\n" .
+                      "211011400103,Ahmad Fauzi,Manajemen S1,Reguler CK (Kamis),08123456703,7,Reguler CK\n" .
+                      "211011400104,Rina Marlina,Akuntansi S1,Reguler CS (Sabtu),08123456704,1,Reguler CS\n";
 
         $file = UploadedFile::fake()->createWithContent('mahasiswa.csv', $csvContent);
 
@@ -52,6 +54,7 @@ class StudentBulkAndImportTest extends TestCase
             'nim' => '211011400101',
             'name' => 'Budi Santoso',
             'study_program' => 'Sistem Informasi S1',
+            'regular_class' => 'reg_a',
             'whatsapp_number' => '628123456701',
         ]);
 
@@ -59,8 +62,49 @@ class StudentBulkAndImportTest extends TestCase
             'nim' => '211011400102',
             'name' => 'Dewi Sartika',
             'study_program' => 'Teknik Informatika S1',
+            'regular_class' => 'reg_b',
             'whatsapp_number' => '628123456702', // Normalized
         ]);
+
+        $this->assertDatabaseHas('students', [
+            'nim' => '211011400103',
+            'regular_class' => 'reg_ck',
+        ]);
+
+        $this->assertDatabaseHas('students', [
+            'nim' => '211011400104',
+            'regular_class' => 'reg_cs',
+        ]);
+    }
+
+    public function test_admin_can_filter_students_by_regular_class(): void
+    {
+        $admin = User::factory()->superadmin()->create();
+
+        Student::create([
+            'nim' => '211011400201',
+            'name' => 'Mahasiswa Reg A',
+            'study_program' => 'Teknik Informatika S1',
+            'regular_class' => 'reg_a',
+            'semester' => 1,
+            'whatsapp_number' => '6281234567201',
+            'is_active' => true,
+        ]);
+
+        Student::create([
+            'nim' => '211011400202',
+            'name' => 'Mahasiswa Reg CK',
+            'study_program' => 'Teknik Informatika S1',
+            'regular_class' => 'reg_ck',
+            'semester' => 3,
+            'whatsapp_number' => '6281234567202',
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('admin.students.index', ['regular_class' => 'reg_ck']));
+        $response->assertOk();
+        $response->assertSee('Mahasiswa Reg CK');
+        $response->assertDontSee('Mahasiswa Reg A');
     }
 
     public function test_admin_can_bulk_delete_selected_students(): void

@@ -250,6 +250,10 @@ class StudentImportService
             return 'semester';
         }
 
+        if (in_array($clean, ['regular', 'reguler', 'kelas', 'shift', 'jeniskelas', 'tipekelas'])) {
+            return 'regular_class';
+        }
+
         if (in_array($clean, ['notes', 'catatan', 'keterangan', 'ket'])) {
             return 'notes';
         }
@@ -312,6 +316,9 @@ class StudentImportService
                 $semester = 1;
             }
 
+            $rawReg = trim($row['regular_class'] ?? '');
+            $regularClass = $this->matchRegularClass($rawReg);
+
             $notes = trim($row['notes'] ?? 'Diimpor massal');
 
             $existing = Student::where('nim', $nimDigits)->first();
@@ -320,6 +327,7 @@ class StudentImportService
                 $existing->update([
                     'name' => $name,
                     'study_program' => $matchedProdi,
+                    'regular_class' => $regularClass,
                     'semester' => $semester,
                     'whatsapp_number' => $phone,
                     'is_active' => true,
@@ -331,6 +339,7 @@ class StudentImportService
                     'nim' => $nimDigits,
                     'name' => $name,
                     'study_program' => $matchedProdi,
+                    'regular_class' => $regularClass,
                     'semester' => $semester,
                     'whatsapp_number' => $phone,
                     'is_active' => true,
@@ -382,17 +391,40 @@ class StudentImportService
     }
 
     /**
+     * Map raw regular class string to supported enum key.
+     */
+    protected function matchRegularClass(string $input): string
+    {
+        $clean = strtolower(trim($input));
+
+        if (str_contains($clean, 'ck') || str_contains($clean, 'kamis')) {
+            return 'reg_ck';
+        }
+
+        if (str_contains($clean, 'cs') || str_contains($clean, 'sabtu')) {
+            return 'reg_cs';
+        }
+
+        if (str_contains($clean, 'b') || str_contains($clean, 'malam')) {
+            return 'reg_b';
+        }
+
+        return 'reg_a';
+    }
+
+    /**
      * Generate template CSV content with sample rows.
      */
     public function generateTemplateCsv(): string
     {
         $output = fopen('php://temp', 'r+');
 
-        fputcsv($output, ['nim', 'nama', 'jurusan', 'nomor_wa', 'semester', 'catatan']);
+        fputcsv($output, ['nim', 'nama', 'jurusan', 'reguler', 'nomor_wa', 'semester', 'catatan']);
 
-        fputcsv($output, ['211011400001', 'Budi Santoso', 'Teknik Informatika S1', '6281234567001', '5', 'Mahasiswa Reguler']);
-        fputcsv($output, ['211011400002', 'Siti Aminah', 'Sistem Informasi S1', '6281234567002', '3', 'Mahasiswa Reguler']);
-        fputcsv($output, ['211011400003', 'Ahmad Fauzi', 'Manajemen S1', '6281234567003', '7', 'Mahasiswa Reguler']);
+        fputcsv($output, ['211011400001', 'Budi Santoso', 'Teknik Informatika S1', 'Reguler A (Pagi)', '6281234567001', '5', 'Mahasiswa Reguler Pagi']);
+        fputcsv($output, ['211011400002', 'Siti Aminah', 'Sistem Informasi S1', 'Reguler B (Malam)', '6281234567002', '3', 'Mahasiswa Reguler Malam']);
+        fputcsv($output, ['211011400003', 'Ahmad Fauzi', 'Manajemen S1', 'Reguler CK (Kamis)', '6281234567003', '7', 'Mahasiswa Reguler Kamis']);
+        fputcsv($output, ['211011400004', 'Rina Marlina', 'Akuntansi S1', 'Reguler CS (Sabtu)', '6281234567004', '1', 'Mahasiswa Reguler Sabtu']);
 
         rewind($output);
         $content = stream_get_contents($output);

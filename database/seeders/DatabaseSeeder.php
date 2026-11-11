@@ -29,6 +29,7 @@ class DatabaseSeeder extends Seeder
                 'nim' => '211011400001',
                 'name' => 'Rizky Pratama',
                 'study_program' => 'Teknik Informatika S1',
+                'regular_class' => 'reg_a',
                 'semester' => 5,
                 'whatsapp_number' => '6281200000001',
                 'is_active' => true,
@@ -38,6 +39,7 @@ class DatabaseSeeder extends Seeder
                 'nim' => '211011400002',
                 'name' => 'Siti Nurhaliza Putri',
                 'study_program' => 'Sistem Informasi S1',
+                'regular_class' => 'reg_b',
                 'semester' => 5,
                 'whatsapp_number' => '6281200000002',
                 'is_active' => true,
@@ -47,6 +49,7 @@ class DatabaseSeeder extends Seeder
                 'nim' => '221011200015',
                 'name' => 'Dimas Aditya Saputra',
                 'study_program' => 'Manajemen S1',
+                'regular_class' => 'reg_ck',
                 'semester' => 3,
                 'whatsapp_number' => '6281200000003',
                 'is_active' => true,
@@ -56,6 +59,7 @@ class DatabaseSeeder extends Seeder
                 'nim' => '221011300008',
                 'name' => 'Nadia Maharani',
                 'study_program' => 'Akuntansi S1',
+                'regular_class' => 'reg_cs',
                 'semester' => 3,
                 'whatsapp_number' => '6281200000004',
                 'is_active' => true,
@@ -65,6 +69,7 @@ class DatabaseSeeder extends Seeder
                 'nim' => '231011400042',
                 'name' => 'Bagas Kurniawan',
                 'study_program' => 'Teknik Informatika S1',
+                'regular_class' => 'reg_a',
                 'semester' => 1,
                 'whatsapp_number' => '6281200000005',
                 'is_active' => true,
@@ -85,8 +90,13 @@ class DatabaseSeeder extends Seeder
         \App\Models\AppSetting::setValue('app_tagline', 'Layanan Mahasiswa', 'identity', 'Tagline Layanan');
         \App\Models\AppSetting::setValue('app_footer_note', 'Portal Informasi & Layanan Mahasiswa Universitas Pamulang', 'identity', 'Teks Footer');
         \App\Models\AppSetting::setValue('fonnte_api_url', 'https://api.fonnte.com/send', 'api', 'Endpoint URL API Fonnte');
-        \App\Models\AppSetting::setValue('fonnte_token', env('FONNTE_TOKEN', ''), 'api', 'Token WhatsApp Fonnte');
+        if (filled(env('FONNTE_TOKEN'))) {
+            \App\Models\AppSetting::setValue('fonnte_token', env('FONNTE_TOKEN'), 'api', 'Token WhatsApp Fonnte');
+        }
         \App\Models\AppSetting::setValue('admin_contact_phone', '6281234567890', 'contact', 'Nomor Kontak Layanan Admin');
+
+        // Otomatis pulihkan semua pengaturan yang tersimpan di persistent storage jika database baru di-reset
+        \App\Models\AppSetting::restorePersistentToDatabase();
 
         // 3. Sumber Data Informasi Kampus Terpadu (Website, Chatbot Web, & Chatbot WhatsApp)
         $informations = [

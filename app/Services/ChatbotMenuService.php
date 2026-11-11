@@ -66,9 +66,9 @@ class ChatbotMenuService
             ];
         }
 
-        // Jika sedang WAITING_ADMIN, izinkan kembali ke menu bot jika ketik 0 / menu / batal.
+        // Jika sedang WAITING_ADMIN, izinkan kembali ke menu bot jika ketik 0 / keluar / menu / batal.
         if ($conversation->status === Conversation::STATUS_WAITING_ADMIN) {
-            if (in_array($normalized, ['0', 'menu', 'batal', 'kembali'], true)) {
+            if ($this->isExitToMainMenuCommand($normalized)) {
                 $conversation->status = Conversation::STATUS_BOT_ACTIVE;
                 $conversation->save();
 
@@ -109,8 +109,9 @@ class ChatbotMenuService
             ];
         }
 
-        // Status BOT_ACTIVE: proses pilihan menu / keyword
-        $resolved = $this->resolveBotResponse($conversation, $normalized);
+        // Status BOT_ACTIVE: cek konteks sub-menu sebelum pesan baru ini
+        $previousContext = $this->detectActiveMenuContext($conversation, $userMessage->id);
+        $resolved = $this->resolveBotResponse($conversation, $normalized, $previousContext);
 
         $botMessage = $this->recordBotReply($conversation, $resolved['text']);
 
@@ -122,11 +123,24 @@ class ChatbotMenuService
         ];
     }
 
+    protected function isExitToMainMenuCommand(string $normalized): bool
+    {
+        return in_array($normalized, ['0', 'keluar', 'menu', 'menu utama', 'utama', 'batal', 'kembali', 'exit', 'back'], true);
+    }
+
     /**
      * @return array{text: string, options: array<int, array{code: string, label: string}>}
      */
-    protected function resolveBotResponse(Conversation $conversation, string $normalized): array
+    protected function resolveBotResponse(Conversation $conversation, string $normalized, string $previousContext = 'main'): array
     {
+        // Perintah eksplisit 0 / keluar -> kembali ke Menu Utama
+        if ($this->isExitToMainMenuCommand($normalized)) {
+            return [
+                'text' => $this->buildMainMenuText(),
+                'options' => $this->getMainMenuOptions(),
+            ];
+        }
+
         // Menu 3: Hubungi Admin
         if (in_array($normalized, ['3', 'hubungi admin', 'admin', 'cs', 'bantuan'], true)) {
             $conversation->status = Conversation::STATUS_WAITING_ADMIN;
@@ -135,7 +149,7 @@ class ChatbotMenuService
             return [
                 'text' => "Permintaan Anda telah masuk ke antrean dashboard CRM dengan status *Menunggu Admin*.\n\nSilakan ketik pertanyaan atau kendala Anda di bawah ini. Admin akan segera mengambil alih percakapan.\n(Ketik *0* jika ingin membatalkan dan kembali ke menu layanan).",
                 'options' => [
-                    ['code' => '0', 'label' => '0. Kembali ke Menu Layanan'],
+                    ['code' => '0', 'label' => '0. Keluar / Menu Utama'],
                 ],
             ];
         }
@@ -191,7 +205,23 @@ class ChatbotMenuService
             ];
         }
 
-        // Default / Menu Utama (0, menu, halo, mulai, batal, kembali, dll.)
+        // Jika user sedang berada di dalam Sub-Menu 1 (Informasi Kampus) dan belum menekan 0/keluar, tetap di Sub-Menu 1
+        if ($previousContext === 'campus') {
+            return [
+                'text' => $this->buildCampusCategoryOverviewText(),
+                'options' => $this->getCampusCategoryOptions(),
+            ];
+        }
+
+        // Jika user sedang berada di dalam Sub-Menu 2 (Informasi Pembayaran) dan belum menekan 0/keluar, tetap di Sub-Menu 2
+        if ($previousContext === 'payment') {
+            return [
+                'text' => $this->buildPaymentInformationText(),
+                'options' => $this->getPaymentSubMenuOptions(),
+            ];
+        }
+
+        // Default / Menu Utama
         return [
             'text' => $this->buildMainMenuText(),
             'options' => $this->getMainMenuOptions(),
@@ -233,8 +263,8 @@ class ChatbotMenuService
     }
 
     /**
-     * Tentukan daftar options yang sedang aktif berdasarkan state percakapan dan pesan terakhir.
-     * Mencegah options sub-layanan ter-reset otomatis saat polling berkala atau scrolling.
+     * Tentukan daftar options yang sedang aktif berdasarkan state percakapan dan riwayat pesan.
+     * Menggunakan reorder('id', 'desc') agar tidak terjebak default orderBy('id') ASC pada relasi messages().
      *
      * @return array<int, array{code: string, label: string}>
      */
@@ -242,7 +272,7 @@ class ChatbotMenuService
     {
         if ($conversation->status === Conversation::STATUS_WAITING_ADMIN) {
             return [
-                ['code' => '0', 'label' => '0. Kembali ke Menu Layanan'],
+                ['code' => '0', 'label' => '0. Keluar / Menu Utama'],
             ];
         }
 
@@ -250,61 +280,74 @@ class ChatbotMenuService
             return [];
         }
 
-        // Cek pesan terakhir percakapan secara keseluruhan
-        $latestMessage = $conversation->messages()->latest('id')->first();
-        if (! $latestMessage) {
-            return $this->getMainMenuOptions();
+        $context = $this->detectActiveMenuContext($conversation);
+
+        if ($context === 'campus') {
+            return $this->getCampusCategoryOptions();
         }
 
-        // Jika pesan terakhir dari bot adalah sambutan Menu Utama
-        if ($latestMessage->sender_type === 'bot' && str_contains($latestMessage->message, 'Selamat datang di Layanan Informasi')) {
-            return $this->getMainMenuOptions();
-        }
-
-        // Ambil pesan user terakhir untuk mendeteksi konteks sub-menu yang sedang dibuka
-        $lastUserMsg = $conversation->messages()
-            ->where('sender_type', 'user')
-            ->latest('id')
-            ->first();
-
-        if (! $lastUserMsg) {
-            return $this->getMainMenuOptions();
-        }
-
-        $input = trim(mb_strtolower($lastUserMsg->message));
-
-        // Jika user secara eksplisit kembali ke menu utama (0, menu, batal, kembali)
-        if (in_array($input, ['0', 'menu', 'batal', 'kembali'], true)) {
-            return $this->getMainMenuOptions();
-        }
-
-        // Konteks Menu 2: Informasi Pembayaran & Sub-Layanannya (2, 2.1, 2.2, 2.3)
-        if ($input === '2' ||
-            isset(self::PAYMENT_SUBMENU_MAP[$input]) ||
-            str_starts_with($input, '2.') ||
-            in_array($input, ['informasi pembayaran', 'pembayaran', 'bayar', 'tagihan', 'ukt'], true)) {
+        if ($context === 'payment') {
             return $this->getPaymentSubMenuOptions();
         }
 
-        // Konteks Menu 1: Informasi Kampus & Sub-Kategorinya (1, 1.1 s/d 1.6)
-        if ($input === '1' ||
-            isset(self::CATEGORY_MENU_MAP[$input]) ||
-            str_starts_with($input, '1.') ||
-            $this->matchCategoryByKeyword($input) !== null ||
-            in_array($input, ['informasi kampus', 'kampus'], true)) {
-            return $this->getCampusCategoryOptions();
-        }
-
-        // Konteks detail info spesifik: "info <id>"
-        if (preg_match('/^(?:info|detail)\s*(\d+)$/', $input, $matches)) {
-            $info = CampusInformation::published()->find((int) $matches[1]);
-            if ($info && $info->category === 'pembayaran') {
-                return $this->getPaymentSubMenuOptions();
-            }
-            return $this->getCampusCategoryOptions();
-        }
-
         return $this->getMainMenuOptions();
+    }
+
+    /**
+     * Telusuri pesan dari yang terbaru (DESC) untuk mengetahui sub-menu aktif ('main', 'campus', 'payment').
+     * Sub-menu tetap aktif sampai user mengetik/memilih 0 / keluar / menu.
+     */
+    public function detectActiveMenuContext(Conversation $conversation, ?int $excludeMessageId = null): string
+    {
+        $query = $conversation->messages()->reorder('id', 'desc');
+
+        if ($excludeMessageId !== null) {
+            $query->where('id', '<', $excludeMessageId);
+        }
+
+        $recentMessages = $query->limit(30)->get();
+
+        foreach ($recentMessages as $msg) {
+            // Jika ada pesan sistem penutupan sesi oleh admin, percakapan di-reset ke main menu
+            if ($msg->sender_type === 'system' && str_contains(mb_strtolower($msg->message), 'diakhiri')) {
+                return 'main';
+            }
+
+            if ($msg->sender_type !== 'user') {
+                continue;
+            }
+
+            $input = trim(mb_strtolower($msg->message));
+
+            if ($this->isExitToMainMenuCommand($input)) {
+                return 'main';
+            }
+
+            if ($input === '2' ||
+                isset(self::PAYMENT_SUBMENU_MAP[$input]) ||
+                str_starts_with($input, '2.') ||
+                in_array($input, ['informasi pembayaran', 'pembayaran', 'bayar', 'tagihan', 'ukt', 'jadwal pembayaran', 'saluran pembayaran', 'kendala pembayaran'], true)) {
+                return 'payment';
+            }
+
+            if ($input === '1' ||
+                isset(self::CATEGORY_MENU_MAP[$input]) ||
+                str_starts_with($input, '1.') ||
+                $this->matchCategoryByKeyword($input) !== null ||
+                in_array($input, ['informasi kampus', 'kampus'], true)) {
+                return 'campus';
+            }
+
+            if (preg_match('/^(?:info|detail)\s*(\d+)$/', $input, $matches)) {
+                $info = CampusInformation::published()->find((int) $matches[1]);
+                if ($info && $info->category === 'pembayaran') {
+                    return 'payment';
+                }
+                return 'campus';
+            }
+        }
+
+        return 'main';
     }
 
     /**
@@ -321,7 +364,7 @@ class ChatbotMenuService
             ['code' => '1.4', 'label' => '1.4 Pengumuman'],
             ['code' => '1.5', 'label' => '1.5 Kegiatan Kampus'],
             ['code' => '1.6', 'label' => '1.6 Administrasi'],
-            ['code' => '0', 'label' => '0. Kembali ke Menu Layanan'],
+            ['code' => '0', 'label' => '0. Keluar / Menu Utama'],
         ];
     }
 
@@ -336,7 +379,7 @@ class ChatbotMenuService
             ['code' => '2.1', 'label' => '2.1 Jadwal & Ketentuan'],
             ['code' => '2.2', 'label' => '2.2 Saluran & VA Bank'],
             ['code' => '2.3', 'label' => '2.3 Kendala Pembayaran'],
-            ['code' => '0', 'label' => '0. Kembali ke Menu Layanan'],
+            ['code' => '0', 'label' => '0. Keluar / Menu Utama'],
         ];
     }
 

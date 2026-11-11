@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,129 +8,221 @@
     <title>@yield('title', 'Dashboard Admin - CRM Layanan Mahasiswa UNPAM')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
+
 <body class="min-h-screen bg-slate-100 text-slate-900 flex flex-col antialiased">
     @php
         $waitingAdminCount = \App\Models\Conversation::where('status', \App\Models\Conversation::STATUS_WAITING_ADMIN)->count();
         $brandLogoImage = \App\Models\AppSetting::getValue('app_logo_image', null);
         $brandAppName = \App\Models\AppSetting::getValue('app_institution_name', 'Universitas Pamulang');
+        $themePrimary = \App\Models\AppSetting::getValue('theme_primary_color', '#0F294A');
+        $themeAccent = \App\Models\AppSetting::getValue('theme_accent_color', '#EAB308');
     @endphp
+
+    <style>
+        :root {
+            --color-primary:
+                {{ $themePrimary }}
+            ;
+            --color-accent:
+                {{ $themeAccent }}
+            ;
+        }
+
+        .bg-unpam-navy {
+            background-color: var(--color-primary) !important;
+        }
+
+        .text-unpam-navy {
+            color: var(--color-primary) !important;
+        }
+
+        .border-unpam-navy {
+            border-color: var(--color-primary) !important;
+        }
+
+        .focus\:ring-unpam-navy:focus {
+            --tw-ring-color: var(--color-primary) !important;
+        }
+
+        .focus\:border-unpam-navy:focus {
+            border-color: var(--color-primary) !important;
+        }
+
+        .bg-unpam-gold {
+            background-color: var(--color-accent) !important;
+        }
+
+        .text-unpam-gold {
+            color: var(--color-accent) !important;
+        }
+
+        .border-unpam-gold {
+            border-color: var(--color-accent) !important;
+        }
+    </style>
 
     <!-- Top Navigation Bar Admin -->
     <header class="bg-unpam-navy text-white sticky top-0 z-30 shadow-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6">
             <div class="flex items-center justify-between py-2.5 gap-4">
                 <div class="flex items-center gap-3">
-                    <a href="{{ route('admin.dashboard') }}" class="min-h-[44px] inline-flex items-center gap-3 focus-visible:outline-unpam-gold">
+                    <a href="{{ route('admin.dashboard') }}"
+                        class="min-h-[44px] inline-flex items-center gap-3 focus-visible:outline-unpam-gold">
                         @if($brandLogoImage && file_exists(public_path($brandLogoImage)))
-                            <img src="{{ asset($brandLogoImage) }}" alt="Logo Kampus" class="h-11 sm:h-12 w-auto max-w-[120px] object-contain bg-transparent shrink-0" />
+                            <img src="{{ asset($brandLogoImage) }}" alt="Logo Kampus"
+                                class="h-11 sm:h-12 w-auto max-w-[120px] object-contain bg-transparent shrink-0" />
                         @else
-                            <img src="{{ asset('images/unpam-logo.svg') }}" alt="Logo Kampus" class="h-11 sm:h-12 w-11 sm:w-12 object-contain bg-transparent shrink-0 drop-shadow" />
+                            <img src="{{ asset('images/unpam-logo.svg') }}" alt="Logo Kampus"
+                                class="h-11 sm:h-12 w-11 sm:w-12 object-contain bg-transparent shrink-0 drop-shadow" />
                         @endif
                         <div>
-                            <span class="block font-bold text-sm sm:text-base text-white leading-tight">Dashboard Admin Layanan</span>
+                            <span class="block font-bold text-sm sm:text-base text-white leading-tight">Dashboard Admin
+                                Layanan</span>
                             <span class="block text-[11px] text-slate-300">{{ $brandAppName }}</span>
                         </div>
                     </a>
                 </div>
 
-                <!-- Navigasi Desktop -->
-                <nav aria-label="Navigasi Dashboard Admin" class="hidden lg:flex items-center gap-1.5">
+                <!-- Navigasi Desktop Berdesain Modern -->
+                <nav aria-label="Navigasi Dashboard Admin"
+                    class="hidden lg:flex items-center gap-1 bg-slate-900/40 p-1.5 rounded-xl border border-slate-700/60 shadow-xs">
                     <a href="{{ route('admin.dashboard') }}"
-                       class="min-h-[44px] inline-flex items-center px-3.5 py-2 rounded text-sm font-medium {{ request()->routeIs('admin.dashboard') ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
-                        Ringkasan Tugas
+                        class="min-h-[38px] inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold transition-all {{ request()->routeIs('admin.dashboard') ? 'bg-unpam-gold text-slate-950 font-black shadow-xs' : 'text-slate-200 hover:bg-slate-800/80 hover:text-white' }}">
+                        Ringkasan
                     </a>
                     <a href="{{ route('admin.informations.index') }}"
-                       class="min-h-[44px] inline-flex items-center px-3.5 py-2 rounded text-sm font-medium {{ request()->routeIs('admin.informations.*') ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
-                        Informasi Kampus
+                        class="min-h-[38px] inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold transition-all {{ request()->routeIs('admin.informations.*') ? 'bg-unpam-gold text-slate-950 font-black shadow-xs' : 'text-slate-200 hover:bg-slate-800/80 hover:text-white' }}">
+                        Informasi
                     </a>
                     <a href="{{ route('admin.reminders.index') }}"
-                       class="min-h-[44px] inline-flex items-center px-3.5 py-2 rounded text-sm font-medium {{ request()->routeIs('admin.reminders.*') ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
-                        Pengingat Mahasiswa
+                        class="min-h-[38px] inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold transition-all {{ request()->routeIs('admin.reminders.*') ? 'bg-unpam-gold text-slate-950 font-black shadow-xs' : 'text-slate-200 hover:bg-slate-800/80 hover:text-white' }}">
+                        Pengingat
                     </a>
                     <a href="{{ route('admin.live-chat.index') }}"
-                       class="min-h-[44px] inline-flex items-center gap-2 px-3.5 py-2 rounded text-sm font-medium {{ request()->routeIs('admin.live-chat.*') ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
+                        class="min-h-[38px] inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold transition-all {{ request()->routeIs('admin.live-chat.*') ? 'bg-unpam-gold text-slate-950 font-black shadow-xs' : 'text-slate-200 hover:bg-slate-800/80 hover:text-white' }}">
                         <span>Live Chat</span>
                         @if($waitingAdminCount > 0)
-                            <span class="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-extrabold {{ request()->routeIs('admin.live-chat.*') ? 'bg-slate-950 text-white' : 'bg-amber-400 text-slate-950 animate-pulse' }}">
-                                {{ $waitingAdminCount }} Menunggu
+                            <span
+                                class="inline-flex items-center justify-center px-1.5 py-0.5 rounded-full text-[10px] font-black {{ request()->routeIs('admin.live-chat.*') ? 'bg-slate-950 text-white' : 'bg-amber-400 text-slate-950 animate-pulse' }}">
+                                {{ $waitingAdminCount }}
                             </span>
                         @endif
                     </a>
+
                     @if(auth()->user()->isSuperAdmin())
-                    <a href="{{ route('admin.students.index') }}"
-                       class="min-h-[44px] inline-flex items-center px-3.5 py-2 rounded text-sm font-medium {{ request()->routeIs('admin.students.*') ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
-                        Data Mahasiswa
-                    </a>
-                    <a href="{{ route('admin.users.index') }}"
-                       class="min-h-[44px] inline-flex items-center px-3.5 py-2 rounded text-sm font-medium {{ request()->routeIs('admin.users.*') ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
-                        Kelola Admin
-                    </a>
-                    <a href="{{ route('admin.settings.index') }}"
-                       class="min-h-[44px] inline-flex items-center gap-1.5 px-3.5 py-2 rounded text-sm font-medium {{ request()->routeIs('admin.settings.*') ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                        <span>Pengaturan</span>
-                    </a>
+                        <span class="w-px h-4 bg-slate-700 mx-1"></span>
+                        <a href="{{ route('admin.students.index') }}"
+                            class="min-h-[38px] inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold transition-all {{ request()->routeIs('admin.students.*') ? 'bg-unpam-gold text-slate-950 font-black shadow-xs' : 'text-slate-200 hover:bg-slate-800/80 hover:text-white' }}">
+                            Mahasiswa
+                        </a>
+                        <a href="{{ route('admin.users.index') }}"
+                            class="min-h-[38px] inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold transition-all {{ request()->routeIs('admin.users.*') ? 'bg-unpam-gold text-slate-950 font-black shadow-xs' : 'text-slate-200 hover:bg-slate-800/80 hover:text-white' }}">
+                            Kelola Admin
+                        </a>
+                        <a href="{{ route('admin.settings.index') }}"
+                            class="min-h-[38px] inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all {{ request()->routeIs('admin.settings.*') ? 'bg-unpam-gold text-slate-950 font-black shadow-xs' : 'text-slate-200 hover:bg-slate-800/80 hover:text-white' }}">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <span>Pengaturan</span>
+                        </a>
                     @endif
                 </nav>
 
-                <div class="hidden lg:flex items-center gap-2">
-                    <a href="{{ route('public.index') }}"
-                       target="_blank"
-                       rel="noopener"
-                       class="min-h-[44px] inline-flex items-center px-3 py-2 rounded border border-slate-500 text-xs font-semibold text-white hover:bg-slate-800">
-                        Lihat Website Publik
+                <!-- Profile Chip & Aksi Kanan -->
+                <div class="hidden lg:flex items-center gap-3">
+                    <a href="{{ route('public.index') }}" target="_blank" rel="noopener"
+                        class="min-h-[40px] inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-600/80 bg-slate-800/40 hover:bg-slate-800 text-xs font-semibold text-slate-200 hover:text-white transition-colors"
+                        title="Buka Halaman Website Publik">
+                        <svg class="w-3.5 h-3.5 text-unpam-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                        <span>Web Publik</span>
                     </a>
-                    <form action="{{ route('logout') }}" method="POST">
-                        @csrf
-                        <button type="submit"
-                                class="min-h-[44px] px-3.5 py-2 rounded bg-slate-800 hover:bg-red-700 text-white text-xs font-semibold border border-slate-600">
-                            Keluar ({{ auth()->user()->name ?? 'Admin' }})
-                        </button>
-                    </form>
+
+                    <!-- User Identity Badge -->
+                    <div class="flex items-center gap-2 pl-2 border-l border-slate-700/80">
+                        <div
+                            class="w-8 h-8 rounded-full bg-unpam-gold text-slate-950 font-black text-xs flex items-center justify-center shadow-xs uppercase shrink-0">
+                            {{ substr(auth()->user()->name ?? 'A', 0, 1) }}
+                        </div>
+                        <div class="text-left leading-tight hidden xl:block">
+                            <span
+                                class="block text-xs font-bold text-white max-w-[120px] truncate">{{ auth()->user()->name ?? 'Admin' }}</span>
+                            <span
+                                class="inline-block text-[10px] font-extrabold uppercase px-1.5 py-0.2 rounded {{ auth()->user()->isSuperAdmin() ? 'bg-amber-400 text-slate-950' : 'bg-slate-700 text-slate-200' }}">
+                                {{ auth()->user()->isSuperAdmin() ? 'Superadmin' : 'Admin' }}
+                            </span>
+                        </div>
+
+                        <form action="{{ route('logout') }}" method="POST" class="inline">
+                            @csrf
+                            <button type="submit"
+                                class="min-h-[38px] px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-red-700 text-slate-300 hover:text-white text-xs font-semibold border border-slate-600 transition-colors flex items-center gap-1.5"
+                                title="Keluar dari sesi admin">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                </svg>
+                                <span>Keluar</span>
+                            </button>
+                        </form>
+                    </div>
                 </div>
 
                 <!-- Tombol Menu Mobile -->
-                <button type="button"
-                        id="admin-mobile-toggle"
-                        aria-expanded="false"
-                        aria-controls="admin-mobile-nav"
-                        class="lg:hidden min-h-[44px] px-3 py-2 rounded border border-slate-500 text-xs font-bold text-white hover:bg-slate-800">
+                <button type="button" id="admin-mobile-toggle" aria-expanded="false" aria-controls="admin-mobile-nav"
+                    class="lg:hidden min-h-[44px] px-3 py-2 rounded border border-slate-500 text-xs font-bold text-white hover:bg-slate-800">
                     Menu Admin
                 </button>
             </div>
 
             <!-- Panel Navigasi Mobile -->
-            <nav id="admin-mobile-nav" aria-label="Navigasi Admin Seluler" class="hidden lg:hidden pb-4 pt-3 border-t border-slate-700 space-y-1.5">
-                <a href="{{ route('admin.dashboard') }}" class="block min-h-[44px] px-3 py-2.5 rounded text-sm font-medium {{ request()->routeIs('admin.dashboard') ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
+            <nav id="admin-mobile-nav" aria-label="Navigasi Admin Seluler"
+                class="hidden lg:hidden pb-4 pt-3 border-t border-slate-700 space-y-1.5">
+                <a href="{{ route('admin.dashboard') }}"
+                    class="block min-h-[44px] px-3 py-2.5 rounded text-sm font-medium {{ request()->routeIs('admin.dashboard') ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
                     Ringkasan Tugas
                 </a>
-                <a href="{{ route('admin.informations.index') }}" class="block min-h-[44px] px-3 py-2.5 rounded text-sm font-medium {{ request()->routeIs('admin.informations.*') ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
+                <a href="{{ route('admin.informations.index') }}"
+                    class="block min-h-[44px] px-3 py-2.5 rounded text-sm font-medium {{ request()->routeIs('admin.informations.*') ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
                     Informasi Kampus
                 </a>
-                <a href="{{ route('admin.reminders.index') }}" class="block min-h-[44px] px-3 py-2.5 rounded text-sm font-medium {{ request()->routeIs('admin.reminders.*') ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
+                <a href="{{ route('admin.reminders.index') }}"
+                    class="block min-h-[44px] px-3 py-2.5 rounded text-sm font-medium {{ request()->routeIs('admin.reminders.*') ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
                     Pengingat Mahasiswa
                 </a>
-                <a href="{{ route('admin.live-chat.index') }}" class="block min-h-[44px] px-3 py-2.5 rounded text-sm font-medium {{ request()->routeIs('admin.live-chat.*') ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
+                <a href="{{ route('admin.live-chat.index') }}"
+                    class="block min-h-[44px] px-3 py-2.5 rounded text-sm font-medium {{ request()->routeIs('admin.live-chat.*') ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
                     Live Chat Terpusat @if($waitingAdminCount > 0) ({{ $waitingAdminCount }} Menunggu) @endif
                 </a>
                 @if(auth()->user()->isSuperAdmin())
-                <a href="{{ route('admin.students.index') }}" class="block min-h-[44px] px-3 py-2.5 rounded text-sm font-medium {{ request()->routeIs('admin.students.*') ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
-                    Data Mahasiswa
-                </a>
-                <a href="{{ route('admin.users.index') }}" class="block min-h-[44px] px-3 py-2.5 rounded text-sm font-medium {{ request()->routeIs('admin.users.*') ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
-                    Kelola Admin
-                </a>
-                <a href="{{ route('admin.settings.index') }}" class="block min-h-[44px] px-3 py-2.5 rounded text-sm font-medium {{ request()->routeIs('admin.settings.*') ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
-                    Pengaturan Sistem &amp; API
-                </a>
+                    <a href="{{ route('admin.students.index') }}"
+                        class="block min-h-[44px] px-3 py-2.5 rounded text-sm font-medium {{ request()->routeIs('admin.students.*') ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
+                        Data Mahasiswa
+                    </a>
+                    <a href="{{ route('admin.users.index') }}"
+                        class="block min-h-[44px] px-3 py-2.5 rounded text-sm font-medium {{ request()->routeIs('admin.users.*') ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
+                        Kelola Admin
+                    </a>
+                    <a href="{{ route('admin.settings.index') }}"
+                        class="block min-h-[44px] px-3 py-2.5 rounded text-sm font-medium {{ request()->routeIs('admin.settings.*') ? 'bg-unpam-gold text-slate-950 font-bold' : 'text-slate-200 hover:bg-slate-800 hover:text-white' }}">
+                        Pengaturan Sistem &amp; API
+                    </a>
                 @endif
                 <div class="pt-2 border-t border-slate-700 flex flex-wrap gap-2">
-                    <a href="{{ route('public.index') }}" target="_blank" rel="noopener" class="min-h-[44px] inline-flex items-center px-3 py-2 rounded border border-slate-500 text-xs font-semibold text-white">
+                    <a href="{{ route('public.index') }}" target="_blank" rel="noopener"
+                        class="min-h-[44px] inline-flex items-center px-3 py-2 rounded border border-slate-500 text-xs font-semibold text-white">
                         Buka Website Publik
                     </a>
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
-                        <button type="submit" class="min-h-[44px] px-3.5 py-2 rounded bg-red-700 text-white text-xs font-semibold">
+                        <button type="submit"
+                            class="min-h-[44px] px-3.5 py-2 rounded bg-red-700 text-white text-xs font-semibold">
                             Keluar Sesi
                         </button>
                     </form>
@@ -143,13 +236,15 @@
     <!-- Konten Utama Admin -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
         @if(session('success'))
-            <div role="status" class="bg-emerald-50 border border-emerald-400 text-emerald-950 px-4 py-3 rounded-lg text-sm font-medium">
+            <div role="status"
+                class="bg-emerald-50 border border-emerald-400 text-emerald-950 px-4 py-3 rounded-lg text-sm font-medium">
                 {{ session('success') }}
             </div>
         @endif
 
         @if(session('warning'))
-            <div role="alert" class="bg-amber-50 border border-amber-400 text-slate-950 px-4 py-3 rounded-lg text-sm font-medium">
+            <div role="alert"
+                class="bg-amber-50 border border-amber-400 text-slate-950 px-4 py-3 rounded-lg text-sm font-medium">
                 {{ session('warning') }}
             </div>
         @endif
@@ -177,6 +272,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Mobile toggle
             const btn = document.getElementById('admin-mobile-toggle');
             const nav = document.getElementById('admin-mobile-nav');
             if (btn && nav) {
@@ -186,7 +282,33 @@
                     nav.classList.toggle('hidden');
                 });
             }
+
+            // Desktop shortcut navbar toggle (Default: TAMPIL SEMUA)
+            const desktopToggleBtn = document.getElementById('admin-desktop-shortcut-toggle');
+            const desktopNav = document.getElementById('admin-desktop-nav');
+            const desktopToggleText = document.getElementById('desktop-toggle-text');
+            const desktopToggleIcon = document.getElementById('desktop-toggle-icon');
+
+            if (desktopToggleBtn && desktopNav) {
+                desktopToggleBtn.addEventListener('click', function () {
+                    const isCollapsed = desktopNav.classList.contains('lg:!hidden');
+                    if (isCollapsed) {
+                        // Tampilkan semua shortcut kembali
+                        desktopNav.classList.remove('lg:!hidden');
+                        desktopToggleBtn.setAttribute('aria-expanded', 'true');
+                        if (desktopToggleText) desktopToggleText.textContent = 'Tutup Shortcut';
+                        if (desktopToggleIcon) desktopToggleIcon.classList.remove('rotate-180');
+                    } else {
+                        // Tutup / sembunyikan shortcut
+                        desktopNav.classList.add('lg:!hidden');
+                        desktopToggleBtn.setAttribute('aria-expanded', 'false');
+                        if (desktopToggleText) desktopToggleText.textContent = 'Buka Shortcut';
+                        if (desktopToggleIcon) desktopToggleIcon.classList.add('rotate-180');
+                    }
+                });
+            }
         });
     </script>
 </body>
+
 </html>

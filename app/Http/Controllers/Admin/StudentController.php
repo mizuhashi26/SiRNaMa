@@ -17,6 +17,7 @@ class StudentController extends Controller
     {
         $search = trim((string) $request->query('q', ''));
         $status = (string) $request->query('status', '');
+        $regularClass = (string) $request->query('regular_class', '');
 
         $students = Student::query()
             ->when($search !== '', function ($query) use ($search) {
@@ -29,6 +30,7 @@ class StudentController extends Controller
             })
             ->when($status === 'active', fn ($q) => $q->where('is_active', true))
             ->when($status === 'inactive', fn ($q) => $q->where('is_active', false))
+            ->when($regularClass !== '', fn ($q) => $q->where('regular_class', $regularClass))
             ->orderBy('name')
             ->paginate(15)
             ->withQueryString();
@@ -37,14 +39,22 @@ class StudentController extends Controller
             'students' => $students,
             'search' => $search,
             'status' => $status,
+            'regularClass' => $regularClass,
+            'regularClasses' => Student::REGULAR_CLASSES,
         ]);
     }
 
     public function create(): View
     {
         return view('admin.students.form', [
-            'student' => new Student(['is_active' => true, 'semester' => 1, 'study_program' => Student::STUDY_PROGRAMS[0]]),
+            'student' => new Student([
+                'is_active' => true,
+                'semester' => 1,
+                'study_program' => Student::STUDY_PROGRAMS[0],
+                'regular_class' => 'reg_a',
+            ]),
             'studyPrograms' => Student::STUDY_PROGRAMS,
+            'regularClasses' => Student::REGULAR_CLASSES,
             'isEdit' => false,
         ]);
     }
@@ -55,6 +65,7 @@ class StudentController extends Controller
             'nim' => ['required', 'string', 'size:12', 'regex:/^[0-9]{12}$/', 'unique:students,nim'],
             'name' => ['required', 'string', 'max:150'],
             'study_program' => ['required', 'string', Rule::in(Student::STUDY_PROGRAMS)],
+            'regular_class' => ['nullable', 'string', Rule::in(array_keys(Student::REGULAR_CLASSES))],
             'semester' => ['required', 'integer', 'min:1', 'max:14'],
             'whatsapp_number' => ['required', 'string', 'max:30', 'regex:/^[0-9+\-\s]+$/'],
             'is_active' => ['nullable', 'boolean'],
@@ -66,11 +77,14 @@ class StudentController extends Controller
             'nim.unique' => 'NIM ini sudah terdaftar.',
             'study_program.required' => 'Program studi wajib dipilih.',
             'study_program.in' => 'Program studi yang dipilih tidak valid.',
+            'regular_class.in' => 'Pilihan kelas reguler tidak valid.',
             'name.required' => 'Nama lengkap mahasiswa wajib diisi.',
             'whatsapp_number.required' => 'Nomor WhatsApp wajib diisi.',
             'whatsapp_number.regex' => 'Nomor WhatsApp hanya boleh berisi angka.',
         ]);
 
+        $validated['regular_class'] = $validated['regular_class'] ?? 'reg_a';
+        $validated['regular_class'] = $validated['regular_class'] ?? $student->regular_class ?? 'reg_a';
         $validated['whatsapp_number'] = Student::normalizePhone($validated['whatsapp_number']);
         $validated['is_active'] = $request->boolean('is_active');
 
@@ -85,6 +99,7 @@ class StudentController extends Controller
         return view('admin.students.form', [
             'student' => $student,
             'studyPrograms' => Student::STUDY_PROGRAMS,
+            'regularClasses' => Student::REGULAR_CLASSES,
             'isEdit' => true,
         ]);
     }
@@ -95,6 +110,7 @@ class StudentController extends Controller
             'nim' => ['required', 'string', 'size:12', 'regex:/^[0-9]{12}$/', Rule::unique('students', 'nim')->ignore($student->id)],
             'name' => ['required', 'string', 'max:150'],
             'study_program' => ['required', 'string', Rule::in(Student::STUDY_PROGRAMS)],
+            'regular_class' => ['nullable', 'string', Rule::in(array_keys(Student::REGULAR_CLASSES))],
             'semester' => ['required', 'integer', 'min:1', 'max:14'],
             'whatsapp_number' => ['required', 'string', 'max:30', 'regex:/^[0-9+\-\s]+$/'],
             'is_active' => ['nullable', 'boolean'],
@@ -105,8 +121,11 @@ class StudentController extends Controller
             'nim.regex' => 'NIM mahasiswa hanya boleh berisi angka 12 digit.',
             'study_program.required' => 'Program studi wajib dipilih.',
             'study_program.in' => 'Program studi yang dipilih tidak valid.',
+            'regular_class.required' => 'Pilihan kelas reguler wajib diisi.',
+            'regular_class.in' => 'Pilihan kelas reguler tidak valid.',
         ]);
 
+        $validated['regular_class'] = $validated['regular_class'] ?? $student->regular_class ?? 'reg_a';
         $validated['whatsapp_number'] = Student::normalizePhone($validated['whatsapp_number']);
         $validated['is_active'] = $request->boolean('is_active');
 

@@ -46,7 +46,18 @@
                    placeholder="Ketik 12 digit NIM, nama mahasiswa, atau nomor WA..."
                    class="w-full min-h-[44px] px-3.5 py-2 rounded-lg border border-slate-300 text-sm text-slate-900 focus:ring-2 focus:ring-unpam-navy focus:border-unpam-navy">
         </div>
-        <div class="sm:w-56">
+        <div class="sm:w-48">
+            <label for="regular_class" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Kelas Reguler</label>
+            <select id="regular_class"
+                    name="regular_class"
+                    class="w-full min-h-[44px] px-3 py-2 rounded-lg border border-slate-300 text-sm text-slate-900 bg-white focus:ring-2 focus:ring-unpam-navy focus:border-unpam-navy">
+                <option value="">Semua Reguler</option>
+                @foreach($regularClasses as $key => $label)
+                    <option value="{{ $key }}" @selected($regularClass === $key)>{{ $label }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="sm:w-48">
             <label for="status" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Status Reminder WA</label>
             <select id="status"
                     name="status"
@@ -60,7 +71,7 @@
             <button type="submit" class="min-h-[44px] px-5 py-2 rounded-lg bg-unpam-navy text-white text-sm font-bold hover:bg-slate-800 transition-colors shadow-sm">
                 Cari Data
             </button>
-            @if($search !== '' || $status !== '')
+            @if($search !== '' || $status !== '' || $regularClass !== '')
                 <a href="{{ route('admin.students.index') }}" class="min-h-[44px] inline-flex items-center px-4 py-2 rounded-lg border border-slate-300 text-sm font-semibold text-slate-700 hover:bg-slate-100 transition-colors">
                     Reset
                 </a>
@@ -133,6 +144,7 @@
                                 <th class="py-3.5 px-4 font-bold">NIM (12 Digit)</th>
                                 <th class="py-3.5 px-4 font-bold">Nama Mahasiswa</th>
                                 <th class="py-3.5 px-4 font-bold">Program Studi</th>
+                                <th class="py-3.5 px-4 font-bold">Reguler</th>
                                 <th class="py-3.5 px-4 font-bold">WhatsApp</th>
                                 <th class="py-3.5 px-4 font-bold">Status</th>
                                 <th class="py-3.5 px-4 font-bold text-right">Aksi</th>
@@ -159,6 +171,11 @@
                                     <td class="py-3.5 px-4 text-slate-700">
                                         <span class="font-medium text-slate-900 block">{{ $student->study_program }}</span>
                                         <span class="text-xs text-slate-500">Semester {{ $student->semester }}</span>
+                                    </td>
+                                    <td class="py-3.5 px-4">
+                                        <span class="inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-800 border border-slate-200 whitespace-nowrap">
+                                            {{ $student->regular_class_label }}
+                                        </span>
                                     </td>
                                     <td class="py-3.5 px-4 font-mono text-xs text-slate-800">
                                         +{{ $student->whatsapp_number }}

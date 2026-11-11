@@ -107,6 +107,29 @@ class CrmMvpEndToEndTest extends TestCase
         $sessionRes = $this->getJson('/chat/session');
         $sessionRes->assertOk()
             ->assertJsonPath('status', Conversation::STATUS_BOT_ACTIVE);
+        $this->assertSame('1', $sessionRes->json('options.0.code'));
+
+        // Pilih Menu 1 (Informasi Kampus) -> sub-menu 1.1..1.6 muncul dan tetap stay saat polling /chat/session
+        $menu1Res = $this->postJson('/chat/message', ['message' => '1']);
+        $menu1Res->assertOk();
+        $this->assertSame('1.1', $menu1Res->json('options.0.code'));
+
+        // Polling /chat/session tidak boleh mereset sub-menu 1 kembali ke menu utama
+        $pollMenu1 = $this->getJson('/chat/session');
+        $pollMenu1->assertOk();
+        $this->assertSame('1.1', $pollMenu1->json('options.0.code'));
+
+        // Pilih sub-kategori 1.1 -> tetap stay di sub-menu 1 bahkan setelah polling
+        $sub11Res = $this->postJson('/chat/message', ['message' => '1.1']);
+        $sub11Res->assertOk();
+        $this->assertSame('1.1', $sub11Res->json('options.0.code'));
+        $this->assertSame('1.1', $this->getJson('/chat/session')->json('options.0.code'));
+
+        // Ketik 0 (Keluar) -> baru kembali ke menu utama
+        $exitRes = $this->postJson('/chat/message', ['message' => '0']);
+        $exitRes->assertOk();
+        $this->assertSame('1', $exitRes->json('options.0.code'));
+        $this->assertSame('1', $this->getJson('/chat/session')->json('options.0.code'));
 
         // Pilih Menu 2 (Informasi Pembayaran) -> mengambil data dari campus_informations
         $menu2Res = $this->postJson('/chat/message', [
