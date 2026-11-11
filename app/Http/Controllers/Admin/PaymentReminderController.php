@@ -43,20 +43,28 @@ class PaymentReminderController extends Controller
         return view('admin.reminders.form', [
             'reminder' => new PaymentReminder([
                 'category' => 'pembayaran',
+                'target_type' => 'all',
                 'status' => 'scheduled',
                 'scheduled_at' => now()->addHour()->format('Y-m-d\TH:i'),
             ]),
             'categories' => PaymentReminder::CATEGORIES,
+            'targetTypes' => PaymentReminder::TARGET_TYPES,
             'isEdit' => false,
             'activeStudentCount' => Student::where('is_active', true)->count(),
+            'students' => Student::where('is_active', true)->orderBy('name')->get(['id', 'nim', 'name', 'whatsapp_number']),
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request, ReminderDispatchService $dispatchService): RedirectResponse
     {
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:180'],
             'category' => ['required', 'string', 'in:' . implode(',', array_keys(PaymentReminder::CATEGORIES))],
+            'target_type' => ['nullable', 'string', 'in:' . implode(',', array_keys(PaymentReminder::TARGET_TYPES))],
+            'personal_student_id' => ['nullable', 'exists:students,id'],
+            'selected_student_ids' => ['nullable', 'array'],
+            'selected_student_ids.*' => ['exists:students,id'],
+            'custom_recipients' => ['nullable', 'string', 'max:2000'],
             'message' => ['required', 'string', 'max:2000'],
             'scheduled_at' => ['nullable', 'date'],
         ], [
@@ -65,14 +73,33 @@ class PaymentReminderController extends Controller
             'message.required' => 'Isi pesan reminder wajib diisi.',
         ]);
 
-        PaymentReminder::create([
+        $targetType = $validated['target_type'] ?? 'all';
+        $studentIds = match($targetType) {
+            'personal' => !empty($validated['personal_student_id']) ? [(int) $validated['personal_student_id']] : null,
+            'selected' => !empty($validated['selected_student_ids']) ? array_map('intval', $validated['selected_student_ids']) : null,
+            default => null,
+        };
+
+        $customRecipients = match($targetType) {
+            'personal' => $request->input('custom_recipients_personal') ?? $validated['custom_recipients'] ?? null,
+            'selected' => $request->input('custom_recipients_bulk') ?? $validated['custom_recipients'] ?? null,
+            default => null,
+        };
+
+        $reminder = new PaymentReminder([
             'title' => $validated['title'],
             'category' => $validated['category'],
+            'target_type' => $targetType,
+            'target_student_ids' => $studentIds,
+            'custom_recipients' => $customRecipients,
             'message' => $validated['message'],
             'scheduled_at' => $validated['scheduled_at'] ?? null,
             'status' => ! empty($validated['scheduled_at']) ? 'scheduled' : 'draft',
-            'total_targets' => Student::where('is_active', true)->count(),
         ]);
+
+        $targets = $dispatchService->resolveRecipients($reminder);
+        $reminder->total_targets = count($targets);
+        $reminder->save();
 
         return redirect()->route('admin.reminders.index')
             ->with('success', 'Jadwal reminder mahasiswa berhasil disimpan.');
@@ -93,30 +120,56 @@ class PaymentReminderController extends Controller
         return view('admin.reminders.form', [
             'reminder' => $reminder,
             'categories' => PaymentReminder::CATEGORIES,
+            'targetTypes' => PaymentReminder::TARGET_TYPES,
             'isEdit' => true,
             'activeStudentCount' => Student::where('is_active', true)->count(),
+            'students' => Student::where('is_active', true)->orderBy('name')->get(['id', 'nim', 'name', 'whatsapp_number']),
         ]);
     }
 
-    public function update(Request $request, PaymentReminder $reminder): RedirectResponse
+    public function update(Request $request, PaymentReminder $reminder, ReminderDispatchService $dispatchService): RedirectResponse
     {
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:180'],
             'category' => ['required', 'string', 'in:' . implode(',', array_keys(PaymentReminder::CATEGORIES))],
+            'target_type' => ['nullable', 'string', 'in:' . implode(',', array_keys(PaymentReminder::TARGET_TYPES))],
+            'personal_student_id' => ['nullable', 'exists:students,id'],
+            'selected_student_ids' => ['nullable', 'array'],
+            'selected_student_ids.*' => ['exists:students,id'],
+            'custom_recipients' => ['nullable', 'string', 'max:2000'],
             'message' => ['required', 'string', 'max:2000'],
             'scheduled_at' => ['nullable', 'date'],
             'status' => ['nullable', 'in:draft,scheduled'],
         ]);
 
         $status = $validated['status'] ?? (! empty($validated['scheduled_at']) ? 'scheduled' : 'draft');
+        $targetType = $validated['target_type'] ?? 'all';
+        $studentIds = match($targetType) {
+            'personal' => !empty($validated['personal_student_id']) ? [(int) $validated['personal_student_id']] : null,
+            'selected' => !empty($validated['selected_student_ids']) ? array_map('intval', $validated['selected_student_ids']) : null,
+            default => null,
+        };
 
-        $reminder->update([
+        $customRecipients = match($targetType) {
+            'personal' => $request->input('custom_recipients_personal') ?? $validated['custom_recipients'] ?? null,
+            'selected' => $request->input('custom_recipients_bulk') ?? $validated['custom_recipients'] ?? null,
+            default => null,
+        };
+
+        $reminder->fill([
             'title' => $validated['title'],
             'category' => $validated['category'],
+            'target_type' => $targetType,
+            'target_student_ids' => $studentIds,
+            'custom_recipients' => $customRecipients,
             'message' => $validated['message'],
             'scheduled_at' => $validated['scheduled_at'] ?? null,
             'status' => $status,
         ]);
+
+        $targets = $dispatchService->resolveRecipients($reminder);
+        $reminder->total_targets = count($targets);
+        $reminder->save();
 
         return redirect()->route('admin.reminders.index')
             ->with('success', 'Data reminder mahasiswa berhasil diperbarui.');

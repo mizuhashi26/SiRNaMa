@@ -9,6 +9,8 @@
     $scriptDir = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '')), '/');
     $baseUrl = ($scriptDir !== '' && $scriptDir !== '.') ? $scriptDir : '';
     $homeUrl = $baseUrl !== '' ? $baseUrl . '/' : url('/');
+    $aboutUrl = $baseUrl !== '' ? $baseUrl . '/tentang' : url('/tentang');
+    $contactUrl = $baseUrl !== '' ? $baseUrl . '/kontak' : url('/kontak');
     $loginUrl = $baseUrl !== '' ? $baseUrl . '/login' : url('/login');
     $academicUrl = $homeUrl . (str_contains($homeUrl, '?') ? '&' : '?') . 'kategori=akademik';
     $paymentUrl = $homeUrl . (str_contains($homeUrl, '?') ? '&' : '?') . 'kategori=pembayaran';
@@ -73,6 +75,14 @@
                            class="min-h-[42px] inline-flex items-center px-3.5 py-2 rounded text-sm font-medium whitespace-nowrap text-slate-200 hover:bg-slate-800 hover:text-white transition-colors">
                             Info Pembayaran
                         </a>
+                        <a href="{{ $aboutUrl }}"
+                           class="min-h-[42px] inline-flex items-center px-3.5 py-2 rounded text-sm font-medium whitespace-nowrap text-slate-200 hover:bg-slate-800 hover:text-white transition-colors">
+                            Tentang
+                        </a>
+                        <a href="{{ $contactUrl }}"
+                           class="min-h-[42px] inline-flex items-center px-3.5 py-2 rounded text-sm font-medium whitespace-nowrap text-slate-200 hover:bg-slate-800 hover:text-white transition-colors">
+                            Kontak
+                        </a>
                         @auth
                             <a href="{{ $adminUrl }}"
                                class="min-h-[42px] inline-flex items-center px-3.5 py-2 rounded text-sm font-semibold bg-unpam-gold text-slate-950 hover:bg-unpam-goldHover ml-1 shadow-xs whitespace-nowrap transition-colors">
@@ -108,6 +118,12 @@
                 </a>
                 <a href="{{ $paymentUrl }}" class="block min-h-[44px] px-3 py-2.5 rounded text-sm font-medium text-white hover:bg-slate-800">
                     Informasi Pembayaran Kuliah
+                </a>
+                <a href="{{ $aboutUrl }}" class="block min-h-[44px] px-3 py-2.5 rounded text-sm font-medium text-white hover:bg-slate-800">
+                    Tentang Layanan
+                </a>
+                <a href="{{ $contactUrl }}" class="block min-h-[44px] px-3 py-2.5 rounded text-sm font-medium text-white hover:bg-slate-800">
+                    Kontak &amp; WhatsApp Bot
                 </a>
                 @auth
                     <a href="{{ $adminUrl }}" class="block min-h-[44px] px-3 py-2.5 rounded text-sm font-semibold bg-unpam-gold text-slate-950 mt-1">

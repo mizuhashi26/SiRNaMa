@@ -42,6 +42,10 @@
                         <dd class="font-bold text-slate-900">{{ strtoupper($reminder->status) }}</dd>
                     </div>
                     <div class="flex justify-between">
+                        <dt class="text-slate-600">Target Penerima:</dt>
+                        <dd class="font-bold text-slate-900">{{ $reminder->target_type_label }}</dd>
+                    </div>
+                    <div class="flex justify-between">
                         <dt class="text-slate-600">Jadwal:</dt>
                         <dd class="font-semibold text-slate-900">{{ $reminder->scheduled_at?->format('d M Y, H:i') ?? 'Manual' }}</dd>
                     </div>

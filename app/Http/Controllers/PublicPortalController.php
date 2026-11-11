@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AppSetting;
 use App\Models\CampusInformation;
+use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -64,6 +66,56 @@ class PublicPortalController extends Controller
             'information' => $information,
             'relatedInformations' => $relatedInformations,
             'categories' => CampusInformation::CATEGORIES,
+        ]);
+    }
+
+    public function about(): View
+    {
+        return view('public.about', [
+            'appName' => AppSetting::getValue('app_institution_name', 'Universitas Pamulang'),
+            'logoText' => AppSetting::getValue('app_logo_text', 'UNPAM'),
+            'categories' => CampusInformation::CATEGORIES,
+        ]);
+    }
+
+    public function contact(): View
+    {
+        $rawPhone = (string) AppSetting::getValue('admin_contact_phone', '6281234567890');
+        $botPhoneClean = Student::normalizePhone($rawPhone);
+        if ($botPhoneClean === '') {
+            $botPhoneClean = '6281234567890';
+        }
+
+        $formattedBotPhone = '+' . substr($botPhoneClean, 0, 2) . ' ' . substr($botPhoneClean, 2, 3) . '-' . substr($botPhoneClean, 5, 4) . '-' . substr($botPhoneClean, 9);
+
+        $officialCampuses = [
+            [
+                'name' => 'Kampus 1 UNPAM (Pusat Pamulang)',
+                'address' => 'Jl. Surya Kencana No. 1, Pamulang Barat, Kec. Pamulang, Kota Tangerang Selatan, Banten 15417',
+                'phone' => '(021) 7412566 / (021) 74709855',
+                'badge' => 'Kampus Utama / Rektorat',
+            ],
+            [
+                'name' => 'Kampus 2 UNPAM (Viktor Serpong)',
+                'address' => 'Jl. Puspitek Raya No. 46, Buaran, Kec. Serpong, Kota Tangerang Selatan, Banten 15310',
+                'phone' => '(021) 7412566',
+                'badge' => 'Gedung Viktor',
+            ],
+            [
+                'name' => 'Kampus 3 UNPAM (Witana Harja)',
+                'address' => 'Jl. Witana Harja No. 18b, Pamulang Barat, Kec. Pamulang, Kota Tangerang Selatan, Banten 15417',
+                'phone' => '(021) 7412566',
+                'badge' => 'Gedung Witana Harja',
+            ],
+        ];
+
+        return view('public.contact', [
+            'appName' => AppSetting::getValue('app_institution_name', 'Universitas Pamulang'),
+            'botPhoneClean' => $botPhoneClean,
+            'formattedBotPhone' => $formattedBotPhone,
+            'officialCampuses' => $officialCampuses,
+            'officialEmail' => 'info@unpam.ac.id',
+            'officialWebsite' => 'https://unpam.ac.id',
         ]);
     }
 }

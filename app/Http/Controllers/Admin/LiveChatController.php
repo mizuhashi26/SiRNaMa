@@ -20,7 +20,7 @@ class LiveChatController extends Controller
         $statusFilter = (string) $request->query('status', '');
         $channelFilter = (string) $request->query('channel', '');
 
-        $conversations = Conversation::with('assignedAdmin')
+        $conversations = Conversation::with(['assignedAdmin', 'messages'])
             ->when(
                 $statusFilter !== '' && array_key_exists($statusFilter, Conversation::STATUS_LABELS),
                 fn ($q) => $q->where('status', $statusFilter)
@@ -38,6 +38,11 @@ class LiveChatController extends Controller
             ->orderByDesc('last_message_at')
             ->get();
 
+        $contactNumbers = $conversations->pluck('contact_number')->filter()->unique()->toArray();
+        $registeredPhones = !empty($contactNumbers)
+            ? Student::whereIn('whatsapp_number', $contactNumbers)->pluck('whatsapp_number')->flip()->toArray()
+            : [];
+
         $activeConversation = null;
         $selectedId = (int) $request->query('conversation_id', 0);
 
@@ -53,6 +58,7 @@ class LiveChatController extends Controller
             'statusFilter' => $statusFilter,
             'channelFilter' => $channelFilter,
             'statusLabels' => Conversation::STATUS_LABELS,
+            'registeredPhones' => $registeredPhones,
             'fonnteConfigured' => $fonnteService->isConfigured(),
         ]);
     }

@@ -145,7 +145,7 @@ class WhatsAppLiveChatFlowTest extends TestCase
 
     public function test_admin_can_use_whatsapp_simulation_endpoint(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->superadmin()->create();
 
         $response = $this->actingAs($admin)->post(route('admin.live-chat.simulate-whatsapp'), [
             'sender' => '628999111222',
@@ -161,6 +161,68 @@ class WhatsAppLiveChatFlowTest extends TestCase
             'external_user_id' => '628999111222',
             'status' => Conversation::STATUS_WAITING_ADMIN,
         ]);
+    }
+
+    public function test_unregistered_whatsapp_sender_appears_on_dashboard_and_live_chat(): void
+    {
+        $mockFonnte = $this->mock(FonnteService::class);
+        $mockFonnte->shouldReceive('isConfigured')->andReturn(true);
+        $mockFonnte->shouldReceive('sendMessage')->andReturn([
+            'success' => true,
+            'status' => 'success',
+            'message' => 'Pesan terkirim ke gateway Fonnte',
+            'data' => ['id' => 'msg-dummy-999'],
+        ]);
+
+        $admin = User::factory()->superadmin()->create();
+
+        // 1. Nomor tidak terdaftar di database mengirim pesan WhatsApp ke Bot
+        $unregisteredPhone = '6283143240894';
+        $webhookPayload = [
+            'sender' => $unregisteredPhone,
+            'message' => 'Halo min mau tanya info kampus',
+            'name' => 'Calon Mahasiswa',
+        ];
+
+        $webhookRes = $this->postJson(route('webhook.fonnte'), $webhookPayload);
+        $webhookRes->assertOk();
+
+        // Verifikasi percakapan tersimpan dengan status BOT_ACTIVE
+        $conversation = Conversation::where('channel', 'whatsapp')
+            ->where('external_user_id', $unregisteredPhone)
+            ->first();
+
+        $this->assertNotNull($conversation);
+        $this->assertEquals(Conversation::STATUS_BOT_ACTIVE, $conversation->status);
+
+        // 2. Dashboard admin harus menampilkan percakapan ini
+        $dashboardRes = $this->actingAs($admin)->get(route('admin.dashboard'));
+        $dashboardRes->assertOk();
+        $dashboardRes->assertSee('Calon Mahasiswa');
+        $dashboardRes->assertSee($unregisteredPhone);
+        $dashboardRes->assertSee('Kontak Baru');
+        $dashboardRes->assertSee('Bot Aktif');
+
+        // Tab bot aktif juga menampilkan percakapan
+        $tabBotRes = $this->actingAs($admin)->get(route('admin.dashboard', ['tab' => 'bot']));
+        $tabBotRes->assertOk();
+        $tabBotRes->assertSee('Calon Mahasiswa');
+
+        // 3. Live chat juga menampilkan percakapan & tanda belum terdaftar
+        $liveChatRes = $this->actingAs($admin)->get(route('admin.live-chat.index', ['conversation_id' => $conversation->id]));
+        $liveChatRes->assertOk();
+        $liveChatRes->assertSee('Calon Mahasiswa');
+        $liveChatRes->assertSee('Nomor Belum Terdaftar');
+        $liveChatRes->assertSee('Daftarkan Mahasiswa');
+
+        // 4. Form tambah mahasiswa melakukan prefill nomor & nama
+        $createStudentRes = $this->actingAs($admin)->get(route('admin.students.create', [
+            'whatsapp_number' => $unregisteredPhone,
+            'name' => 'Calon Mahasiswa',
+        ]));
+        $createStudentRes->assertOk();
+        $createStudentRes->assertSee($unregisteredPhone);
+        $createStudentRes->assertSee('Calon Mahasiswa');
     }
 }
 

@@ -71,6 +71,10 @@
                             <span class="px-1.5 py-0.2 rounded-full text-[10px] font-black bg-red-600 text-white">{{ $waitingCount }}</span>
                         @endif
                     </a>
+                    <a href="{{ route('admin.live-chat.index', ['status' => 'BOT_ACTIVE']) }}"
+                       class="px-2.5 py-1 rounded-md transition-colors whitespace-nowrap {{ $statusFilter === 'BOT_ACTIVE' ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
+                        Bot Aktif
+                    </a>
                     <a href="{{ route('admin.live-chat.index', ['channel' => 'whatsapp']) }}"
                        class="px-2.5 py-1 rounded-md transition-colors whitespace-nowrap {{ $channelFilter === 'whatsapp' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
                         WhatsApp
@@ -112,8 +116,11 @@
                             <!-- Detail Mahasiswa -->
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center justify-between gap-1 mb-1">
-                                    <h2 class="text-sm font-bold text-slate-900 truncate">
-                                        {{ $item->user_name ?: $item->external_user_id }}
+                                    <h2 class="text-sm font-bold text-slate-900 truncate flex items-center gap-1.5">
+                                        <span class="truncate">{{ $item->user_name ?: $item->external_user_id }}</span>
+                                        @if($item->channel === 'whatsapp' && !isset($registeredPhones[$item->contact_number]))
+                                            <span class="text-[9px] font-bold px-1 rounded bg-amber-50 text-amber-800 border border-amber-200 shrink-0">Baru</span>
+                                        @endif
                                     </h2>
                                     <span class="text-[10px] text-slate-400 font-mono shrink-0">
                                         {{ $item->last_message_at?->format('H:i') ?? '-' }}
@@ -179,12 +186,32 @@
                                     {{ $activeConversation->channel === 'whatsapp' ? 'WhatsApp' : 'Website' }}
                                 </span>
                             </div>
-                            <p class="text-xs text-slate-500 mt-0.5 font-mono">
+                            <div class="text-xs text-slate-500 mt-0.5 flex flex-wrap items-center gap-2">
                                 @if($activeConversation->contact_number)
-                                    No: +{{ $activeConversation->contact_number }} &bull;
+                                    <span class="font-mono">No: +{{ $activeConversation->contact_number }}</span>
+                                    <span>&bull;</span>
                                 @endif
-                                Status: <strong id="livechat-active-status" class="text-slate-800">{{ $activeConversation->status_label }}</strong>
-                            </p>
+                                <span>Status: <strong id="livechat-active-status" class="text-slate-800">{{ $activeConversation->status_label }}</strong></span>
+                                @if($activeConversation->channel === 'whatsapp')
+                                    <span>&bull;</span>
+                                    @if(isset($registeredPhones[$activeConversation->contact_number]))
+                                        <span class="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">
+                                            Mahasiswa Terdaftar
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-900 border border-amber-200">
+                                            Nomor Belum Terdaftar
+                                        </span>
+                                        @if(auth()->user()->isSuperAdmin())
+                                            <a href="{{ route('admin.students.create', ['whatsapp_number' => $activeConversation->contact_number, 'name' => $activeConversation->user_name]) }}"
+                                               target="_blank"
+                                               class="text-[11px] font-bold text-unpam-navy hover:underline">
+                                                + Daftarkan Mahasiswa
+                                            </a>
+                                        @endif
+                                    @endif
+                                @endif
+                            </div>
                         </div>
                     </div>
 

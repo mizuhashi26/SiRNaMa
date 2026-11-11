@@ -308,5 +308,84 @@ class CrmMvpEndToEndTest extends TestCase
         $this->assertSame(1, $reminder->sent_count);
         $this->assertSame(0, $reminder->failed_count);
     }
+
+    public function test_payment_reminder_personal_and_selected_dispatch(): void
+    {
+        $studentA = Student::create([
+            'nim' => '211011400010',
+            'name' => 'Ahmad Personal',
+            'study_program' => 'Teknik Informatika S1',
+            'semester' => 4,
+            'whatsapp_number' => '6281200000010',
+            'is_active' => true,
+        ]);
+
+        $studentB = Student::create([
+            'nim' => '211011400020',
+            'name' => 'Budi Selected',
+            'study_program' => 'Sistem Informasi S1',
+            'semester' => 2,
+            'whatsapp_number' => '6281200000020',
+            'is_active' => true,
+        ]);
+
+        config(['services.fonnte.token' => 'valid-fonnte-token']);
+        Http::fake([
+            'https://api.fonnte.com/*' => Http::response(['status' => true], 200),
+        ]);
+
+        $admin = User::factory()->create();
+
+        // 1. Buat reminder target personal + custom nomor
+        $createRes = $this->actingAs($admin)->post('/admin/reminders', [
+            'title' => 'Reminder Personal',
+            'category' => 'pembayaran',
+            'message' => 'Halo ini pengingat khusus untuk Anda.',
+            'target_type' => 'personal',
+            'personal_student_id' => $studentA->id,
+            'custom_recipients_personal' => '089988776655',
+            'scheduled_at' => now()->format('Y-m-d H:i'),
+        ]);
+        $createRes->assertRedirect(route('admin.reminders.index'));
+
+        $reminderPersonal = PaymentReminder::where('title', 'Reminder Personal')->firstOrFail();
+        $this->assertSame('personal', $reminderPersonal->target_type);
+
+        // Dispatch reminder personal
+        $this->actingAs($admin)
+            ->post("/admin/reminders/{$reminderPersonal->id}/send-now")
+            ->assertRedirect("/admin/reminders/{$reminderPersonal->id}");
+
+        $reminderPersonal->refresh();
+        $this->assertSame('sent', $reminderPersonal->status);
+        // Total targets: Mahasiswa A + nomor custom 089988776655 = 2
+        $this->assertSame(2, $reminderPersonal->total_targets);
+        $this->assertSame(2, $reminderPersonal->sent_count);
+
+        // 2. Buat reminder target selected (beberapa mahasiswa + custom bulk)
+        $createBulkRes = $this->actingAs($admin)->post('/admin/reminders', [
+            'title' => 'Reminder Selected',
+            'category' => 'akademik',
+            'message' => 'Halo ini pengingat kelompok mahasiswa tertentu.',
+            'target_type' => 'selected',
+            'selected_student_ids' => [$studentB->id],
+            'custom_recipients_bulk' => "081233445566\n081299887766",
+            'scheduled_at' => now()->format('Y-m-d H:i'),
+        ]);
+        $createBulkRes->assertRedirect(route('admin.reminders.index'));
+
+        $reminderSelected = PaymentReminder::where('title', 'Reminder Selected')->firstOrFail();
+        $this->assertSame('selected', $reminderSelected->target_type);
+
+        $this->actingAs($admin)
+            ->post("/admin/reminders/{$reminderSelected->id}/send-now")
+            ->assertRedirect("/admin/reminders/{$reminderSelected->id}");
+
+        $reminderSelected->refresh();
+        $this->assertSame('sent', $reminderSelected->status);
+        // Total targets: studentB + 2 custom recipients = 3
+        $this->assertSame(3, $reminderSelected->total_targets);
+        $this->assertSame(3, $reminderSelected->sent_count);
+    }
 }
 

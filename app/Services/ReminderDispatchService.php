@@ -12,7 +12,7 @@ class ReminderDispatchService
     ) {}
 
     /**
-     * Kirim reminder pembayaran umum ke seluruh mahasiswa dummy aktif.
+     * Kirim reminder pengumuman/pembayaran ke target penerima (seluruh mahasiswa, personal, atau nomor pilihan).
      *
      * @return array{
      *   status: string,
@@ -24,8 +24,8 @@ class ReminderDispatchService
      */
     public function dispatchReminder(PaymentReminder $reminder): array
     {
-        $students = Student::where('is_active', true)->orderBy('id')->get();
-        $totalTargets = $students->count();
+        $recipients = $this->resolveRecipients($reminder);
+        $totalTargets = count($recipients);
 
         if ($totalTargets === 0) {
             $reminder->update([
@@ -33,7 +33,7 @@ class ReminderDispatchService
                 'total_targets' => 0,
                 'sent_count' => 0,
                 'failed_count' => 0,
-                'last_error' => 'Tidak ada mahasiswa aktif terdaftar.',
+                'last_error' => 'Tidak ada target penerima yang valid.',
             ]);
 
             return [
@@ -41,7 +41,7 @@ class ReminderDispatchService
                 'total_targets' => 0,
                 'sent_count' => 0,
                 'failed_count' => 0,
-                'notice' => 'Pengiriman dibatalkan karena belum ada mahasiswa aktif terdaftar.',
+                'notice' => 'Pengiriman dibatalkan karena tidak ada target penerima yang valid.',
             ];
         }
 
@@ -52,14 +52,18 @@ class ReminderDispatchService
 
         $categoryUpper = strtoupper($reminder->category_label);
 
-        foreach ($students as $student) {
+        foreach ($recipients as $recipient) {
+            $studentGreeting = !empty($recipient['nim'])
+                ? "Yth. {$recipient['name']} ({$recipient['nim']}),\n\n"
+                : "Yth. {$recipient['name']},\n\n";
+
             $formattedMessage = "[PENGINGAT RESMI - {$categoryUpper}]\n"
-                . "Yth. {$student->name} ({$student->nim}),\n\n"
+                . $studentGreeting
                 . "*{$reminder->title}*\n"
                 . "{$reminder->message}\n\n"
                 . "Layanan Informasi & Kemahasiswaan Universitas Pamulang";
 
-            $result = $this->fonnteService->sendMessage($student->whatsapp_number, $formattedMessage);
+            $result = $this->fonnteService->sendMessage($recipient['whatsapp_number'], $formattedMessage);
 
             if ($result['success']) {
                 $sentCount++;
@@ -72,9 +76,9 @@ class ReminderDispatchService
             }
 
             $reminder->logs()->create([
-                'student_id' => $student->id,
-                'recipient_name' => $student->name,
-                'whatsapp_number' => $student->whatsapp_number,
+                'student_id' => $recipient['student_id'],
+                'recipient_name' => $recipient['name'],
+                'whatsapp_number' => $recipient['whatsapp_number'],
                 'status' => $result['status'],
                 'provider_response' => is_string($result['response'])
                     ? $result['response']
@@ -113,6 +117,106 @@ class ReminderDispatchService
             'failed_count' => $failedCount,
             'notice' => $notice,
         ];
+    }
+
+    /**
+     * Uraikan target penerima berdasarkan target_type (all, personal, selected).
+     *
+     * @return array<int, array{student_id: ?int, name: string, nim: ?string, whatsapp_number: string}>
+     */
+    public function resolveRecipients(PaymentReminder $reminder): array
+    {
+        $targetType = $reminder->target_type ?? 'all';
+        $recipients = [];
+        $seenNumbers = [];
+
+        if ($targetType === 'personal') {
+            // 1. Jika memilih mahasiswa terdaftar
+            if (!empty($reminder->target_student_ids)) {
+                $studentId = is_array($reminder->target_student_ids) ? $reminder->target_student_ids[0] : (int) $reminder->target_student_ids;
+                $student = Student::find($studentId);
+                if ($student) {
+                    $recipients[] = [
+                        'student_id' => $student->id,
+                        'name' => $student->name,
+                        'nim' => $student->nim,
+                        'whatsapp_number' => $student->whatsapp_number,
+                    ];
+                    $seenNumbers[$student->whatsapp_number] = true;
+                }
+            }
+
+            // 2. Dan/atau jika memasukkan nomor manual
+            if (!empty($reminder->custom_recipients)) {
+                $raw = trim($reminder->custom_recipients);
+                $parts = explode(':', $raw, 2);
+                $name = count($parts) === 2 ? trim($parts[0]) : 'Penerima Pengingat';
+                $phone = count($parts) === 2 ? trim($parts[1]) : $raw;
+                $normalized = Student::normalizePhone($phone);
+                if (strlen($normalized) >= 9 && empty($seenNumbers[$normalized])) {
+                    $recipients[] = [
+                        'student_id' => null,
+                        'name' => $name,
+                        'nim' => null,
+                        'whatsapp_number' => $normalized,
+                    ];
+                    $seenNumbers[$normalized] = true;
+                }
+            }
+        } elseif ($targetType === 'selected') {
+            // 1. Dari daftar mahasiswa yang dicentang
+            if (!empty($reminder->target_student_ids) && is_array($reminder->target_student_ids)) {
+                $students = Student::whereIn('id', $reminder->target_student_ids)->orderBy('name')->get();
+                foreach ($students as $s) {
+                    if (!isset($seenNumbers[$s->whatsapp_number])) {
+                        $recipients[] = [
+                            'student_id' => $s->id,
+                            'name' => $s->name,
+                            'nim' => $s->nim,
+                            'whatsapp_number' => $s->whatsapp_number,
+                        ];
+                        $seenNumbers[$s->whatsapp_number] = true;
+                    }
+                }
+            }
+
+            // 2. Dari nomor tambahan manual (pisahkan baris / koma)
+            if (!empty($reminder->custom_recipients)) {
+                $lines = preg_split('/[\r\n,]+/', $reminder->custom_recipients);
+                foreach ($lines as $line) {
+                    $line = trim($line);
+                    if ($line === '') continue;
+
+                    $parts = explode(':', $line, 2);
+                    $name = count($parts) === 2 ? trim($parts[0]) : 'Mahasiswa / Kontak';
+                    $phone = count($parts) === 2 ? trim($parts[1]) : $line;
+                    $normalized = Student::normalizePhone($phone);
+
+                    if (strlen($normalized) >= 9 && !isset($seenNumbers[$normalized])) {
+                        $recipients[] = [
+                            'student_id' => null,
+                            'name' => $name,
+                            'nim' => null,
+                            'whatsapp_number' => $normalized,
+                        ];
+                        $seenNumbers[$normalized] = true;
+                    }
+                }
+            }
+        } else {
+            // 'all': Seluruh mahasiswa aktif
+            $students = Student::where('is_active', true)->orderBy('id')->get();
+            foreach ($students as $s) {
+                $recipients[] = [
+                    'student_id' => $s->id,
+                    'name' => $s->name,
+                    'nim' => $s->nim,
+                    'whatsapp_number' => $s->whatsapp_number,
+                ];
+            }
+        }
+
+        return $recipients;
     }
 }
 

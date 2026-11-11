@@ -20,9 +20,18 @@ class PaymentReminder extends Model
         'umum' => 'Pengingat Umum',
     ];
 
+    public const TARGET_TYPES = [
+        'all' => 'Semua Mahasiswa Aktif',
+        'personal' => 'Personal (1 Penerima)',
+        'selected' => 'Beberapa Mahasiswa / Nomor Pilihan',
+    ];
+
     protected $fillable = [
         'title',
         'category',
+        'target_type',
+        'target_student_ids',
+        'custom_recipients',
         'message',
         'scheduled_at',
         'status',
@@ -38,9 +47,15 @@ class PaymentReminder extends Model
         return self::CATEGORIES[$this->category] ?? 'Pengingat Mahasiswa';
     }
 
+    public function getTargetTypeLabelAttribute(): string
+    {
+        return self::TARGET_TYPES[$this->target_type] ?? self::TARGET_TYPES['all'];
+    }
+
     protected function casts(): array
     {
         return [
+            'target_student_ids' => 'array',
             'scheduled_at' => 'datetime',
             'sent_at' => 'datetime',
             'total_targets' => 'integer',

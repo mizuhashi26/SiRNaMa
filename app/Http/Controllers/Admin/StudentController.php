@@ -44,10 +44,12 @@ class StudentController extends Controller
         ]);
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
         return view('admin.students.form', [
             'student' => new Student([
+                'name' => (string) $request->query('name', ''),
+                'whatsapp_number' => (string) $request->query('whatsapp_number', ''),
                 'is_active' => true,
                 'semester' => 1,
                 'study_program' => Student::STUDY_PROGRAMS[0],

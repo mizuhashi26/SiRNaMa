@@ -44,10 +44,23 @@
                         @foreach($reminders as $rem)
                             <tr class="hover:bg-slate-50">
                                 <td class="py-3.5 px-4">
-                                    <div class="flex items-center gap-2 mb-1">
+                                    <div class="flex items-center gap-1.5 mb-1 flex-wrap">
                                         <span class="inline-block text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-slate-100 text-slate-800 border border-slate-200">
                                             {{ $rem->category_label }}
                                         </span>
+                                        @if(($rem->target_type ?? 'all') === 'personal')
+                                            <span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-900 border border-purple-300">
+                                                Personal (1 Penerima)
+                                            </span>
+                                        @elseif(($rem->target_type ?? 'all') === 'selected')
+                                            <span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-900 border border-indigo-300">
+                                                Beberapa Nomor
+                                            </span>
+                                        @else
+                                            <span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+                                                Semua Mhs
+                                            </span>
+                                        @endif
                                     </div>
                                     <a href="{{ route('admin.reminders.show', $rem) }}" class="font-bold text-slate-900 hover:text-unpam-navy hover:underline">
                                         {{ $rem->title }}
