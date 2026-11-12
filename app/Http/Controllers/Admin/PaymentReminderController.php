@@ -101,6 +101,13 @@ class PaymentReminderController extends Controller
         $reminder->total_targets = count($targets);
         $reminder->save();
 
+        if ($request->input('action_submit') === 'send_now') {
+            $result = $dispatchService->dispatchReminder($reminder);
+            $flashType = $result['status'] === 'sent' ? 'success' : 'warning';
+            return redirect()->route('admin.reminders.show', $reminder)
+                ->with($flashType, $result['notice']);
+        }
+
         return redirect()->route('admin.reminders.index')
             ->with('success', 'Jadwal reminder mahasiswa berhasil disimpan.');
     }
@@ -170,6 +177,13 @@ class PaymentReminderController extends Controller
         $targets = $dispatchService->resolveRecipients($reminder);
         $reminder->total_targets = count($targets);
         $reminder->save();
+
+        if ($request->input('action_submit') === 'send_now') {
+            $result = $dispatchService->dispatchReminder($reminder);
+            $flashType = $result['status'] === 'sent' ? 'success' : 'warning';
+            return redirect()->route('admin.reminders.show', $reminder)
+                ->with($flashType, $result['notice']);
+        }
 
         return redirect()->route('admin.reminders.index')
             ->with('success', 'Data reminder mahasiswa berhasil diperbarui.');

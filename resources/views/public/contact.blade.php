@@ -4,32 +4,126 @@
 
 @section('content')
     <!-- Header Banner -->
-    <section class="bg-unpam-navy text-white border-b-2 border-unpam-gold/40 py-10 sm:py-12 relative">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+    <section class="bg-unpam-navy text-white border-b-2 border-unpam-gold/40 py-8 sm:py-10 lg:py-12 relative">
+        <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div
                 class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-unpam-navyDark border border-unpam-gold/50 text-unpam-gold text-xs font-semibold mb-3 shadow-sm">
                 <span class="inline-block w-2 h-2 rounded-full bg-unpam-gold"></span>
                 <span>Pusat Bantuan &amp; Saluran Resmi</span>
             </div>
-            <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white leading-tight">
                 Kontak &amp; Layanan Mahasiswa
             </h1>
-            <p class="text-slate-200 text-sm sm:text-base leading-relaxed mt-2 max-w-2xl">
+            <p class="text-slate-200 text-sm sm:text-base leading-relaxed mt-2 max-w-3xl">
                 Hubungi saluran WhatsApp Chatbot untuk layanan mandiri 24 jam atau hubungi kontak sekretariat kampus
                 Universitas Pamulang.
             </p>
         </div>
     </section>
 
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-10">
-        <!-- Grid Saluran Utama: WhatsApp Bot vs Layanan Official -->
+    <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12 space-y-8 sm:space-y-10">
+        <!-- Grid Saluran Utama: Kontak Resmi di Kiri, WhatsApp Bot CRM di Kanan -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
 
-            <!-- Kolom 1: WhatsApp Bot CRM & Live Chat (Nomor Bot) -->
+            <!-- Kolom 1 (KIRI, lg:col-span-7): Kontak Resmi Official Kampus UNPAM -->
+            <div class="lg:col-span-7 space-y-6 order-2 lg:order-1">
+                <div class="border-b border-slate-200 dark:border-slate-700 pb-3">
+                    <span class="text-xs font-bold uppercase tracking-wider text-unpam-navy dark:text-amber-400">Official
+                        Information</span>
+                    <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white mt-0.5">
+                        Kontak Resmi Universitas Pamulang
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1">
+                        Informasi resmi rektorat, sekretariat, dan lokasi gedung kampus Universitas Pamulang.
+                    </p>
+                </div>
+
+                <!-- Kontak Cepat (Email, Telepon, Web) -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                    <div
+                        class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl p-4 space-y-1">
+                        <p class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Telepon
+                            Kantor</p>
+                        <p class="text-sm font-bold text-slate-900 dark:text-white">(021) 7412566</p>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400">Fax: (021) 74709855</p>
+                    </div>
+
+                    <div
+                        class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl p-4 space-y-1">
+                        <p class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Email
+                            Resmi</p>
+                        <a href="mailto:{{ $officialEmail }}"
+                            class="text-sm font-bold text-unpam-navy dark:text-amber-400 hover:underline break-all block">
+                            {{ $officialEmail }}
+                        </a>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400">humas@unpam.ac.id</p>
+                    </div>
+
+                    <div
+                        class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl p-4 space-y-1">
+                        <p class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Website
+                            Kampus</p>
+                        <a href="{{ $officialWebsite }}" target="_blank" rel="noopener noreferrer"
+                            class="text-sm font-bold text-unpam-navy dark:text-amber-400 hover:underline block">
+                            unpam.ac.id &rarr;
+                        </a>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400">Portal Utama UNPAM</p>
+                    </div>
+                </div>
+
+                <!-- Jam Pelayanan Loket Kampus -->
+                <div
+                    class="bg-slate-100 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-700 dark:text-slate-300">
+                    <div>
+                        <span class="font-bold text-slate-900 dark:text-white block text-sm">Jam Operasional Pelayanan
+                            Kampus</span>
+                        <span>Senin s/d Sabtu: <strong>08.00 - 17.00 WIB</strong> (Hari Minggu &amp; Libur Nasional
+                            Tutup)</span>
+                    </div>
+                    <span
+                        class="inline-flex items-center px-3 py-1 rounded bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 font-semibold text-slate-800 dark:text-slate-200 shrink-0">
+                        Loket Pelayanan Mahasiswa
+                    </span>
+                </div>
+
+                <!-- Daftar Gedung & Lokasi Kampus Resmi UNPAM -->
+                <div class="space-y-3">
+                    <h3 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                        Lokasi Gedung &amp; Kampus Resmi UNPAM
+                    </h3>
+
+                    <div class="space-y-3">
+                        @foreach($officialCampuses as $campus)
+                            <div
+                                class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl p-4 space-y-1.5 hover:border-slate-400 dark:hover:border-slate-600 transition-colors shadow-xs">
+                                <div class="flex items-center justify-between gap-2 flex-wrap">
+                                    <h4 class="font-bold text-sm sm:text-base text-slate-900 dark:text-white">
+                                        {{ $campus['name'] }}</h4>
+                                    <span
+                                        class="text-[11px] font-semibold bg-unpam-navy/10 dark:bg-slate-700 text-unpam-navy dark:text-amber-300 px-2.5 py-0.5 rounded">
+                                        {{ $campus['badge'] }}
+                                    </span>
+                                </div>
+                                <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                                    {{ $campus['address'] }}</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 font-mono">{{ $campus['phone'] }}</p>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Kolom 2 (KANAN, lg:col-span-5): WhatsApp Bot CRM & Jadwal Admin Membalas -->
             <div
-                class="lg:col-span-5 bg-gradient-to-br from-emerald-50 via-white to-amber-50/40 dark:from-slate-800 dark:via-slate-800 dark:to-slate-850 border-2 border-emerald-500/80 dark:border-emerald-600 rounded-2xl p-6 sm:p-7 shadow-sm space-y-5">
+                class="lg:col-span-5 bg-white dark:bg-slate-800 border-2 border-emerald-500/80 dark:border-emerald-600 rounded-2xl p-6 sm:p-7 shadow-sm space-y-5 order-1 lg:order-2">
                 <div class="flex items-center justify-between gap-3">
-                    <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Aktif 24 Jam</span>
+                    <span
+                        class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/80 px-2.5 py-1 rounded-full border border-emerald-300 dark:border-emerald-700">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        Chatbot 24/7 Aktif
+                    </span>
+                    <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Kanal Resmi Bot</span>
                 </div>
 
                 <div>
@@ -43,20 +137,56 @@
                 </div>
 
                 <!-- Kartu Nomor WhatsApp Bot -->
-                <div class="bg-white dark:bg-slate-700/80 border border-emerald-300 dark:border-emerald-600 rounded-xl p-4 space-y-2 shadow-xs">
-                    <p class="text-xs font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider">Nomor WhatsApp Bot</p>
+                <div
+                    class="bg-slate-50 dark:bg-slate-700/80 border border-emerald-300 dark:border-emerald-600 rounded-xl p-4 space-y-2 shadow-xs">
+                    <p class="text-xs font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider">Nomor WhatsApp
+                        Bot</p>
                     <div class="flex items-center justify-between gap-2">
-                        <span class="text-lg sm:text-xl font-mono font-extrabold text-emerald-800 dark:text-emerald-300 tracking-wide">
+                        <span
+                            class="text-lg sm:text-xl font-mono font-extrabold text-emerald-800 dark:text-emerald-300 tracking-wide">
                             {{ $formattedBotPhone }}
                         </span>
                     </div>
                     <p class="text-[11px] text-slate-500 dark:text-slate-300">
-                        Ketik <strong>Halo</strong> atau <strong>Menu</strong> pada WhatsApp untuk memulai layanan
-                        bot otomatis.
+                        Ketik <strong>Halo</strong> atau <strong>Menu</strong> pada WhatsApp untuk memulai interaksi.
                     </p>
                 </div>
 
-                <!-- Tombol Aksi WhatsApp -->
+                <!-- Informasi Jadwal Admin Membalas -->
+                <div
+                    class="bg-amber-50/80 dark:bg-slate-750 dark:bg-slate-700/60 border border-amber-300 dark:border-slate-600 rounded-xl p-4 space-y-2.5">
+                    <div class="flex items-center gap-2 text-amber-900 dark:text-amber-300">
+                        <svg class="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <h3 class="text-xs font-bold uppercase tracking-wider">Jadwal Admin Membalas (Live Chat)</h3>
+                    </div>
+                    <ul class="text-xs text-slate-700 dark:text-slate-200 space-y-1.5 leading-relaxed">
+                        <li class="flex items-center justify-between">
+                            <span>Senin - Jumat:</span>
+                            <span class="font-bold text-slate-900 dark:text-white">08.00 - 20.00 WIB</span>
+                        </li>
+                        <li class="flex items-center justify-between">
+                            <span>Sabtu:</span>
+                            <span class="font-bold text-slate-900 dark:text-white">08.00 - 15.00 WIB</span>
+                        </li>
+                        <li
+                            class="flex items-start justify-between gap-2 text-slate-600 dark:text-slate-300 pt-1 border-t border-amber-200/80 dark:border-slate-600">
+                            <span>Di luar jam tersebut:</span>
+                            <span class="text-right font-medium text-amber-800 dark:text-amber-300">
+                                Balas lambat atau pada jam kerja berikutnya</span>
+                        </li>
+                    </ul>
+                    <p
+                        class="text-[11px] text-slate-600 dark:text-slate-400 pt-1 border-t border-amber-200/60 dark:border-slate-600 leading-normal">
+                        <em>Catatan:</em> Layanan <strong>Chatbot Otomatis tetap siaga 24/7</strong> untuk menjawab
+                        informasi kampus kapan pun tanpa batas waktu.
+                    </p>
+                </div>
+
+                <!-- Tombol Aksi WhatsApp & Web Chat -->
                 <div class="space-y-2.5 pt-1">
                     <a href="https://wa.me/{{ $botPhoneClean }}?text=Halo%20Layanan%20Mahasiswa%20UNPAM" target="_blank"
                         rel="noopener noreferrer"
@@ -80,84 +210,6 @@
                 </div>
             </div>
 
-            <!-- Kolom 2: Kontak Resmi Official Kampus UNPAM -->
-            <div class="lg:col-span-7 space-y-6">
-                <div class="border-b border-slate-200 dark:border-slate-700 pb-3">
-                    <span class="text-xs font-bold uppercase tracking-wider text-unpam-navy dark:text-amber-400">Official Information</span>
-                    <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white mt-0.5">
-                        Kontak Resmi Universitas Pamulang
-                    </h2>
-                    <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1">
-                        Informasi resmi rektorat, sekretariat, dan lokasi gedung kampus Universitas Pamulang.
-                    </p>
-                </div>
-
-                <!-- Kontak Cepat (Email, Telepon, Web) -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-                    <div class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl p-4 space-y-1">
-                        <p class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Telepon Kantor</p>
-                        <p class="text-sm font-bold text-slate-900 dark:text-white">(021) 7412566</p>
-                        <p class="text-[11px] text-slate-500 dark:text-slate-400">Fax: (021) 74709855</p>
-                    </div>
-
-                    <div class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl p-4 space-y-1">
-                        <p class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Email Resmi</p>
-                        <a href="mailto:{{ $officialEmail }}"
-                            class="text-sm font-bold text-unpam-navy dark:text-amber-400 hover:underline break-all block">
-                            {{ $officialEmail }}
-                        </a>
-                        <p class="text-[11px] text-slate-500 dark:text-slate-400">humas@unpam.ac.id</p>
-                    </div>
-
-                    <div class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl p-4 space-y-1">
-                        <p class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Website Kampus</p>
-                        <a href="{{ $officialWebsite }}" target="_blank" rel="noopener noreferrer"
-                            class="text-sm font-bold text-unpam-navy dark:text-amber-400 hover:underline block">
-                            unpam.ac.id &rarr;
-                        </a>
-                        <p class="text-[11px] text-slate-500 dark:text-slate-400">Portal Utama UNPAM</p>
-                    </div>
-                </div>
-
-                <!-- Jam Pelayanan Loket -->
-                <div
-                    class="bg-slate-100 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-700 dark:text-slate-300">
-                    <div>
-                        <span class="font-bold text-slate-900 dark:text-white block text-sm">Jam Operasional Pelayanan Kampus</span>
-                        <span>Senin s/d Sabtu: <strong>08.00 - 17.00 WIB</strong> (Hari Minggu &amp; Libur Nasional
-                            Tutup)</span>
-                    </div>
-                    <span
-                        class="inline-flex items-center px-3 py-1 rounded bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 font-semibold text-slate-800 dark:text-slate-200 shrink-0">
-                        Loket Pelayanan Mahasiswa
-                    </span>
-                </div>
-
-                <!-- Daftar Gedung & Lokasi Kampus Resmi UNPAM -->
-                <div class="space-y-3">
-                    <h3 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-                        Lokasi Gedung &amp; Kampus Resmi UNPAM
-                    </h3>
-
-                    <div class="space-y-3">
-                        @foreach($officialCampuses as $campus)
-                            <div
-                                class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl p-4 space-y-1.5 hover:border-slate-400 dark:hover:border-slate-600 transition-colors shadow-xs">
-                                <div class="flex items-center justify-between gap-2 flex-wrap">
-                                    <h4 class="font-bold text-sm sm:text-base text-slate-900 dark:text-white">{{ $campus['name'] }}</h4>
-                                    <span
-                                        class="text-[11px] font-semibold bg-unpam-navy/10 dark:bg-slate-700 text-unpam-navy dark:text-amber-300 px-2.5 py-0.5 rounded">
-                                        {{ $campus['badge'] }}
-                                    </span>
-                                </div>
-                                <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{{ $campus['address'] }}</p>
-                                <p class="text-xs text-slate-500 dark:text-slate-400 font-mono">{{ $campus['phone'] }}</p>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-
-            </div>
         </div>
     </div>
 @endsection

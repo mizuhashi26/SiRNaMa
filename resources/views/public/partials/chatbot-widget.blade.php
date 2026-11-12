@@ -98,13 +98,16 @@
         background-color: #cbd5e1;
         border-radius: 4px;
     }
+    .dark #chatbot-options-list::-webkit-scrollbar-thumb {
+        background-color: #475569;
+    }
 </style>
 
 <div id="unpam-chatbot-root">
     <!-- Panel Chat Pop-up -->
     <section id="chatbot-panel"
              aria-label="Layanan Chatbot Mahasiswa"
-             class="panel-hidden panel-closed-bottom bg-white border-2 border-unpam-navy rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+             class="panel-hidden panel-closed-bottom bg-white dark:bg-slate-900 border-2 border-unpam-navy dark:border-slate-700 rounded-2xl shadow-2xl flex flex-col overflow-hidden text-slate-900 dark:text-slate-100">
         <!-- Header Widget: Handle Draggable, Judul & Ikon Aksi -->
         <div id="chatbot-header-handle"
              title="Tahan dan geser untuk memindahkan. Klik dua kali untuk kembali ke posisi awal."
@@ -160,50 +163,50 @@
         </div>
 
         <!-- Identitas Opsional Pengunjung saat meminta Admin -->
-        <div id="chatbot-identity-bar" class="bg-slate-100 border-b border-slate-300 px-3.5 py-1.5 text-xs shrink-0">
-            <label for="chatbot-visitor-name" class="block font-semibold text-slate-800 mb-0.5 text-[11px]">
+        <div id="chatbot-identity-bar" class="bg-slate-100 dark:bg-slate-800 border-b border-slate-300 dark:border-slate-700 px-3.5 py-1.5 text-xs shrink-0">
+            <label for="chatbot-visitor-name" class="block font-semibold text-slate-800 dark:text-slate-200 mb-0.5 text-[11px]">
                 Nama / NIM (Opsional untuk Admin):
             </label>
             <input type="text"
                    id="chatbot-visitor-name"
                    placeholder="Contoh: Budi Santoso - 2110114001"
-                   class="w-full min-h-[34px] px-2.5 py-1 rounded-lg border border-slate-300 bg-white text-slate-900 text-xs focus:outline-unpam-gold">
+                   class="w-full min-h-[34px] px-2.5 py-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 text-xs focus:outline-unpam-gold">
         </div>
 
         <!-- Daftar Pesan (Fleksibel Menyesuaikan Tinggi Viewport & Auto Scroll) -->
         <div id="chatbot-messages"
              role="log"
              aria-live="polite"
-             class="flex-1 min-h-0 overflow-y-auto p-3.5 space-y-3 bg-slate-50 text-sm">
-            <div id="chatbot-loading-state" class="text-xs text-slate-700 bg-white border border-slate-200 rounded-lg p-3">
+             class="flex-1 min-h-0 overflow-y-auto p-3.5 space-y-3 bg-slate-50 dark:bg-slate-900 text-sm">
+            <div id="chatbot-loading-state" class="text-xs text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-3">
                 Memuat layanan menu Chatbot UNPAM...
             </div>
         </div>
 
         <!-- Area Error State -->
-        <div id="chatbot-error-state" class="hidden bg-red-50 border-t border-red-300 px-3 py-1.5 text-xs text-red-900 shrink-0">
+        <div id="chatbot-error-state" class="hidden bg-red-50 dark:bg-red-950/60 border-t border-red-300 dark:border-red-800 px-3 py-1.5 text-xs text-red-900 dark:text-red-200 shrink-0">
             Gagal terhubung ke server chat. Silakan coba kembali.
         </div>
 
         <!-- Tombol Pilihan Menu & Sub-Layanan -->
-        <div id="chatbot-options-container" class="bg-slate-50 border-t border-slate-200 px-3 py-2 shrink-0">
+        <div id="chatbot-options-container" class="bg-slate-50 dark:bg-slate-850 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 px-3 py-2 shrink-0">
             <div class="flex items-center justify-between mb-1.5">
-                <p class="text-[11px] font-bold text-slate-700 tracking-tight">Pilihan Menu &amp; Sub-Layanan:</p>
-                <span class="text-[10px] text-slate-500">Pilih opsi</span>
+                <p class="text-[11px] font-bold text-slate-700 dark:text-slate-300 tracking-tight">Pilihan Menu &amp; Sub-Layanan:</p>
+                <span class="text-[10px] text-slate-500 dark:text-slate-400">Pilih opsi</span>
             </div>
             <!-- Container Opsi dengan max-height dan overflow-y auto agar tidak meluap keluar kartu -->
             <div id="chatbot-options-list" class="flex flex-wrap gap-1.5 max-h-24 sm:max-h-28 overflow-y-auto pr-0.5"></div>
         </div>
 
         <!-- Form Kirim Pesan / Kode Menu (Selalu Terkunci di Bagian Bawah Jendela) -->
-        <form id="chatbot-form" class="bg-slate-100 border-t border-slate-300 p-2.5 flex items-center gap-2 shrink-0">
+        <form id="chatbot-form" class="bg-slate-100 dark:bg-slate-800 border-t border-slate-300 dark:border-slate-700 p-2.5 flex items-center gap-2 shrink-0">
             <label for="chatbot-input" class="sr-only">Ketik angka menu atau pesan untuk Admin</label>
             <input type="text"
                    id="chatbot-input"
                    name="message"
                    required
                    placeholder="Ketik 1, 2, 3 atau pesan Anda..."
-                   class="flex-1 min-h-[40px] px-3 py-1.5 rounded-lg border border-slate-400 bg-white text-slate-900 text-sm focus:outline-unpam-gold">
+                   class="flex-1 min-h-[40px] px-3 py-1.5 rounded-lg border border-slate-400 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-unpam-gold">
             <button type="submit"
                     id="chatbot-submit-btn"
                     class="min-h-[40px] px-4 py-1.5 rounded-lg bg-unpam-gold text-slate-950 font-bold text-sm hover:bg-unpam-goldHover shadow-sm shrink-0">
@@ -275,8 +278,8 @@ document.addEventListener('DOMContentLoaded', function () {
     let currentOptionsJson = '';
     let isCustomDragged = false;
 
-    // --- PENYESUAIAN VISUAL VIEWPORT MOBILE ---
-    // Mencegah tombol/panel chat tertutup toolbar bawah browser HP saat belum di-scroll
+    // --- PENYESUAIAN VISUAL VIEWPORT MOBILE & AVOID OVERLAPPING FOOTER ---
+    // Mencegah tombol/panel chat tertutup toolbar bawah browser HP dan jangan menimpa footer saat scroll mentok bawah
     function syncMobileVisualViewport() {
         const vv = window.visualViewport;
         const viewportH = vv ? vv.height : window.innerHeight;
@@ -291,13 +294,32 @@ document.addEventListener('DOMContentLoaded', function () {
             panel.style.maxHeight = '';
         }
 
-        if (!isCustomDragged && vv && isMobile) {
-            const occludedBottom = Math.max(0, Math.round(window.innerHeight - (vv.height + vv.offsetTop)));
-            root.style.bottom = (20 + occludedBottom) + 'px';
+        if (!isCustomDragged) {
+            let baseBottom = isMobile ? 24 : 20;
+            if (vv && isMobile) {
+                const occludedBottom = Math.max(0, Math.round(window.innerHeight - (vv.height + vv.offsetTop)));
+                baseBottom += occludedBottom;
+            }
+
+            // Cek apakah footer terlihat di viewport bawah
+            const footerEl = document.querySelector('footer');
+            if (footerEl) {
+                const footerRect = footerEl.getBoundingClientRect();
+                const windowHeight = window.innerHeight;
+                // Jika bagian atas footer sudah masuk ke layar bawah
+                if (footerRect.top < windowHeight) {
+                    const overlap = windowHeight - footerRect.top;
+                    baseBottom += Math.max(0, overlap + 12);
+                }
+            }
+
+            root.style.bottom = baseBottom + 'px';
         }
     }
 
     syncMobileVisualViewport();
+    window.addEventListener('scroll', syncMobileVisualViewport, { passive: true });
+    window.addEventListener('resize', syncMobileVisualViewport);
     if (window.visualViewport) {
         window.visualViewport.addEventListener('resize', syncMobileVisualViewport);
         window.visualViewport.addEventListener('scroll', syncMobileVisualViewport);
@@ -558,7 +580,7 @@ document.addEventListener('DOMContentLoaded', function () {
             messagesBox.innerHTML = '';
 
             if (msgs.length === 0) {
-                messagesBox.innerHTML = '<div class="text-xs text-slate-700 bg-white border border-slate-200 rounded-lg p-3">Belum ada percakapan. Silakan pilih salah satu menu di bawah untuk memulai layanan.</div>';
+                messagesBox.innerHTML = '<div class="text-xs text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-3">Belum ada percakapan. Silakan pilih salah satu menu di bawah untuk memulai layanan.</div>';
             } else {
                 msgs.forEach(function (item) {
                     const wrapper = document.createElement('div');
@@ -571,13 +593,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     } else if (isUser) {
                         wrapper.className = 'ml-6 bg-unpam-navy text-white rounded-xl p-2.5 text-xs sm:text-sm shadow-sm';
                     } else if (isAdmin) {
-                        wrapper.className = 'mr-6 bg-amber-50 border border-amber-300 text-slate-900 rounded-xl p-2.5 text-xs sm:text-sm shadow-sm';
+                        wrapper.className = 'mr-6 bg-amber-50 dark:bg-slate-800 border border-amber-300 dark:border-amber-500/50 text-slate-900 dark:text-slate-100 rounded-xl p-2.5 text-xs sm:text-sm shadow-sm';
                     } else {
-                        wrapper.className = 'mr-4 bg-white border border-slate-300 text-slate-900 rounded-xl p-2.5 text-xs sm:text-sm shadow-sm';
+                        wrapper.className = 'mr-4 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl p-2.5 text-xs sm:text-sm shadow-sm';
                     }
 
                     const header = document.createElement('div');
-                    header.className = 'flex items-center justify-between gap-2 mb-1 text-[11px] ' + (isUser ? 'text-amber-200' : 'text-slate-600');
+                    header.className = 'flex items-center justify-between gap-2 mb-1 text-[11px] ' + (isUser ? 'text-amber-200' : 'text-slate-600 dark:text-slate-400');
                     header.innerHTML = '<span class="font-bold">' + (item.sender_name || item.sender_type) + '</span><span>' + (item.time || '') + '</span>';
 
                     const body = document.createElement('div');
@@ -603,14 +625,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (options.length === 0) {
                 const note = document.createElement('p');
-                note.className = 'text-xs text-slate-600';
+                note.className = 'text-xs text-slate-600 dark:text-slate-400';
                 note.textContent = 'Admin sedang aktif melayani percakapan ini. Silakan ketik pesan Anda pada kolom di bawah.';
                 optionsList.appendChild(note);
             } else {
                 options.forEach(function (opt) {
                     const btn = document.createElement('button');
                     btn.type = 'button';
-                    btn.className = 'min-h-[32px] px-2.5 py-1.5 rounded-md text-[11px] sm:text-xs font-semibold border border-slate-300 bg-white hover:bg-unpam-gold hover:text-slate-950 hover:border-amber-400 text-slate-800 transition-colors shrink-0 shadow-xs';
+                    btn.className = 'min-h-[32px] px-2.5 py-1.5 rounded-md text-[11px] sm:text-xs font-semibold border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-unpam-gold hover:text-slate-950 dark:hover:bg-unpam-gold dark:hover:text-slate-950 hover:border-amber-400 text-slate-800 dark:text-slate-100 transition-colors shrink-0 shadow-xs';
                     btn.textContent = opt.label;
                     btn.addEventListener('click', function (e) {
                         e.stopPropagation();

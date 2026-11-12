@@ -4,22 +4,22 @@
 
 @section('content')
     <!-- Header Banner -->
-    <section class="bg-unpam-navy text-white border-b-2 border-unpam-gold/40 py-10 sm:py-12 relative">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+    <section class="bg-unpam-navy text-white border-b-2 border-unpam-gold/40 py-8 sm:py-10 lg:py-12 relative">
+        <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-unpam-navyDark border border-unpam-gold/50 text-unpam-gold text-xs font-semibold mb-3 shadow-sm">
                 <span class="inline-block w-2 h-2 rounded-full bg-unpam-gold"></span>
                 <span>Mengenal Sistem Layanan</span>
             </div>
-            <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white leading-tight">
                 Tentang CRM Layanan Mahasiswa
             </h1>
-            <p class="text-slate-200 text-sm sm:text-base leading-relaxed mt-2 max-w-2xl">
+            <p class="text-slate-200 text-sm sm:text-base leading-relaxed mt-2 max-w-3xl">
                 Sistem pengelolaan informasi kampus, pengingat pembayaran, dan layanan bantuan mahasiswa terintegrasi WhatsApp &amp; Website.
             </p>
         </div>
     </section>
 
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-12">
+    <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12 space-y-10 sm:space-y-12">
         <!-- Pengantar & Profil Aplikasi -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div class="lg:col-span-7 space-y-4">
@@ -169,4 +169,5 @@
         </div>
     </div>
 @endsection
+
 

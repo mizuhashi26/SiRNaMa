@@ -55,6 +55,19 @@
             border-color: var(--color-primary) !important;
         }
 
+        /* Dark mode overrides untuk elemen background navy admin */
+        .dark .bg-unpam-navy {
+            background-color: #0b1322 !important;
+        }
+
+        .dark .text-unpam-navy {
+            color: #facc15 !important;
+        }
+
+        .dark .border-unpam-navy {
+            border-color: #1e293b !important;
+        }
+
         .bg-unpam-gold {
             background-color: var(--color-accent) !important;
         }
@@ -105,12 +118,13 @@
                         Pengingat
                     </a>
                     <a href="{{ route('admin.live-chat.index') }}"
-                        class="min-h-[32px] sm:min-h-[34px] inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold whitespace-nowrap transition-all {{ request()->routeIs('admin.live-chat.*') ? 'bg-unpam-gold text-slate-950 font-black shadow-xs' : 'text-slate-200 hover:bg-slate-800/80 hover:text-white' }}">
+                        class="min-h-[32px] sm:min-h-[34px] relative inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold whitespace-nowrap transition-all {{ request()->routeIs('admin.live-chat.*') ? 'bg-unpam-gold text-slate-950 font-black shadow-xs' : 'text-slate-200 hover:bg-slate-800/80 hover:text-white' }}">
                         <span>Live Chat</span>
                         @if($waitingAdminCount > 0)
                             <span
-                                class="inline-flex items-center justify-center px-1.5 py-0.2 rounded-full text-[10px] font-black {{ request()->routeIs('admin.live-chat.*') ? 'bg-slate-950 text-white' : 'bg-amber-400 text-slate-950 animate-pulse' }}">
-                                {{ $waitingAdminCount }}
+                                class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-black leading-none {{ request()->routeIs('admin.live-chat.*') ? 'bg-slate-950 text-white' : 'bg-amber-400 text-slate-950 animate-pulse' }}"
+                                title="{{ $waitingAdminCount }} antrean menunggu admin">
+                                {{ $waitingAdminCount > 99 ? '99+' : $waitingAdminCount }}
                             </span>
                         @endif
                     </a>

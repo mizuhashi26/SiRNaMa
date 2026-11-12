@@ -44,7 +44,11 @@ class CampusInformation extends Model
 
     public function scopePublished(Builder $query): Builder
     {
-        return $query->where('is_published', true);
+        return $query->where('is_published', true)
+            ->where(function (Builder $sub) {
+                $sub->whereNull('published_at')
+                    ->orWhere('published_at', '<=', now());
+            });
     }
 
     public function getCategoryLabelAttribute(): string

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\CampusInformation;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -61,15 +62,23 @@ class CampusInformationController extends Controller
             'category' => ['required', Rule::in(array_keys(CampusInformation::CATEGORIES))],
             'summary' => ['nullable', 'string', 'max:400'],
             'content' => ['required', 'string'],
-            'is_published' => ['nullable', 'boolean'],
+            'action_type' => ['nullable', 'string', 'in:draft,publish,schedule'],
+            'published_at' => ['nullable', 'date'],
             'is_pinned' => ['nullable', 'boolean'],
         ], [
             'title.required' => 'Judul informasi wajib diisi.',
             'category.required' => 'Kategori informasi wajib dipilih.',
             'content.required' => 'Isi informasi lengkap wajib diisi.',
+            'published_at.date' => 'Format tanggal dan waktu jadwal publikasi tidak valid.',
         ]);
 
-        $isPublished = $request->boolean('is_published');
+        $actionType = $validated['action_type'] ?? ($request->boolean('is_published') ? 'publish' : 'draft');
+        $isPublished = ($actionType === 'publish' || $actionType === 'schedule');
+        $publishedAt = match($actionType) {
+            'draft' => null,
+            'schedule' => !empty($validated['published_at']) ? Carbon::parse($validated['published_at']) : now(),
+            default => now(),
+        };
 
         CampusInformation::create([
             'title' => $validated['title'],
@@ -79,11 +88,16 @@ class CampusInformationController extends Controller
             'content' => $validated['content'],
             'is_published' => $isPublished,
             'is_pinned' => $request->boolean('is_pinned'),
-            'published_at' => $isPublished ? now() : null,
+            'published_at' => $publishedAt,
         ]);
 
-        return redirect()->route('admin.informations.index')
-            ->with('success', 'Informasi kampus berhasil disimpan dan langsung tersinkron ke kanal publik & chatbot.');
+        $statusMsg = match($actionType) {
+            'draft' => 'Informasi disimpan sebagai Draft (belum dipublikasikan).',
+            'schedule' => 'Informasi berhasil dijadwalkan untuk dipublikasikan pada ' . ($publishedAt ? $publishedAt->format('d/m/Y H:i') : '') . ' WIB.',
+            default => 'Informasi kampus berhasil dipublikasikan dan langsung tersinkron ke kanal publik & chatbot.',
+        };
+
+        return redirect()->route('admin.informations.index')->with('success', $statusMsg);
     }
 
     public function edit(CampusInformation $information): View
@@ -102,11 +116,18 @@ class CampusInformationController extends Controller
             'category' => ['required', Rule::in(array_keys(CampusInformation::CATEGORIES))],
             'summary' => ['nullable', 'string', 'max:400'],
             'content' => ['required', 'string'],
-            'is_published' => ['nullable', 'boolean'],
+            'action_type' => ['nullable', 'string', 'in:draft,publish,schedule'],
+            'published_at' => ['nullable', 'date'],
             'is_pinned' => ['nullable', 'boolean'],
         ]);
 
-        $isPublished = $request->boolean('is_published');
+        $actionType = $validated['action_type'] ?? ($request->boolean('is_published') ? 'publish' : 'draft');
+        $isPublished = ($actionType === 'publish' || $actionType === 'schedule');
+        $publishedAt = match($actionType) {
+            'draft' => null,
+            'schedule' => !empty($validated['published_at']) ? Carbon::parse($validated['published_at']) : ($information->published_at ?? now()),
+            default => $information->published_at && $information->published_at <= now() ? $information->published_at : now(),
+        };
 
         $information->update([
             'title' => $validated['title'],
@@ -118,11 +139,16 @@ class CampusInformationController extends Controller
             'content' => $validated['content'],
             'is_published' => $isPublished,
             'is_pinned' => $request->boolean('is_pinned'),
-            'published_at' => $isPublished ? ($information->published_at ?? now()) : null,
+            'published_at' => $publishedAt,
         ]);
 
-        return redirect()->route('admin.informations.index')
-            ->with('success', 'Informasi kampus berhasil diperbarui.');
+        $statusMsg = match($actionType) {
+            'draft' => 'Informasi diperbarui sebagai Draft.',
+            'schedule' => 'Jadwal publikasi informasi berhasil diperbarui.',
+            default => 'Informasi kampus berhasil diperbarui dan dipublikasikan.',
+        };
+
+        return redirect()->route('admin.informations.index')->with('success', $statusMsg);
     }
 
     public function destroy(CampusInformation $information): RedirectResponse

@@ -35,14 +35,19 @@
         .focus\:ring-unpam-navy:focus { --tw-ring-color: var(--color-primary) !important; }
         .focus\:border-unpam-navy:focus { border-color: var(--color-primary) !important; }
 
+        /* Dark mode overrides untuk elemen background navy agar mengikuti mode gelap pekat */
+        .dark .bg-unpam-navy { background-color: #0b1322 !important; }
+        .dark .text-unpam-navy { color: #facc15 !important; }
+        .dark .border-unpam-navy { border-color: #1e293b !important; }
+
         .bg-unpam-gold { background-color: var(--color-accent) !important; }
         .text-unpam-gold { color: var(--color-accent) !important; }
         .border-unpam-gold { border-color: var(--color-accent) !important; }
     </style>
 
     <!-- Header & Navigasi Publik (Compact & Horizontal) -->
-    <header class="bg-unpam-navy text-white sticky top-0 z-30 shadow-md">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+    <header class="bg-unpam-navy dark:bg-slate-950 text-white sticky top-0 z-30 shadow-md border-b dark:border-slate-800">
+        <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between py-1.5 sm:py-2 gap-3">
                 <a href="{{ route('public.index') }}" class="flex items-center gap-2.5 min-h-[38px] shrink-0 focus-visible:outline-unpam-gold">
                     @if($brandLogoImage && file_exists(public_path($brandLogoImage)))
@@ -159,7 +164,7 @@
 
     <!-- Footer -->
     <footer class="bg-slate-900 text-slate-200 border-t border-slate-800 mt-12">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 text-sm">
+        <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 text-sm">
             <div class="space-y-1 max-w-xl">
                 <p class="font-bold text-white">Portal Layanan {{ $brandAppName }}</p>
                 <p class="text-slate-300">
