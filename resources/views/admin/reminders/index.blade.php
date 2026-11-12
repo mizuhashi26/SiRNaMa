@@ -42,7 +42,7 @@
                     </thead>
                     <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
                         @foreach($reminders as $rem)
-                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-750">
+                            <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/60 transition-colors">
                                 <td class="py-3.5 px-4">
                                     <div class="flex items-center gap-1.5 mb-1 flex-wrap">
                                         <span class="inline-block text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-600">
@@ -112,7 +112,7 @@
                                         @if($rem->status !== 'sent')
                                             <form action="{{ route('admin.reminders.send-now', $rem) }}"
                                                   method="POST"
-                                                  onsubmit="return confirm('Kirim pengingat ini sekarang ke target WhatsApp?');">
+                                                  data-confirm="Kirim pengingat ini sekarang ke target WhatsApp?">
                                                 @csrf
                                                 <button type="submit"
                                                         class="min-h-[38px] inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 shadow-sm">

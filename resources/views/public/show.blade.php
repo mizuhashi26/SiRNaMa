@@ -3,7 +3,7 @@
 @section('title', $information->title . ' - Informasi Mahasiswa UNPAM')
 
 @section('content')
-    <div class="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10 space-y-6 sm:space-y-8">
+    <div class="w-full max-w-5xl 2xl:max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-6 sm:py-8 lg:py-10 space-y-6 sm:space-y-8">
         <nav aria-label="Breadcrumb" class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 flex flex-wrap items-center gap-2">
             <a href="{{ route('public.index') }}" class="font-semibold text-unpam-navy dark:text-amber-400 hover:underline min-h-[36px] inline-flex items-center">
                 Beranda Informasi

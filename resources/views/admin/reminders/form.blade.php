@@ -14,7 +14,7 @@
                 </p>
             </div>
             <a href="{{ route('admin.reminders.index') }}"
-                class="min-h-[44px] inline-flex items-center px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-semibold text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-750 transition-colors">
+                class="min-h-[44px] inline-flex items-center px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-semibold text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
                 Kembali
             </a>
         </div>
@@ -68,7 +68,7 @@
                         </button>
                         <button type="button" id="btn-reset-template"
                             title="Kosongkan judul dan isi pesan untuk mengetik manual dari nol"
-                            class="min-h-[40px] px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-300 text-xs sm:text-sm font-semibold transition-colors">
+                            class="min-h-[40px] px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs sm:text-sm font-semibold transition-colors">
                             Kosongkan
                         </button>
                     </div>
@@ -245,7 +245,7 @@
 
             <div class="pt-4 border-t border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-end gap-3">
                 <a href="{{ route('admin.reminders.index') }}"
-                    class="min-h-[44px] inline-flex items-center px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-750 transition-colors">
+                    class="min-h-[44px] inline-flex items-center px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
                     Batal
                 </a>
                 <button type="submit" name="action_submit" value="save"
@@ -253,7 +253,7 @@
                     {{ $isEdit ? 'Simpan Perubahan' : 'Simpan Jadwal' }}
                 </button>
                 <button type="submit" name="action_submit" value="send_now"
-                    onclick="return confirm('Kirim pengingat ini sekarang ke penerima WhatsApp yang dipilih?');"
+                    data-confirm="Kirim pengingat ini sekarang ke penerima WhatsApp yang dipilih?"
                     class="min-h-[44px] inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-bold hover:bg-emerald-700 shadow-xs transition-colors">
                     <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
                         <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
@@ -317,17 +317,28 @@
                 const tpl = templates[key];
                 const hasExistingContent = (titleInput.value.trim() !== '' || messageInput.value.trim() !== '');
 
+                const doApply = function () {
+                    titleInput.value = tpl.title;
+                    if (categorySelect && tpl.category) {
+                        categorySelect.value = tpl.category;
+                    }
+                    messageInput.value = tpl.message;
+                    messageInput.focus();
+                };
+
                 if (hasExistingContent) {
-                    const confirmChange = confirm('Ganti teks yang sudah ada dengan template terpilih?');
-                    if (!confirmChange) return;
+                    if (typeof window.unpamConfirm === 'function') {
+                        window.unpamConfirm('Ganti teks yang sudah ada dengan template terpilih?', doApply, {
+                            title: 'Terapkan Template',
+                            confirmText: 'Ya, Ganti Teks'
+                        });
+                        return;
+                    } else if (!confirm('Ganti teks yang sudah ada dengan template terpilih?')) {
+                        return;
+                    }
                 }
 
-                titleInput.value = tpl.title;
-                if (categorySelect && tpl.category) {
-                    categorySelect.value = tpl.category;
-                }
-                messageInput.value = tpl.message;
-                messageInput.focus();
+                doApply();
             }
 
             if (btnApply && templateSelector) {
@@ -352,14 +363,26 @@
             if (btnReset) {
                 btnReset.addEventListener('click', function () {
                     const hasContent = (titleInput.value.trim() !== '' || messageInput.value.trim() !== '');
+                    const doReset = function () {
+                        titleInput.value = '';
+                        messageInput.value = '';
+                        if (templateSelector) templateSelector.value = '';
+                        titleInput.focus();
+                    };
+
                     if (hasContent) {
-                        const confirmReset = confirm('Kosongkan teks judul dan isi pesan?');
-                        if (!confirmReset) return;
+                        if (typeof window.unpamConfirm === 'function') {
+                            window.unpamConfirm('Kosongkan teks judul dan isi pesan?', doReset, {
+                                title: 'Kosongkan Formulir',
+                                confirmText: 'Ya, Kosongkan'
+                            });
+                            return;
+                        } else if (!confirm('Kosongkan teks judul dan isi pesan?')) {
+                            return;
+                        }
                     }
-                    titleInput.value = '';
-                    messageInput.value = '';
-                    if (templateSelector) templateSelector.value = '';
-                    titleInput.focus();
+
+                    doReset();
                 });
             }
 

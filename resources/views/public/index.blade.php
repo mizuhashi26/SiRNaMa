@@ -48,44 +48,44 @@
         </div>
     </section>
 
-    <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10 space-y-8 sm:space-y-10">
+    <div class="w-full max-w-7xl 2xl:max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-6 sm:py-8 lg:py-10 space-y-8 sm:space-y-10">
         <!-- Sorotan Informasi Pembayaran Umum (Bila Tersedia) -->
         @if($paymentInformations->isNotEmpty() && ($selectedCategory === '' || $selectedCategory === 'pembayaran'))
-            <section aria-labelledby="heading-payment-highlight" class="bg-amber-50/80 dark:bg-slate-800 border-2 border-amber-300/90 dark:border-amber-500/40 rounded-xl p-5 sm:p-6 shadow-xs">
+            <section aria-labelledby="heading-payment-highlight" class="bg-amber-50/80 dark:bg-slate-900 border-2 border-amber-400 dark:border-amber-500/60 rounded-2xl p-5 sm:p-6 shadow-xs">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-amber-200 dark:border-slate-700">
                     <div>
-                        <h2 id="heading-payment-highlight" class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
+                        <h2 id="heading-payment-highlight" class="text-lg sm:text-xl 2xl:text-2xl font-black text-slate-900 dark:text-white">
                             Pengumuman &amp; Jadwal Pembayaran Kuliah
                         </h2>
-                        <p class="text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+                        <p class="text-xs sm:text-sm 2xl:text-base text-slate-700 dark:text-slate-300 mt-0.5">
                             Informasi jadwal pembayaran dan administrasi perkuliahan semester berjalan.
                         </p>
                     </div>
                     <a href="{{ route('public.index', ['kategori' => 'pembayaran']) }}"
-                       class="min-h-[44px] inline-flex items-center px-3.5 py-2 rounded-lg bg-slate-900 dark:bg-slate-700 text-white text-xs font-semibold hover:bg-slate-800 dark:hover:bg-slate-600 border border-slate-700 dark:border-slate-600 self-start sm:self-auto">
+                       class="min-h-[44px] inline-flex items-center px-4 py-2 rounded-xl bg-unpam-navy dark:bg-slate-800 text-white text-xs sm:text-sm font-semibold hover:bg-slate-800 dark:hover:bg-slate-700 border border-slate-700 dark:border-slate-600 self-start sm:self-auto transition-colors">
                         Lihat Semua Info Pembayaran
                     </a>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
                     @foreach($paymentInformations as $payInfo)
-                        <article class="bg-white dark:bg-slate-850 dark:bg-slate-900/70 border border-amber-200/90 dark:border-slate-700 rounded-lg p-4 flex flex-col justify-between shadow-xs">
+                        <article class="bg-white dark:bg-slate-800 border border-amber-200/70 dark:border-slate-700 rounded-xl p-4 flex flex-col justify-between shadow-xs hover:border-amber-300 dark:hover:border-slate-600 dark:hover:bg-slate-800/90 transition-all">
                             <div class="space-y-2">
-                                <span class="inline-block text-xs font-bold bg-amber-100 dark:bg-slate-800 text-slate-950 dark:text-amber-300 border border-amber-300 dark:border-amber-600/60 px-2.5 py-0.5 rounded">
+                                <span class="inline-block text-xs font-bold bg-amber-100 dark:bg-amber-950/70 text-slate-950 dark:text-amber-300 border border-amber-300 dark:border-amber-600/70 px-2.5 py-0.5 rounded-md">
                                     {{ $payInfo->category_label }}
                                 </span>
-                                <h3 class="font-bold text-base text-slate-900 dark:text-white leading-snug">
-                                    <a href="{{ route('public.show', $payInfo->slug) }}" class="hover:underline">
+                                <h3 class="font-bold text-base 2xl:text-lg text-slate-900 dark:text-white leading-snug">
+                                    <a href="{{ route('public.show', $payInfo->slug) }}" class="hover:text-unpam-navy dark:hover:text-amber-300 hover:underline transition-colors">
                                         {{ $payInfo->title }}
                                     </a>
                                 </h3>
-                                <p class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                                <p class="text-xs sm:text-sm 2xl:text-base text-slate-700 dark:text-slate-300 leading-relaxed">
                                     {{ $payInfo->summary ?: \Illuminate\Support\Str::limit(strip_tags($payInfo->content), 120) }}
                                 </p>
                             </div>
                             <div class="pt-3 mt-3 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between text-xs text-slate-600 dark:text-slate-400">
                                 <span>{{ $payInfo->published_at?->format('d M Y') ?? $payInfo->created_at->format('d M Y') }}</span>
-                                <a href="{{ route('public.show', $payInfo->slug) }}" class="font-bold text-unpam-navy dark:text-amber-400 hover:underline min-h-[36px] inline-flex items-center">
+                                <a href="{{ route('public.show', $payInfo->slug) }}" class="font-bold text-unpam-navy dark:text-amber-300 hover:underline min-h-[36px] inline-flex items-center">
                                     Baca Detail
                                 </a>
                             </div>
@@ -139,10 +139,10 @@
             @else
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                     @foreach($informations as $info)
-                        <article class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl p-5 flex flex-col justify-between hover:border-slate-400 dark:hover:border-slate-500 transition-colors shadow-xs">
+                        <article class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl p-5 flex flex-col justify-between hover:border-slate-400 dark:hover:border-slate-600 dark:hover:bg-slate-800/90 transition-all shadow-xs hover:shadow-sm">
                             <div class="space-y-2.5">
                                 <div class="flex items-center justify-between gap-2 flex-wrap">
-                                    <span class="inline-block text-xs font-semibold px-2.5 py-1 rounded {{ $info->category === 'pembayaran' ? 'bg-amber-100 dark:bg-slate-750 dark:bg-slate-700 text-slate-950 dark:text-amber-300 border border-amber-300 dark:border-amber-600/50' : 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-600' }}">
+                                    <span class="inline-block text-xs font-semibold px-2.5 py-1 rounded {{ $info->category === 'pembayaran' ? 'bg-amber-100 dark:bg-slate-700 text-slate-950 dark:text-amber-300 border border-amber-300 dark:border-amber-600/50' : 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-600' }}">
                                         {{ $info->category_label }}
                                     </span>
                                     @if($info->is_pinned)
@@ -153,7 +153,7 @@
                                 </div>
 
                                 <h3 class="text-lg font-bold text-slate-900 dark:text-white leading-snug">
-                                    <a href="{{ route('public.show', $info->slug) }}" class="hover:text-unpam-navy dark:hover:text-amber-400 hover:underline">
+                                    <a href="{{ route('public.show', $info->slug) }}" class="hover:text-unpam-navy dark:hover:text-amber-300 hover:underline transition-colors">
                                         {{ $info->title }}
                                     </a>
                                 </h3>
@@ -166,7 +166,7 @@
                             <div class="pt-4 mt-4 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between text-xs text-slate-600 dark:text-slate-400">
                                 <span>Dipublikasikan: {{ $info->published_at?->format('d M Y') ?? $info->created_at->format('d M Y') }}</span>
                                 <a href="{{ route('public.show', $info->slug) }}"
-                                   class="min-h-[40px] inline-flex items-center font-bold text-unpam-navy dark:text-amber-400 hover:underline">
+                                   class="min-h-[40px] inline-flex items-center font-bold text-unpam-navy dark:text-amber-300 hover:underline transition-colors">
                                     Baca Selengkapnya
                                 </a>
                             </div>

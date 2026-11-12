@@ -5,7 +5,7 @@
 @section('content')
     <!-- Header Banner -->
     <section class="bg-unpam-navy text-white border-b-2 border-unpam-gold/40 py-8 sm:py-10 lg:py-12 relative">
-        <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="w-full max-w-7xl 2xl:max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12">
             <div
                 class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-unpam-navyDark border border-unpam-gold/50 text-unpam-gold text-xs font-semibold mb-3 shadow-sm">
                 <span class="inline-block w-2 h-2 rounded-full bg-unpam-gold"></span>
@@ -21,7 +21,7 @@
         </div>
     </section>
 
-    <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12 space-y-8 sm:space-y-10">
+    <div class="w-full max-w-7xl 2xl:max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-6 sm:py-8 lg:py-12 space-y-8 sm:space-y-10">
         <!-- Grid Saluran Utama: Kontak Resmi di Kiri, WhatsApp Bot CRM di Kanan -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
 
@@ -77,7 +77,8 @@
                     <div>
                         <span class="font-bold text-slate-900 dark:text-white block text-sm">Jam Operasional Pelayanan
                             Kampus</span>
-                        <span>Senin s/d Sabtu: <strong>08.00 - 17.00 WIB</strong> (Hari Minggu &amp; Libur Nasional
+                        <span>Senin s/d Jumat: <strong>08.00 - 19.00 WIB</strong> &amp; </span>
+                        <span>Sabtu: <strong>08.00 - 15.00 WIB</strong> (Hari Minggu &amp; Libur Nasional
                             Tutup)</span>
                     </div>
                     <span
@@ -154,7 +155,7 @@
 
                 <!-- Informasi Jadwal Admin Membalas -->
                 <div
-                    class="bg-amber-50/80 dark:bg-slate-750 dark:bg-slate-700/60 border border-amber-300 dark:border-slate-600 rounded-xl p-4 space-y-2.5">
+                    class="bg-amber-50/80 dark:bg-slate-800/80 border border-amber-300 dark:border-slate-700 rounded-xl p-4 space-y-2.5">
                     <div class="flex items-center gap-2 text-amber-900 dark:text-amber-300">
                         <svg class="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">

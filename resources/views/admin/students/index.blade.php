@@ -20,7 +20,7 @@
                 Import Excel / CSV
             </button>
             <a href="{{ route('admin.students.create') }}"
-               class="min-h-[44px] inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-unpam-navy dark:bg-slate-750 hover:bg-slate-800 dark:hover:bg-slate-700 text-white text-xs sm:text-sm font-bold shadow-xs transition-colors">
+               class="min-h-[44px] inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-unpam-navy dark:bg-slate-700 hover:bg-slate-800 dark:hover:bg-slate-600 text-white text-xs sm:text-sm font-bold shadow-xs transition-colors">
                 <span>+ Tambah Mahasiswa</span>
             </a>
             @if($students->total() > 0)
@@ -72,7 +72,7 @@
                 Cari Data
             </button>
             @if($search !== '' || $status !== '' || $regularClass !== '')
-                <a href="{{ route('admin.students.index') }}" class="min-h-[44px] inline-flex items-center px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-750 transition-colors">
+                <a href="{{ route('admin.students.index') }}" class="min-h-[44px] inline-flex items-center px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
                     Reset
                 </a>
             @endif
@@ -98,7 +98,7 @@
                     Batalkan Pilihan
                 </button>
                 <button type="submit"
-                        onclick="return confirm('Yakin ingin menghapus data mahasiswa yang dipilih? Tindakan ini tidak dapat dibatalkan.');"
+                        data-confirm="Yakin ingin menghapus data mahasiswa yang dipilih? Tindakan ini tidak dapat dibatalkan."
                         class="min-h-[38px] px-4 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                     Hapus Terpilih
@@ -124,7 +124,7 @@
                         Upload Excel / CSV
                     </button>
                     <a href="{{ route('admin.students.create') }}"
-                       class="min-h-[44px] inline-flex items-center px-4 py-2 rounded-xl bg-unpam-navy dark:bg-slate-750 text-white text-xs sm:text-sm font-bold hover:bg-slate-800 dark:hover:bg-slate-700 shadow-xs">
+                       class="min-h-[44px] inline-flex items-center px-4 py-2 rounded-xl bg-unpam-navy dark:bg-slate-700 text-white text-xs sm:text-sm font-bold hover:bg-slate-800 dark:hover:bg-slate-600 shadow-xs">
                         + Tambah Manual
                     </a>
                 </div>
@@ -152,7 +152,7 @@
                         </thead>
                         <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
                             @foreach($students as $student)
-                                <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-750 transition-colors">
+                                <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/60 transition-colors">
                                     <td class="py-3.5 px-4 text-center">
                                         <input type="checkbox"
                                                name="selected_ids[]"
@@ -342,8 +342,13 @@
         };
 
         window.confirmDeleteAll = function () {
-            const confirmed = confirm('PERINGATAN: Apakah Anda benar-benar yakin ingin MENGHAPUS SEMUA data mahasiswa di database? Seluruh nomor penerima reminder akan dikosongkan.');
-            if (confirmed) {
+            const msg = 'PERINGATAN: Apakah Anda benar-benar yakin ingin MENGHAPUS SEMUA data mahasiswa di database? Seluruh nomor penerima reminder akan dikosongkan.';
+            if (typeof window.unpamConfirm === 'function') {
+                window.unpamConfirm(msg, function () {
+                    const form = document.getElementById('deleteAllForm');
+                    if (form) form.submit();
+                }, { title: 'Peringatan Hapus Seluruh Mahasiswa', confirmText: 'Ya, Hapus Semua' });
+            } else if (confirm(msg)) {
                 const form = document.getElementById('deleteAllForm');
                 if (form) form.submit();
             }

@@ -12,7 +12,7 @@
             </p>
         </div>
         <a href="{{ route('admin.users.create') }}"
-           class="min-h-[44px] inline-flex items-center px-4 py-2.5 rounded-xl bg-unpam-navy dark:bg-slate-750 text-white text-sm font-bold hover:bg-slate-800 dark:hover:bg-slate-700 self-start sm:self-auto shadow-xs transition-colors">
+           class="min-h-[44px] inline-flex items-center px-4 py-2.5 rounded-xl bg-unpam-navy dark:bg-slate-700 text-white text-sm font-bold hover:bg-slate-800 dark:hover:bg-slate-600 self-start sm:self-auto shadow-xs transition-colors">
             + Tambah Admin
         </a>
     </div>
@@ -31,7 +31,7 @@
                 </thead>
                 <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
                     @foreach($users as $u)
-                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors">
+                        <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/60 transition-colors">
                             <td class="py-3.5 px-4 font-bold text-slate-900 dark:text-white">
                                 {{ $u->name }}
                                 @if($u->id === auth()->id())
@@ -54,7 +54,7 @@
                                     @if(! $u->isSuperAdmin() && $u->id !== auth()->id())
                                         <form action="{{ route('admin.users.destroy', $u) }}"
                                               method="POST"
-                                              onsubmit="return confirm('Hapus akun admin {{ $u->name }}? Percakapan yang sedang ditanganinya kembali ke antrean.');">
+                                              data-confirm="Hapus akun admin {{ $u->name }}? Percakapan yang sedang ditanganinya kembali ke antrean.">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit"

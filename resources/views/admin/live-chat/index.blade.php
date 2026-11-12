@@ -231,7 +231,7 @@
                         @if($activeConversation->status !== 'CLOSED')
                             <form action="{{ route('admin.live-chat.close', $activeConversation) }}"
                                   method="POST"
-                                  onsubmit="return confirm('Selesaikan pendampingan dan kembalikan obrolan ke Chatbot?');">
+                                  data-confirm="Selesaikan pendampingan dan kembalikan obrolan ke Chatbot?">
                                 @csrf
                                 <button type="submit"
                                         class="min-h-[40px] px-3.5 py-2 rounded-lg bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 dark:hover:bg-slate-600 text-white font-bold text-xs transition-colors shadow-xs flex items-center gap-1.5">
@@ -262,7 +262,7 @@
                             </div>
                         @elseif($isAdmin)
                             <div class="flex justify-end pl-12">
-                                <div class="max-w-md sm:max-w-lg bg-unpam-navy dark:bg-slate-750 text-white rounded-2xl rounded-tr-xs px-4 py-3 shadow-xs space-y-1">
+                                <div class="max-w-md sm:max-w-lg bg-unpam-navy dark:bg-slate-800 text-white rounded-2xl rounded-tr-xs px-4 py-3 shadow-xs space-y-1">
                                     <div class="flex items-center justify-between gap-3 text-[10px] text-slate-300">
                                         <span class="font-bold text-unpam-gold">{{ $msg->sender_name ?: 'CS Layanan' }} (ADMIN)</span>
                                         <span class="font-mono">{{ $msg->created_at?->format('H:i') }}</span>

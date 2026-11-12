@@ -47,7 +47,7 @@
 
     <!-- Header & Navigasi Publik (Compact & Horizontal) -->
     <header class="bg-unpam-navy dark:bg-slate-950 text-white sticky top-0 z-30 shadow-md border-b dark:border-slate-800">
-        <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="w-full max-w-7xl 2xl:max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12">
             <div class="flex items-center justify-between py-1.5 sm:py-2 gap-3">
                 <a href="{{ route('public.index') }}" class="flex items-center gap-2.5 min-h-[38px] shrink-0 focus-visible:outline-unpam-gold">
                     @if($brandLogoImage && file_exists(public_path($brandLogoImage)))
@@ -164,7 +164,7 @@
 
     <!-- Footer -->
     <footer class="bg-slate-900 text-slate-200 border-t border-slate-800 mt-12">
-        <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 text-sm">
+        <div class="w-full max-w-7xl 2xl:max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 text-sm">
             <div class="space-y-1 max-w-xl">
                 <p class="font-bold text-white">Portal Layanan {{ $brandAppName }}</p>
                 <p class="text-slate-300">

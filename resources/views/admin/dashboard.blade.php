@@ -219,7 +219,7 @@
                                     $isRegistered = $conv->channel === 'whatsapp' && isset($registeredPhones[$conv->contact_number]);
                                     $lastMsg = $conv->messages->last();
                                 @endphp
-                                <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-750 transition-colors">
+                                <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/60 transition-colors">
                                     <td class="py-3.5 px-4 font-semibold text-slate-900 dark:text-white">
                                         <div class="flex items-center gap-2.5">
                                             <div

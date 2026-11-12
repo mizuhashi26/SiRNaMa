@@ -9,6 +9,31 @@
         background-color: #f8fafc;
     }
 
+    ::selection {
+        background-color: #facc15;
+        color: #0f172a;
+    }
+
+    .dark ::selection {
+        background-color: #f59e0b;
+        color: #020617;
+    }
+
+    mark, .highlight {
+        background-color: #fef08a;
+        color: #0f172a;
+        padding: 0.1em 0.35em;
+        border-radius: 0.25rem;
+    }
+
+    .dark mark, .dark .highlight {
+        background-color: rgba(245, 158, 11, 0.25);
+        color: #fef08a;
+        border: 1px solid rgba(245, 158, 11, 0.45);
+        padding: 0.1em 0.35em;
+        border-radius: 0.25rem;
+    }
+
     a[href],
     button:not(:disabled),
     summary,

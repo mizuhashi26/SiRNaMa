@@ -50,15 +50,12 @@ class ReminderDispatchService
         $lastError = null;
         $unverifiedNoToken = false;
 
-        $categoryUpper = strtoupper($reminder->category_label);
-
         foreach ($recipients as $recipient) {
             $studentGreeting = !empty($recipient['nim'])
                 ? "Yth. {$recipient['name']} ({$recipient['nim']}),\n\n"
                 : "Yth. {$recipient['name']},\n\n";
 
-            $formattedMessage = "[PENGINGAT RESMI - {$categoryUpper}]\n"
-                . $studentGreeting
+            $formattedMessage = $studentGreeting
                 . "*{$reminder->title}*\n"
                 . "{$reminder->message}\n\n"
                 . "Layanan Informasi & Kemahasiswaan Universitas Pamulang";

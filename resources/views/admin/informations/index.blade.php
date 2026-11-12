@@ -76,7 +76,7 @@
                     </thead>
                     <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
                         @foreach($informations as $info)
-                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-750">
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors">
                                 <td class="py-3.5 px-4">
                                     <div class="flex items-center gap-2">
                                         <span class="text-xs font-mono bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 px-1.5 py-0.5 rounded text-slate-800 dark:text-slate-200">
@@ -132,7 +132,7 @@
                                         </a>
                                         <form action="{{ route('admin.informations.destroy', $info) }}"
                                               method="POST"
-                                              onsubmit="return confirm('Hapus informasi ini dari website dan chatbot?');">
+                                              data-confirm="Hapus informasi ini dari website dan chatbot?">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit"

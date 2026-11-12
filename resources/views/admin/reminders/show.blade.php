@@ -14,7 +14,7 @@
             <div class="flex flex-wrap gap-2">
                 <form action="{{ route('admin.reminders.send-now', $reminder) }}"
                       method="POST"
-                      onsubmit="return confirm('Kirim pengingat ini sekarang ke seluruh target mahasiswa?');">
+                      data-confirm="Kirim pengingat ini sekarang ke seluruh target mahasiswa?">
                     @csrf
                     <button type="submit"
                             class="min-h-[44px] px-4 py-2 rounded-lg bg-unpam-gold text-slate-950 text-sm font-bold hover:bg-unpam-goldHover shadow-xs transition-colors">
@@ -22,7 +22,7 @@
                     </button>
                 </form>
                 <a href="{{ route('admin.reminders.index') }}"
-                   class="min-h-[44px] inline-flex items-center px-3.5 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-semibold text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-750 transition-colors">
+                   class="min-h-[44px] inline-flex items-center px-3.5 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-semibold text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
                     Kembali ke Daftar
                 </a>
             </div>
@@ -98,7 +98,7 @@
                         </thead>
                         <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
                             @foreach($logs as $log)
-                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors">
+                                <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/60 transition-colors">
                                     <td class="py-3 px-3 text-xs text-slate-700 dark:text-slate-300">
                                         {{ $log->sent_at?->format('d M Y H:i:s') ?? '-' }}
                                     </td>

@@ -416,11 +416,11 @@
         <!-- Tombol Simpan -->
         <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
             <a href="{{ route('admin.dashboard') }}"
-               class="min-h-[44px] px-5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-750 font-semibold text-sm inline-flex items-center transition-colors">
+               class="min-h-[44px] px-5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 font-semibold text-sm inline-flex items-center transition-colors">
                 Batal
             </a>
             <button type="submit"
-                    class="min-h-[44px] px-6 py-2.5 rounded-xl bg-unpam-navy dark:bg-slate-750 hover:bg-slate-800 dark:hover:bg-slate-700 text-white font-bold text-sm shadow-xs inline-flex items-center gap-2 transition-colors">
+                    class="min-h-[44px] px-6 py-2.5 rounded-xl bg-unpam-navy dark:bg-slate-700 hover:bg-slate-800 dark:hover:bg-slate-600 text-white font-bold text-sm shadow-xs inline-flex items-center gap-2 transition-colors">
                 <svg class="w-4 h-4 text-unpam-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                 Simpan Perubahan Pengaturan
             </button>
