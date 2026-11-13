@@ -224,5 +224,98 @@ class WhatsAppLiveChatFlowTest extends TestCase
         $createStudentRes->assertSee($unregisteredPhone);
         $createStudentRes->assertSee('Calon Mahasiswa');
     }
+
+    public function test_admin_direct_reply_from_whatsapp_app_takes_over_conversation_and_syncs_to_crm(): void
+    {
+        $mockFonnte = $this->mock(FonnteService::class);
+        $mockFonnte->shouldReceive('isConfigured')->andReturn(true);
+        $mockFonnte->shouldReceive('sendMessage')->andReturn([
+            'success' => true,
+            'status' => 'success',
+            'message' => 'Pesan terkirim ke gateway Fonnte',
+        ]);
+
+        $admin = User::factory()->superadmin()->create(['name' => 'Admin Test']);
+        $studentPhone = '628555123456';
+
+        // 1. Mahasiswa mengirim pesan ke Bot WA
+        $this->postJson(route('webhook.fonnte'), [
+            'sender' => $studentPhone,
+            'message' => 'Halo admin, mau tanya info KRS',
+            'name' => 'Siti Aminah',
+        ])->assertOk();
+
+        $conversation = Conversation::where('channel', 'whatsapp')
+            ->where('external_user_id', $studentPhone)
+            ->first();
+
+        $this->assertNotNull($conversation);
+        $this->assertEquals(Conversation::STATUS_BOT_ACTIVE, $conversation->status);
+
+        // 2. Admin membalas langsung lewat aplikasi WhatsApp di ponsel (from_me = true)
+        $adminWaReplyPayload = [
+            'sender' => $studentPhone,
+            'message' => 'Halo Siti, pengisian KRS dibuka tanggal 15 ya.',
+            'from_me' => true,
+        ];
+
+        $replyRes = $this->postJson(route('webhook.fonnte'), $adminWaReplyPayload);
+        $replyRes->assertOk();
+        $replyRes->assertJsonPath('status', Conversation::STATUS_ADMIN_ACTIVE);
+
+        // Verifikasi percakapan otomatis terambil alih menjadi ADMIN_ACTIVE
+        $conversation->refresh();
+        $this->assertEquals(Conversation::STATUS_ADMIN_ACTIVE, $conversation->status);
+
+        // Verifikasi pesan admin tersimpan di database CRM
+        $this->assertDatabaseHas('conversation_messages', [
+            'conversation_id' => $conversation->id,
+            'sender_type' => 'admin',
+            'sender_name' => 'Admin (WhatsApp)',
+            'message' => 'Halo Siti, pengisian KRS dibuka tanggal 15 ya.',
+        ]);
+
+        // 3. Mahasiswa membalas di WA, bot tidak ikut campur karena status sudah ADMIN_ACTIVE
+        $followUpRes = $this->postJson(route('webhook.fonnte'), [
+            'sender' => $studentPhone,
+            'message' => 'Baik min terima kasih infonya',
+            'name' => 'Siti Aminah',
+        ]);
+        $followUpRes->assertOk();
+        $this->assertNull($followUpRes->json('bot_reply'));
+
+        // Pesan lanjutan mahasiswa tetap masuk ke CRM
+        $this->assertDatabaseHas('conversation_messages', [
+            'conversation_id' => $conversation->id,
+            'sender_type' => 'user',
+            'message' => 'Baik min terima kasih infonya',
+        ]);
+
+        // 4. Mahasiswa/Admin mengetik "#bot" untuk mengembalikan sesi ke Chatbot
+        $returnBotRes = $this->postJson(route('webhook.fonnte'), [
+            'sender' => $studentPhone,
+            'message' => '#bot',
+            'name' => 'Siti Aminah',
+        ]);
+        $returnBotRes->assertOk();
+        $returnBotRes->assertJsonPath('status', Conversation::STATUS_BOT_ACTIVE);
+
+        $conversation->refresh();
+        $this->assertEquals(Conversation::STATUS_BOT_ACTIVE, $conversation->status);
+
+        // 5. Verifikasi admin dapat mengembalikan ke Bot via CRM dengan pesan penutup kustom
+        $conversation->update(['status' => Conversation::STATUS_ADMIN_ACTIVE]);
+        $closeRes = $this->actingAs($admin)->post(route('admin.live-chat.close', $conversation), [
+            'closing_note' => 'Semoga membantu, sampai jumpa kembali!',
+        ]);
+        $closeRes->assertRedirect();
+
+        $conversation->refresh();
+        $this->assertEquals(Conversation::STATUS_BOT_ACTIVE, $conversation->status);
+        $this->assertDatabaseHas('conversation_messages', [
+            'conversation_id' => $conversation->id,
+            'sender_type' => 'system',
+        ]);
+    }
 }
 

@@ -146,8 +146,26 @@ class ChatbotMenuService
             $conversation->status = Conversation::STATUS_WAITING_ADMIN;
             $conversation->save();
 
+            // Pengecekan Jam Operasional Admin Live Chat
+            $now = now()->timezone('Asia/Jakarta');
+            $hour = (int) $now->format('H');
+            $dayOfWeek = (int) $now->format('N'); // 1 = Senin, 5 = Jumat, 6 = Sabtu, 7 = Minggu
+
+            $isOperatingHours = false;
+            if ($dayOfWeek >= 1 && $dayOfWeek <= 5) {
+                $isOperatingHours = ($hour >= 7 && $hour < 23);
+            } elseif ($dayOfWeek === 6) {
+                $isOperatingHours = ($hour >= 8 && $hour < 20);
+            }
+
+            if (!$isOperatingHours) {
+                $replyText = "⚠️ *Pemberitahuan Di Luar Jam Kerja Admin*\nSaat ini di luar jam operasional admin live chat.\n\n*Jadwal Admin Membalas (Live Chat):*\n• Senin - Jumat: 07.00 - 23.00 WIB\n• Sabtu: 08.00 - 20.00 WIB\n• Di luar jam tersebut: Balas lambat atau pada jam kerja berikutnya\n\nPesan Anda telah tersimpan di antrean dashboard admin. Silakan tinggalkan pesan/kendala Anda di sini.\n\n(Ketik *0* jika ingin kembali ke menu layanan chatbot otomatis).";
+            } else {
+                $replyText = "Permintaan Anda telah masuk ke antrean dashboard CRM dengan status *Menunggu Admin*.\n\nSilakan ketik pertanyaan atau kendala Anda di bawah ini. Admin akan segera mengambil alih percakapan.\n(Ketik *0* jika ingin membatalkan dan kembali ke menu layanan).";
+            }
+
             return [
-                'text' => "Permintaan Anda telah masuk ke antrean dashboard CRM dengan status *Menunggu Admin*.\n\nSilakan ketik pertanyaan atau kendala Anda di bawah ini. Admin akan segera mengambil alih percakapan.\n(Ketik *0* jika ingin membatalkan dan kembali ke menu layanan).",
+                'text' => $replyText,
                 'options' => [
                     ['code' => '0', 'label' => '0. Keluar / Menu Utama'],
                 ],
@@ -323,18 +341,22 @@ class ChatbotMenuService
                 return 'main';
             }
 
-            if ($input === '2' ||
+            if (
+                $input === '2' ||
                 isset(self::PAYMENT_SUBMENU_MAP[$input]) ||
                 str_starts_with($input, '2.') ||
-                in_array($input, ['informasi pembayaran', 'pembayaran', 'bayar', 'tagihan', 'ukt', 'jadwal pembayaran', 'saluran pembayaran', 'kendala pembayaran'], true)) {
+                in_array($input, ['informasi pembayaran', 'pembayaran', 'bayar', 'tagihan', 'ukt', 'jadwal pembayaran', 'saluran pembayaran', 'kendala pembayaran'], true)
+            ) {
                 return 'payment';
             }
 
-            if ($input === '1' ||
+            if (
+                $input === '1' ||
                 isset(self::CATEGORY_MENU_MAP[$input]) ||
                 str_starts_with($input, '1.') ||
                 $this->matchCategoryByKeyword($input) !== null ||
-                in_array($input, ['informasi kampus', 'kampus'], true)) {
+                in_array($input, ['informasi kampus', 'kampus'], true)
+            ) {
                 return 'campus';
             }
 
@@ -484,7 +506,7 @@ class ChatbotMenuService
                 ->where('category', 'pembayaran')
                 ->where(function ($q) {
                     $q->where('slug', 'like', '%jadwal%')
-                      ->orWhere('title', 'like', '%jadwal%');
+                        ->orWhere('title', 'like', '%jadwal%');
                 })
                 ->first();
 
@@ -500,8 +522,8 @@ class ChatbotMenuService
                 ->where('category', 'pembayaran')
                 ->where(function ($q) {
                     $q->where('slug', 'like', '%panduan%')
-                      ->orWhere('slug', 'like', '%saluran%')
-                      ->orWhere('title', 'like', '%saluran%');
+                        ->orWhere('slug', 'like', '%saluran%')
+                        ->orWhere('title', 'like', '%saluran%');
                 })
                 ->first();
 
@@ -525,7 +547,7 @@ class ChatbotMenuService
     {
         $item = CampusInformation::published()->find($id);
 
-        if (! $item) {
+        if (!$item) {
             return "Informasi dengan kode #{$id} tidak ditemukan atau belum dipublikasikan.\n\nKetik *0* untuk kembali ke Menu Layanan.";
         }
 

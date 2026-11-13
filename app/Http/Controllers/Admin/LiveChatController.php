@@ -23,11 +23,11 @@ class LiveChatController extends Controller
         $conversations = Conversation::with(['assignedAdmin', 'messages'])
             ->when(
                 $statusFilter !== '' && array_key_exists($statusFilter, Conversation::STATUS_LABELS),
-                fn ($q) => $q->where('status', $statusFilter)
+                fn($q) => $q->where('status', $statusFilter)
             )
             ->when(
                 in_array($channelFilter, ['web', 'whatsapp'], true),
-                fn ($q) => $q->where('channel', $channelFilter)
+                fn($q) => $q->where('channel', $channelFilter)
             )
             ->orderByRaw("CASE
                 WHEN status = 'WAITING_ADMIN' THEN 0
@@ -63,33 +63,43 @@ class LiveChatController extends Controller
         ]);
     }
 
-    public function takeOver(Conversation $conversation, FonnteService $fonnteService): RedirectResponse
+    public function takeOver(Request $request, Conversation $conversation, FonnteService $fonnteService): RedirectResponse|JsonResponse
     {
         $admin = Auth::user();
 
-        $conversation->update([
-            'status' => Conversation::STATUS_ADMIN_ACTIVE,
-            'assigned_admin_id' => $admin?->id,
-            'taken_over_at' => now(),
-            'closed_at' => null,
-            'last_message_at' => now(),
-        ]);
+        if ($conversation->status !== Conversation::STATUS_ADMIN_ACTIVE) {
+            $conversation->update([
+                'status' => Conversation::STATUS_ADMIN_ACTIVE,
+                'assigned_admin_id' => $admin?->id,
+                'taken_over_at' => now(),
+                'closed_at' => null,
+                'last_message_at' => now(),
+            ]);
 
-        $noticeText = "Percakapan telah diambil alih oleh {$admin?->name} (Status: Admin Aktif). Silakan sampaikan keperluan Anda.";
+            $noticeText = "Percakapan telah diambil alih oleh {$admin?->name} (Status: Admin Aktif). Silakan sampaikan keperluan Anda.";
 
-        $systemMsg = $conversation->messages()->create([
-            'sender_type' => 'system',
-            'sender_name' => $admin?->name ?? 'Admin CRM',
-            'message' => $noticeText,
-            'delivery_status' => 'delivered',
-        ]);
+            $systemMsg = $conversation->messages()->create([
+                'sender_type' => 'system',
+                'sender_name' => $admin?->name ?? 'Admin CRM',
+                'message' => $noticeText,
+                'delivery_status' => 'delivered',
+            ]);
 
-        if ($conversation->channel === 'whatsapp' && filled($conversation->contact_number)) {
-            $gatewayResult = $fonnteService->sendMessage($conversation->contact_number, $noticeText);
-            $systemMsg->update([
-                'delivery_status' => $gatewayResult['success']
-                    ? 'sent_gateway'
-                    : ($gatewayResult['status'] === 'unverified_no_token' ? 'local_only' : 'failed_gateway'),
+            if ($conversation->channel === 'whatsapp' && filled($conversation->contact_number)) {
+                $gatewayResult = $fonnteService->sendMessage($conversation->contact_number, $noticeText);
+                $systemMsg->update([
+                    'delivery_status' => $gatewayResult['success']
+                        ? 'sent_gateway'
+                        : ($gatewayResult['status'] === 'unverified_no_token' ? 'local_only' : 'failed_gateway'),
+                ]);
+            }
+        }
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'ok' => true,
+                'status' => Conversation::STATUS_ADMIN_ACTIVE,
+                'message' => 'Percakapan berhasil dialihkan ke admin.',
             ]);
         }
 
@@ -165,11 +175,11 @@ class LiveChatController extends Controller
             ->with($flashType, $flashNotice);
     }
 
-    public function close(Conversation $conversation, FonnteService $fonnteService): RedirectResponse
+    public function close(Request $request, Conversation $conversation, FonnteService $fonnteService): RedirectResponse
     {
         $admin = Auth::user();
 
-        // Saat admin leave, alihkan status kembali ke BOT_ACTIVE (bukan selesai/closed)
+        // Saat admin leave, alihkan status kembali ke BOT_ACTIVE
         $conversation->update([
             'status' => Conversation::STATUS_BOT_ACTIVE,
             'assigned_admin_id' => null,
@@ -177,7 +187,10 @@ class LiveChatController extends Controller
             'last_message_at' => now(),
         ]);
 
-        $closingText = 'Admin telah menyelesaikan pendampingan dan meninggalkan percakapan. Sesi otomatis dialihkan kembali ke Chatbot Layanan Mahasiswa (Status: Bot Aktif). Silakan pilih menu atau ketik pesan Anda.';
+        $customNote = trim((string) $request->input('closing_note', ''));
+        $closingText = $customNote !== ''
+            ? "*[Admin Layanan UNPAM]*\n" . $customNote . "\n\n(Sesi bantuan admin telah selesai. Layanan otomatis dialihkan kembali ke Chatbot aktif. Ketik 'Menu' untuk layanan informasi lainnya)."
+            : 'Admin telah menyelesaikan pendampingan dan meninggalkan percakapan. Sesi otomatis dialihkan kembali ke Chatbot Layanan Mahasiswa (Status: Bot Aktif). Silakan pilih menu atau ketik pesan Anda.';
 
         $systemMsg = $conversation->messages()->create([
             'sender_type' => 'system',
@@ -196,7 +209,7 @@ class LiveChatController extends Controller
         }
 
         return redirect()->route('admin.live-chat.index', ['conversation_id' => $conversation->id])
-            ->with('success', 'Admin telah meninggalkan percakapan. Sesi berhasil dialihkan kembali ke Chatbot aktif (Status: Bot Aktif).');
+            ->with('success', 'Admin telah menyelesaikan pendampingan. Sesi berhasil dialihkan kembali ke Chatbot aktif (Status: Bot Aktif).');
     }
 
     public function poll(Conversation $conversation): JsonResponse
@@ -207,7 +220,7 @@ class LiveChatController extends Controller
             'id' => $conversation->id,
             'status' => $conversation->status,
             'status_label' => $conversation->status_label,
-            'messages' => $conversation->messages->map(fn ($msg) => [
+            'messages' => $conversation->messages->map(fn($msg) => [
                 'id' => $msg->id,
                 'sender_type' => $msg->sender_type,
                 'sender_name' => $msg->sender_name,

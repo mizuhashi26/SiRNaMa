@@ -215,13 +215,29 @@
                         </div>
                     </div>
 
-                    <!-- Tombol Kendali Sesi CS -->
+                                        <!-- Tombol Kendali Sesi CS -->
                     <div class="flex items-center gap-2 shrink-0">
+                        @if($activeConversation->channel === 'whatsapp' && $activeConversation->contact_number)
+                            <!-- Tombol Balas Langsung di WhatsApp -->
+                            <form action="{{ route('admin.live-chat.take-over', $activeConversation) }}"
+                                  method="POST"
+                                  onsubmit="window.open('https://wa.me/{{ $activeConversation->contact_number }}', '_blank');">
+                                @csrf
+                                <input type="hidden" name="source" value="reply_wa">
+                                <button type="submit"
+                                        title="Buka percakapan langsung di WhatsApp dan ambil alih status obrolan di CRM"
+                                        class="min-h-[40px] px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer">
+                                    <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.669-.699c.969.54 1.772.812 2.791.812 3.18 0 5.767-2.587 5.767-5.766.001-3.181-2.585-5.798-5.767-5.798zm0-2.172c4.418 0 8 3.582 8 8 0 1.547-.442 2.993-1.205 4.223l1.174 4.289-4.385-1.15c-1.189.704-2.573 1.116-4.053 1.116-4.418 0-8-3.582-8-8 0-4.418 3.582-8 8-8z"/></svg>
+                                    <span>Balas di WA</span>
+                                </button>
+                            </form>
+                        @endif
+
                         @if($activeConversation->status !== 'ADMIN_ACTIVE')
                             <form action="{{ route('admin.live-chat.take-over', $activeConversation) }}" method="POST">
                                 @csrf
                                 <button type="submit"
-                                        class="min-h-[40px] px-4 py-2 rounded-lg bg-unpam-gold hover:bg-amber-400 text-slate-950 font-black text-xs shadow-xs transition-colors border border-amber-300 flex items-center gap-1.5">
+                                        class="min-h-[40px] px-4 py-2 rounded-lg bg-unpam-gold hover:bg-amber-400 text-slate-950 font-black text-xs shadow-xs transition-colors border border-amber-300 flex items-center gap-1.5 cursor-pointer">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                                     <span>Ambil Alih Obrolan</span>
                                 </button>
@@ -234,7 +250,7 @@
                                   data-confirm="Selesaikan pendampingan dan kembalikan obrolan ke Chatbot?">
                                 @csrf
                                 <button type="submit"
-                                        class="min-h-[40px] px-3.5 py-2 rounded-lg bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 dark:hover:bg-slate-600 text-white font-bold text-xs transition-colors shadow-xs flex items-center gap-1.5">
+                                        class="min-h-[40px] px-3.5 py-2 rounded-lg bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 dark:hover:bg-slate-600 text-white font-bold text-xs transition-colors shadow-xs flex items-center gap-1.5 cursor-pointer">
                                     <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                                     <span>Selesaikan (Kembali ke Bot)</span>
                                 </button>
@@ -299,6 +315,36 @@
 
                 <!-- CS Composer Bar (Bawah) -->
                 <div class="p-3.5 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 space-y-2.5">
+                    <!-- Kotak Pengalihan Sesi Kembali ke Bot (Dengan Input Pesan Penutup) -->
+                    @if($activeConversation->status === 'ADMIN_ACTIVE')
+                        <div class="p-3 bg-amber-50/90 dark:bg-slate-900/90 border border-amber-300 dark:border-amber-700/60 rounded-xl space-y-2 shadow-2xs">
+                            <div class="flex flex-wrap items-center justify-between gap-1 text-xs">
+                                <span class="font-bold text-amber-950 dark:text-amber-300 flex items-center gap-1.5">
+                                    <svg class="w-4 h-4 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    Kembalikan Obrolan ke Chatbot
+                                </span>
+                                @if($activeConversation->channel === 'whatsapp')
+                                    <span class="text-[11px] text-slate-600 dark:text-slate-400">
+                                        (Atau ketik <strong class="text-unpam-navy dark:text-amber-400">#bot</strong> langsung di WhatsApp)
+                                    </span>
+                                @endif
+                            </div>
+                            <form action="{{ route('admin.live-chat.close', $activeConversation) }}" method="POST" class="flex flex-col sm:flex-row items-center gap-2">
+                                @csrf
+                                <input type="text"
+                                       name="closing_note"
+                                       placeholder="Tulis pesan penutup untuk mahasiswa sebelum bot aktif kembali (opsional)..."
+                                       class="w-full text-xs px-3 py-2 rounded-lg border border-amber-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-unpam-navy">
+                                <button type="submit"
+                                        data-confirm="Kembalikan percakapan ini ke layanan Chatbot otomatis?"
+                                        class="w-full sm:w-auto min-h-[36px] px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs transition-colors flex items-center justify-center gap-1.5 shrink-0 shadow-xs cursor-pointer">
+                                    <svg class="w-3.5 h-3.5 text-unpam-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
+                                    <span>Kembalikan ke Bot</span>
+                                </button>
+                            </form>
+                        </div>
+                    @endif
+
                     <!-- Template Balasan Cepat CS (Canned Responses) -->
                     <div class="flex items-center gap-1.5 overflow-x-auto text-[11px] pb-1">
                         <span class="font-bold text-slate-500 dark:text-slate-400 uppercase shrink-0 text-[10px]">Balasan Cepat:</span>
