@@ -1,9 +1,9 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/laravel",
+    "name": "mizuhashi26/sirnama",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
+    "description": "SiRNaMa - Sistem Informasi, Reminder, dan Layanan Mahasiswa Terintegrasi WhatsApp & Live Chat Admin",
+    "keywords": ["sirnama", "crm", "layanan-mahasiswa", "whatsapp", "fonnte", "laravel"],
     "license": "MIT",
     "require": {
         "php": "^8.2",

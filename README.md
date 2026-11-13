@@ -1,93 +1,88 @@
-# CRM Pengelolaan Informasi, Reminder, dan Layanan Mahasiswa Terintegrasi WhatsApp
+# SiRNaMa (Sistem Informasi, Reminder, dan Layanan Mahasiswa)
 
-**Studi Kasus:** Universitas Pamulang (UNPAM)  
-**Lingkungan Pengembangan:** Lokal via Laragon (PHP 8.3, MySQL 8.4, Laravel 11, Tailwind CSS)
+Platform CRM layanan akademik & kemahasiswaan terintegrasi WhatsApp Fonnte, Chatbot Web, dan Live Chat Admin terpusat. Dirancang dengan prinsip **Dual-Environment (Local Laragon & Instant Serverless Hosting Ready)** serta model multi-kampus (*white-label generic*).
 
 ---
 
-## 1. Fitur Utama MVP
+## 1. Fitur Utama Sistem
 
 1. **Pengelolaan Informasi Kampus Satu Pintu (`CampusInformation`):**
-   - Admin mengelola informasi berdasarkan kategori (`Akademik`, `Kalender Akademik`, `Jadwal Perkuliahan & Ujian`, `Pengumuman Kampus`, `Kegiatan & Agenda`, `Administrasi Layanan`, dan `Informasi Pembayaran Kuliah`).
-   - Data yang dipublikasikan otomatis menjadi sumber data bersama (*single source of truth*) untuk **Halaman Website Publik**, **Chatbot Website**, dan **Chatbot WhatsApp**.
-2. **Reminder Pembayaran Kuliah Umum (`PaymentReminder`):**
-   - Berlaku untuk pengingat pembayaran umum seluruh mahasiswa aktif.
-   - Mendukung **Kirim Manual Sekarang** melalui tombol di dashboard dan **Pengiriman Terjadwal Otomatis** melalui Laravel Scheduler (`php artisan reminders:send-due`).
-   - Mencatat log pengiriman per mahasiswa secara jujur (`sent`, `failed`, atau `unverified_no_token` bila `FONNTE_TOKEN` belum diisi).
-3. **Chatbot Website Berbasis Menu (`WebChatController` & `ChatbotMenuService`):**
-   - Widget chat modern di pojok kanan bawah halaman publik.
-   - Tombol trigger berbentuk pill ramping dengan **lingkaran indikator hijau berkedip dinamis** (`animate-ping`).
-   - **Fitur Draggable:** Widget dan tombol dapat digeser/dipindahkan posisinya secara bebas di layar monitor maupun ponsel (mouse & touch drag).
-   - **Scroll Tetap Terjaga (Stay):** Posisi scroll tidak dipaksa loncat ke bawah saat mengirim pesan atau polling pesan baru.
-   - Menggunakan tombol pilihan menu (`1. Informasi Kampus`, `2. Informasi Pembayaran`, `3. Hubungi Admin`) tanpa AI generatif.
-4. **Chatbot WhatsApp via Fonnte (`FonnteWebhookController`):**
-   - Menerima pesan masuk melalui webhook `POST /api/webhook/fonnte`.
-   - Menyajikan menu angka/keyword yang konsisten dengan Chatbot Website dan mengirim balasan melalui API Fonnte (`https://api.fonnte.com/send`).
-5. **Live Chat Admin Terpusat (`LiveChatController`):**
-   - Menyatukan percakapan dari kanal **Website** dan **WhatsApp** dalam satu menu Live Chat di dashboard admin.
-   - Alur status interaksi:
-     - `BOT_ACTIVE` (Bot melayani menu pilihan)
-     - `WAITING_ADMIN` (Mahasiswa memilih `3. Hubungi Admin`)
-     - `ADMIN_ACTIVE` (Admin menekan **Ambil Alih Percakapan** dan membalas dari dashboard)
-     - **Tinggalkan (Kembali ke Bot):** Saat admin meninggalkan percakapan, status otomatis dialihkan kembali ke `BOT_ACTIVE` agar mahasiswa langsung dilayani kembali oleh Chatbot tanpa sesi menggantung.
+   - Admin mengelola informasi berbasis kategori: *Akademik*, *Kalender Akademik*, *Jadwal Perkuliahan & Ujian*, *Pengumuman Kampus*, *Kegiatan & Agenda*, *Administrasi Layanan*, dan *Informasi Pembayaran*.
+   - Data yang dipublikasikan menjadi satu sumber kebenaran tunggal (*Single Source of Truth*) yang otomatis menyuplai portal web publik, chatbot website, dan chatbot WhatsApp Fonnte.
+2. **Dual-Channel Chatbot (Web & WhatsApp Fonnte):**
+   - Chatbot responsif berbasis angka dan kata kunci terstruktur tanpa ketergantungan AI generatif.
+   - Sinkronisasi instan dengan perubahan data kampus dan informasi terbaru.
+3. **Live Chat Admin Terpusat (`LiveChatController`):**
+   - Eskalasi otomatis percakapan dari mode `BOT_ACTIVE` ke `WAITING_ADMIN`.
+   - Admin dapat mengambil alih percakapan (`ADMIN_ACTIVE`), membalas langsung ke nomor WhatsApp mahasiswa melalui API Fonnte, dan mengembalikan sesi ke bot (`CLOSED` / `BOT_ACTIVE`).
+   - Pencatatan identitas otomatis (NIM, Nama Mahasiswa, nomor kontak, serta kanal asal percakapan).
+4. **Reminder Akademik & Pembayaran (`PaymentReminder`):**
+   - Pengiriman pengingat manual maupun otomatis berbasis scheduler.
+   - Pilihan target penerima yang fleksibel: seluruh mahasiswa aktif, mahasiswa per kelas reguler, personal per mahasiswa, atau nomor kustom.
+   - Audit log pengiriman per nomor mahasiswa secara real-time.
+5. **Keamanan & Otorisasi Berlapis:**
+   - 3 Role Akun: `Superadmin`, `Admin Reguler`, dan `Admin Chat` (dibatasi khusus live chat).
+   - Rate limiting / throttling `throttle:60,1` pada login, chatbot web, dan webhook.
+   - Header proteksi no-cache (`PreventBackHistory`) untuk memblokir celah tombol back setelah logout.
+   - Validasi ketat payload webhook WhatsApp (anti-fuzzing & filter nomor telepon).
 
 ---
 
-## 2. Akun Admin Default (Hasil Seeder)
+## 2. Akun Demo Default (Hasil Seeder)
 
-- **URL Website Publik:** `http://localhost:8000` (atau via Laragon: `http://localhost/crm_layanan_mahasiswa/public/`)
-- **URL Login Admin:** `http://localhost:8000/login`
-- **Email Admin:** `admin@unpam.ac.id`
-- **Password Admin:** `password123`
+- **URL Portal Publik:** `http://localhost/crm_layanan_mahasiswa/public/` (atau `http://127.0.0.1:8000`)
+- **URL Login Admin:** `http://localhost/crm_layanan_mahasiswa/public/login` (atau `http://127.0.0.1:8000/login`)
+- **Akun Superadmin:**
+  - Email: `superadmin@unpam.ac.id` (atau `admin@unpam.ac.id`)
+  - Password: `password123`
+- **Akun Admin Chat:**
+  - Email: `adminchat@unpam.ac.id`
+  - Password: `password123`
 
 ---
 
 ## 3. Cara Menjalankan Secara Lokal di Laragon
 
-1. Pastikan layanan **MySQL** dan **Apache** di Laragon aktif.
-2. Jalankan migrasi dan seeder database:
+1. Pastikan modul **Apache** dan **MySQL** di Laragon aktif.
+2. Pasang dependensi dan lakukan migrasi + seeder:
    ```powershell
-   C:\laragon\bin\php\php-8.3.28-Win32-vs16-x64\php.exe artisan migrate --seed
+   composer install
+   php artisan migrate --seed
    ```
-3. Kompilasi aset frontend (Tailwind CSS palet Deep Spruce & Teal):
+3. Kompilasi aset frontend:
    ```powershell
    npm run build
    ```
-4. Jalankan server pengembangan lokal (jika tidak menggunakan Apache Laragon langsung):
+4. Jalankan scheduler reminder otomatis di background (opsional):
    ```powershell
-   C:\laragon\bin\php\php-8.3.28-Win32-vs16-x64\php.exe artisan serve --host=127.0.0.1 --port=8000
-   ```
-5. Untuk mengaktifkan pengiriman **Reminder Terjadwal Otomatis** di lokal:
-   ```powershell
-   C:\laragon\bin\php\php-8.3.28-Win32-vs16-x64\php.exe artisan schedule:work
+   php artisan schedule:work
    ```
 
 ---
 
-## 4. Konfigurasi Integrasi WhatsApp (Fonnte) & Webhook Lokal
+## 4. Konfigurasi WhatsApp (Fonnte) & Webhook
 
-1. Buka file `.env` dan isi token perangkat Fonnte:
+1. Masukkan token Fonnte ke file `.env` (atau melalui menu Pengaturan di Dashboard Superadmin):
    ```env
-   FONNTE_TOKEN=isi_token_fonnte_anda_di_sini
+   FONNTE_TOKEN=token_fonnte_anda
    FONNTE_API_URL=https://api.fonnte.com/send
    FONNTE_WEBHOOK_SECRET=
    ```
-2. Untuk menguji **Pesan Masuk WhatsApp (Webhook Fonnte)** ke komputer lokal, jalankan tunnel `ngrok` bawaan Laragon:
+2. Saat pengujian di komputer lokal, gunakan tunneling (seperti Cloudflare Tunnel atau ngrok) agar webhook cloud Fonnte dapat mencapai komputer lokal:
    ```powershell
-   C:\laragon\bin\ngrok\ngrok.exe http 8000
+   ngrok http 8000
    ```
-3. Salin URL HTTPS dari `ngrok` (contoh: `https://xxxx.ngrok-free.app`) lalu tempelkan ke pengaturan **Webhook URL** di dashboard Fonnte dengan akhiran:
+3. Arahkan Webhook URL di dashboard Fonnte ke endpoint:
    ```text
-   https://xxxx.ngrok-free.app/api/webhook/fonnte
+   https://domain-tunnel-anda/api/webhook/fonnte
    ```
-4. **Catatan Praktik Live Chat:** Balas percakapan melalui **Live Chat di Dashboard Admin** agar seluruh riwayat percakapan tercatat rapi dan pesan keluar terkirim via API Fonnte.
 
 ---
 
-## 5. Pengujian Otomatis
+## 5. Pengujian Sistem Otomatis
 
-Jalankan seluruh pengujian end-to-end dengan perintah:
+Seluruh alur fitur, keamanan role, validasi webhook, dan isolasi data telah diverifikasi melalui rangkaian pengujian otomatis end-to-end:
 ```powershell
-C:\laragon\bin\php\php-8.3.28-Win32-vs16-x64\php.exe artisan test
+php artisan test
 ```
-Semua 7 pengujian fitur mencakup Autentikasi Admin, Single Source of Truth Informasi, Web Chatbot, WhatsApp Webhook, Takeover/Reply/Leave Live Chat, dan Reminder Pembayaran otomatis lolos pengujian (55 assertions PASS).
+Hasil: **40 pengujian lulus 100% (321 assertions pass)**.
