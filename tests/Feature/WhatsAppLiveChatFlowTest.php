@@ -317,5 +317,56 @@ class WhatsAppLiveChatFlowTest extends TestCase
             'sender_type' => 'system',
         ]);
     }
+
+    public function test_webhook_validates_sender_phone_format_and_non_empty_message(): void
+    {
+        // 1. Pesan (message) kosong harus ditolak (HTTP 422)
+        $this->postJson(route('webhook.fonnte'), [
+            'sender' => '081298765432',
+            'message' => '   ',
+        ])->assertStatus(422)
+          ->assertJsonPath('ok', false)
+          ->assertJsonPath('message', 'Isi pesan (message) tidak boleh kosong.');
+
+        // 2. Sender berupa teks non-angka harus ditolak (HTTP 422)
+        $this->postJson(route('webhook.fonnte'), [
+            'sender' => 'admin_kampus_xyz',
+            'message' => 'Halo bot',
+        ])->assertStatus(422)
+          ->assertJsonPath('ok', false)
+          ->assertJsonPath('message', 'Format nomor pengirim (sender) tidak valid. Harus berupa angka telepon 10-15 digit.');
+
+        // 3. Sender kurang dari 10 digit harus ditolak (HTTP 422)
+        $this->postJson(route('webhook.fonnte'), [
+            'sender' => '123456789',
+            'message' => 'Halo bot',
+        ])->assertStatus(422)
+          ->assertJsonPath('ok', false);
+
+        // 4. Sender lebih dari 15 digit harus ditolak (HTTP 422)
+        $this->postJson(route('webhook.fonnte'), [
+            'sender' => '1234567890123456',
+            'message' => 'Halo bot',
+        ])->assertStatus(422)
+          ->assertJsonPath('ok', false);
+
+        // 5. Sender valid 10-15 digit (dengan awalan 08, 62, +, atau suffix WA) harus diterima (HTTP 200)
+        $validSenders = [
+            '0812345678', // 10 digit
+            '081234567890', // 12 digit
+            '6281234567890', // 13 digit
+            '+6281234567890', // 13 digit dengan +
+            '081234567890@s.whatsapp.net', // dengan suffix WA
+        ];
+
+        foreach ($validSenders as $validSender) {
+            $res = $this->postJson(route('webhook.fonnte'), [
+                'sender' => $validSender,
+                'message' => 'Halo bot',
+            ]);
+            $res->assertOk()
+                ->assertJsonPath('ok', true);
+        }
+    }
 }
 

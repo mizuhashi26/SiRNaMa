@@ -18,7 +18,7 @@
         </div>
     </div>
 
-    <form action="{{ route('admin.settings.update') }}" method="POST" enctype="multipart/form-data" class="space-y-8">
+    <form id="settingsForm" action="{{ route('admin.settings.update') }}" method="POST" enctype="multipart/form-data" class="space-y-8">
         @csrf
         @method('PUT')
 
@@ -470,6 +470,51 @@
             toggleBtn.addEventListener('click', () => {
                 const isPassword = tokenInput.getAttribute('type') === 'password';
                 tokenInput.setAttribute('type', isPassword ? 'text' : 'password');
+            });
+        }
+
+        // Peringatan saat tombol simpan ditekan jika ada perubahan formulir
+        const settingsForm = document.getElementById('settingsForm');
+        if (settingsForm) {
+            let isFormChanged = false;
+
+            settingsForm.addEventListener('input', () => {
+                isFormChanged = true;
+            });
+            settingsForm.addEventListener('change', () => {
+                isFormChanged = true;
+            });
+
+            settingsForm.addEventListener('submit', function (e) {
+                if (settingsForm.dataset.confirmed === 'true') {
+                    return;
+                }
+
+                e.preventDefault();
+
+                if (!isFormChanged) {
+                    if (typeof window.unpamAlert === 'function') {
+                        window.unpamAlert('Tidak ada perubahan pengaturan yang terdeteksi untuk disimpan.', 'Pemberitahuan');
+                    } else {
+                        alert('Tidak ada perubahan pengaturan yang terdeteksi untuk disimpan.');
+                    }
+                    return;
+                }
+
+                const confirmMessage = 'Terdapat perubahan pada konfigurasi pengaturan sistem. Apakah Anda yakin ingin menyimpan perubahan ini?';
+                const submitAction = () => {
+                    settingsForm.dataset.confirmed = 'true';
+                    settingsForm.submit();
+                };
+
+                if (typeof window.unpamConfirm === 'function') {
+                    window.unpamConfirm(confirmMessage, submitAction, {
+                        title: 'Konfirmasi Simpan Pengaturan',
+                        confirmText: 'Ya, Simpan Perubahan'
+                    });
+                } else if (confirm(confirmMessage)) {
+                    submitAction();
+                }
             });
         }
     });

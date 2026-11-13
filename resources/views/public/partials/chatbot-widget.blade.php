@@ -126,7 +126,7 @@
                 <span class="unpam-blinking-dot" aria-hidden="true"></span>
                 <div>
                     <!-- Judul Ringkas -->
-                    <h2 class="font-bold text-sm text-white leading-snug">Layanan Chat</h2>
+                    <h2 class="font-bold text-sm text-white leading-snug">SiRNaMa Chat</h2>
                     <p id="chatbot-status-badge" class="text-[11px] text-amber-200 leading-none">Status: Memuat sesi...
                     </p>
                 </div>
@@ -184,7 +184,7 @@
             class="flex-1 min-h-0 overflow-y-auto p-3.5 space-y-3 bg-slate-50 dark:bg-slate-900 text-sm">
             <div id="chatbot-loading-state"
                 class="text-xs text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-3">
-                Memuat layanan menu Chatbot UNPAM...
+                Memuat layanan menu Chatbot SiRNaMa {{ $brandAppName }}...
             </div>
         </div>
 
@@ -228,7 +228,7 @@
             <!-- Bulat Berkedip Nyata (UNPAM Gold) -->
             <span class="unpam-blinking-dot" aria-hidden="true"></span>
             <!-- Teks Simpel -->
-            <span class="tracking-tight text-white font-bold">Chat Layanan</span>
+            <span class="tracking-tight text-white font-bold">Chat SiRNaMa</span>
 
             <!-- Tombol Kembalikan Posisi di Kapsul Trigger (Muncul saat widget digeser) -->
             <span id="chatbot-reset-pos-pill" title="Kembalikan ke posisi awal (kanan bawah)"

@@ -27,4 +27,15 @@ class ExampleTest extends TestCase
         $response->assertSee('Ke Beranda Informasi');
         $response->assertSee('Kembali Sebelumnya');
     }
+
+    public function test_throttling_protects_public_endpoints_from_rate_abuse(): void
+    {
+        for ($i = 0; $i < 60; $i++) {
+            $this->get('/login');
+        }
+
+        // Request ke-61 dalam kurun 1 menit harus ditolak dengan HTTP 429 (Too Many Requests)
+        $response = $this->get('/login');
+        $response->assertStatus(429);
+    }
 }

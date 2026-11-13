@@ -155,4 +155,89 @@ class AdminRoleAccessTest extends TestCase
             'message' => "Silakan datang ke loket Biro Administrasi.\n\n-admin a",
         ]);
     }
+
+    public function test_admin_chat_can_only_access_live_chat_and_is_forbidden_from_other_modules(): void
+    {
+        $adminChat = User::factory()->create([
+            'name' => 'CS Chat Only',
+            'email' => 'cs.chat@unpam.ac.id',
+            'password' => 'password123',
+            'role' => User::ROLE_ADMIN_CHAT,
+        ]);
+
+        // 1. Login mengarahkan langsung ke Live Chat
+        $loginRes = $this->post(route('login.attempt'), [
+            'email' => 'cs.chat@unpam.ac.id',
+            'password' => 'password123',
+        ]);
+        $loginRes->assertRedirect(route('admin.live-chat.index'));
+
+        // 2. Boleh mengakses Live Chat beserta aksi balas, ambil alih, poll, tutup
+        $conversation = Conversation::create([
+            'channel' => 'website',
+            'external_user_id' => 'web-chat-role-1',
+            'session_id' => 'web-chat-role-1',
+            'user_name' => 'Mahasiswa Uji Chat',
+            'status' => Conversation::STATUS_WAITING_ADMIN,
+            'last_message_at' => now(),
+        ]);
+
+        $this->actingAs($adminChat)->get(route('admin.live-chat.index'))
+            ->assertOk()
+            ->assertDontSee('Ringkasan Tugas')
+            ->assertDontSee('Informasi Kampus')
+            ->assertDontSee('Pengingat Mahasiswa');
+
+        $this->actingAs($adminChat)->post(route('admin.live-chat.take-over', $conversation))->assertRedirect();
+        $this->actingAs($adminChat)->post(route('admin.live-chat.reply', $conversation), [
+            'message' => 'Halo, dibalas oleh Admin Chat.',
+        ])->assertRedirect();
+        $this->actingAs($adminChat)->get(route('admin.live-chat.poll', $conversation))->assertOk();
+        $this->actingAs($adminChat)->post(route('admin.live-chat.close', $conversation))->assertRedirect();
+
+        // 3. Dilarang (403) mengakses seluruh modul selain Live Chat
+        $this->actingAs($adminChat)->get(route('admin.dashboard'))->assertForbidden();
+        $this->actingAs($adminChat)->get(route('admin.informations.index'))->assertForbidden();
+        $this->actingAs($adminChat)->get(route('admin.reminders.index'))->assertForbidden();
+        $this->actingAs($adminChat)->get(route('admin.students.index'))->assertForbidden();
+        $this->actingAs($adminChat)->get(route('admin.settings.index'))->assertForbidden();
+        $this->actingAs($adminChat)->get(route('admin.users.index'))->assertForbidden();
+    }
+
+    public function test_superadmin_can_create_and_update_admin_chat_user(): void
+    {
+        $superadmin = User::factory()->superadmin()->create();
+
+        // 1. Tambah akun dengan role admin_chat
+        $storeRes = $this->actingAs($superadmin)->post(route('admin.users.store'), [
+            'name' => 'CS Live Chat 1',
+            'email' => 'cs1@unpam.ac.id',
+            'role' => User::ROLE_ADMIN_CHAT,
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+        ]);
+
+        $storeRes->assertRedirect(route('admin.users.index'));
+        $this->assertDatabaseHas('users', [
+            'email' => 'cs1@unpam.ac.id',
+            'role' => User::ROLE_ADMIN_CHAT,
+        ]);
+
+        $chatUser = User::where('email', 'cs1@unpam.ac.id')->firstOrFail();
+
+        // 2. Ubah role menjadi admin reguler, lalu kembalikan ke admin_chat
+        $this->actingAs($superadmin)->put(route('admin.users.update', $chatUser), [
+            'name' => 'CS Live Chat 1',
+            'email' => 'cs1@unpam.ac.id',
+            'role' => User::ROLE_ADMIN,
+        ])->assertRedirect(route('admin.users.index'));
+        $this->assertSame(User::ROLE_ADMIN, $chatUser->fresh()->role);
+
+        $this->actingAs($superadmin)->put(route('admin.users.update', $chatUser), [
+            'name' => 'CS Live Chat 1',
+            'email' => 'cs1@unpam.ac.id',
+            'role' => User::ROLE_ADMIN_CHAT,
+        ])->assertRedirect(route('admin.users.index'));
+        $this->assertSame(User::ROLE_ADMIN_CHAT, $chatUser->fresh()->role);
+    }
 }

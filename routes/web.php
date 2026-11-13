@@ -21,13 +21,17 @@ Route::get('/informasi/{slug}', [PublicPortalController::class, 'show'])->name('
 
 // Endpoint Chatbot Website (JSON untuk Widget)
 Route::get('/chat/session', [WebChatController::class, 'session'])->name('webchat.session');
-Route::post('/chat/message', [WebChatController::class, 'sendMessage'])->name('webchat.message');
+Route::post('/chat/message', [WebChatController::class, 'sendMessage'])
+    ->middleware('throttle:60,1')
+    ->name('webchat.message');
 
 // Endpoint Webhook Fonnte (WhatsApp Masuk)
-Route::match(['get', 'post'], '/api/webhook/fonnte', [FonnteWebhookController::class, 'handle'])->name('webhook.fonnte');
+Route::match(['get', 'post'], '/api/webhook/fonnte', [FonnteWebhookController::class, 'handle'])
+    ->middleware('throttle:60,1')
+    ->name('webhook.fonnte');
 
 // Autentikasi Admin
-Route::middleware('guest')->group(function () {
+Route::middleware(['guest', 'throttle:60,1'])->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.attempt');
 });
@@ -41,18 +45,20 @@ Route::prefix('admin')
     ->name('admin.')
     ->middleware('auth')
     ->group(function () {
-        // === Akses Admin & Super Admin: Ringkasan, Informasi, Pengingat, Live Chat ===
-        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+        // === Akses Admin & Super Admin (Dilarang untuk Admin Chat): Ringkasan, Informasi, Pengingat ===
+        Route::middleware('contentadmin')->group(function () {
+            Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-        // CRUD Informasi Kampus
-        Route::resource('informations', CampusInformationController::class)->except(['show']);
+            // CRUD Informasi Kampus
+            Route::resource('informations', CampusInformationController::class)->except(['show']);
 
-        // CRUD & Kirim Manual Pengingat Mahasiswa
-        Route::resource('reminders', PaymentReminderController::class);
-        Route::post('reminders/{reminder}/send-now', [PaymentReminderController::class, 'sendNow'])
-            ->name('reminders.send-now');
+            // CRUD & Kirim Manual Pengingat Mahasiswa
+            Route::resource('reminders', PaymentReminderController::class);
+            Route::post('reminders/{reminder}/send-now', [PaymentReminderController::class, 'sendNow'])
+                ->name('reminders.send-now');
+        });
 
-        // Live Chat Terpusat (Website & WhatsApp)
+        // === Akses Semua Peran Admin (Termasuk Admin Chat): Live Chat Terpusat ===
         Route::post('live-chat/simulate-whatsapp', [LiveChatController::class, 'simulateWebhook'])
             ->name('live-chat.simulate-whatsapp');
         Route::get('live-chat', [LiveChatController::class, 'index'])->name('live-chat.index');

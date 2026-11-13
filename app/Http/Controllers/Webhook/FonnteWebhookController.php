@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Webhook;
 
 use App\Http\Controllers\Controller;
+use App\Models\AppSetting;
 use App\Models\Conversation;
 use App\Models\Student;
 use App\Services\ChatbotMenuService;
@@ -46,8 +47,25 @@ class FonnteWebhookController extends Controller
         $messageText = trim((string) ($request->input('message') ?? $request->input('pesan') ?? $request->input('text') ?? ''));
         $pushName = trim((string) ($request->input('name') ?? $request->input('pushname') ?? ''));
 
-        $normalizedSender = Student::normalizePhone($rawSender);
-        $normalizedTarget = Student::normalizePhone($rawTarget);
+        // 1. Validasi isi pesan (message): tidak boleh kosong
+        if ($messageText === '') {
+            return response()->json([
+                'ok' => false,
+                'message' => 'Isi pesan (message) tidak boleh kosong.',
+            ], 422);
+        }
+
+        // 2. Validasi format nomor pengirim (sender): wajib hanya angka 0-9, panjang 10–15 digit
+        $cleanSender = preg_replace('/(@s\.whatsapp\.net|@c\.us)$/i', '', trim($rawSender));
+        $cleanSender = ltrim($cleanSender, '+');
+        $cleanSender = str_replace([' ', '-'], '', $cleanSender);
+
+        if (!preg_match('/^[0-9]{10,15}$/', $cleanSender)) {
+            return response()->json([
+                'ok' => false,
+                'message' => 'Format nomor pengirim (sender) tidak valid. Harus berupa angka telepon 10-15 digit.',
+            ], 422);
+        }
 
         // Cek apakah pesan dikirim oleh nomor/device WA admin sendiri (outgoing/reply)
         $isFromMe = filter_var(
@@ -59,16 +77,26 @@ class FonnteWebhookController extends Controller
             FILTER_VALIDATE_BOOLEAN
         );
 
+        // Jika from_me aktif dan rawTarget terisi, validasi juga format nomor target
+        if ($isFromMe && $rawTarget !== '') {
+            $cleanTarget = preg_replace('/(@s\.whatsapp\.net|@c\.us)$/i', '', trim($rawTarget));
+            $cleanTarget = ltrim($cleanTarget, '+');
+            $cleanTarget = str_replace([' ', '-'], '', $cleanTarget);
+
+            if (!preg_match('/^[0-9]{10,15}$/', $cleanTarget)) {
+                return response()->json([
+                    'ok' => false,
+                    'message' => 'Format nomor tujuan (target) tidak valid. Harus berupa angka telepon 10-15 digit.',
+                ], 422);
+            }
+        }
+
+        $normalizedSender = Student::normalizePhone($cleanSender);
+        $normalizedTarget = ($isFromMe && $rawTarget !== '') ? Student::normalizePhone($rawTarget) : '';
+
         // Jika from_me aktif dan target nomor mahasiswa terisi, lawan bicaranya adalah target.
         // Jika target kosong, gunakan normalizedSender.
         $studentPhone = ($isFromMe && $normalizedTarget !== '') ? $normalizedTarget : $normalizedSender;
-
-        if ($studentPhone === '' || $messageText === '') {
-            return response()->json([
-                'ok' => false,
-                'message' => 'Payload sender atau message kosong.',
-            ], 422);
-        }
 
         $student = Student::where('whatsapp_number', $studentPhone)->first();
         $resolvedName = $student?->name
@@ -109,10 +137,12 @@ class FonnteWebhookController extends Controller
             $conversation->last_message_at = now();
             $conversation->save();
 
-            $replyText = "Sesi bantuan admin telah selesai. Layanan otomatis dialihkan kembali ke Chatbot aktif UNPAM.\n\n" . $chatbot->buildMainMenuText();
+            $institution = AppSetting::getValue('app_institution_name', 'Universitas Pamulang');
+            $logoText = AppSetting::getValue('app_logo_text', 'UNPAM');
+            $replyText = "Sesi bantuan admin telah selesai. Layanan otomatis dialihkan kembali ke Chatbot aktif SiRNaMa ({$institution}).\n\n" . $chatbot->buildMainMenuText();
             $botMsg = $conversation->messages()->create([
                 'sender_type' => 'bot',
-                'sender_name' => 'Chatbot Layanan UNPAM',
+                'sender_name' => "Chatbot SiRNaMa {$logoText}",
                 'message' => $replyText,
                 'delivery_status' => 'delivered',
             ]);
@@ -125,6 +155,7 @@ class FonnteWebhookController extends Controller
                 'conversation_id' => $conversation->id,
                 'status' => Conversation::STATUS_BOT_ACTIVE,
                 'bot_replied' => true,
+                'bot_reply' => $replyText,
             ]);
         }
 

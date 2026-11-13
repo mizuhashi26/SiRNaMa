@@ -12,7 +12,7 @@
                 <span>SiRNaMa Platform</span>
             </div>
             <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white leading-tight">
-                Tentang CRM Layanan Mahasiswa (SiRNaMa)
+                Tentang CRM Layanan Mahasiswa — SiRNaMa (Sistem Informasi, Reminder, dan Layanan Mahasiswa)
             </h1>
             <p class="text-slate-200 text-sm sm:text-base leading-relaxed mt-2 max-w-3xl">
                 Sistem pengelolaan informasi kampus, pengingat pembayaran, dan layanan bantuan mahasiswa terintegrasi
@@ -34,7 +34,8 @@
                     Mewujudkan Layanan Informasi Mahasiswa yang Cepat, Akurat, dan Mudah Dijangkau
                 </h2>
                 <p class="text-sm sm:text-base text-slate-700 dark:text-slate-300 leading-relaxed">
-                    Aplikasi <strong>SiRNaMa</strong> (<em>Sistem Informasi, Reminder, dan Layanan Mahasiswa</em>) dirancang sebagai platform CRM terpadu yang membantu pengelola kampus mempublikasikan
+                    Aplikasi <strong>SiRNaMa</strong> (<em>Sistem Informasi, Reminder, dan Layanan Mahasiswa</em>) dirancang
+                    sebagai platform CRM terpadu yang membantu pengelola kampus mempublikasikan
                     informasi akademik, mengirimkan reminder batas pembayaran secara massal melalui WhatsApp, serta
                     menangani konsultasi dan pertanyaan mahasiswa secara real-time.
                 </p>
@@ -143,7 +144,8 @@
                             class="w-10 h-10 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-black text-base">
                             03
                         </div>
-                        <h4 class="font-bold text-base text-slate-900 dark:text-white leading-snug">Chatbot Berbasis Menu</h4>
+                        <h4 class="font-bold text-base text-slate-900 dark:text-white leading-snug">Chatbot Berbasis Menu
+                        </h4>
                         <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                             Layanan interaktif 24/7 di website &amp; WhatsApp untuk menjawab kebutuhan informasi secara
                             instan tanpa antre.
@@ -162,7 +164,8 @@
                             class="w-10 h-10 rounded-lg bg-slate-800 dark:bg-slate-700 text-white flex items-center justify-center font-black text-base">
                             04
                         </div>
-                        <h4 class="font-bold text-base text-slate-900 dark:text-white leading-snug">Live Chat Admin Terpusat</h4>
+                        <h4 class="font-bold text-base text-slate-900 dark:text-white leading-snug">Live Chat Admin Terpusat
+                        </h4>
                         <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                             Panel antrean percakapan terpadu dengan status Bot Aktif, Menunggu Admin, Ambil Alih, dan Akhiri
                             Sesi.

@@ -171,8 +171,11 @@
                 <!-- Header Sidebar: Logo & Tombol Tutup/Collapse -->
                 <div
                     class="p-4 sm:p-5 border-b border-slate-800/80 flex items-center justify-between gap-3 bg-slate-950/40">
+                    @php
+                        $adminHomeUrl = auth()->user()->isAdminChat() ? route('admin.live-chat.index') : route('admin.dashboard');
+                    @endphp
                     <!-- Brand Saat Sidebar Terbuka (Full) -->
-                    <a href="{{ route('admin.dashboard') }}"
+                    <a href="{{ $adminHomeUrl }}"
                         class="sidebar-full-brand flex items-center gap-3 group focus-visible:outline-unpam-gold min-w-0">
                         @if($brandLogoImage && file_exists(public_path($brandLogoImage)))
                             <img src="{{ asset($brandLogoImage) }}" alt="Logo Kampus"
@@ -193,7 +196,7 @@
                     </a>
 
                     <!-- Brand Saat Sidebar Ditutup (Hanya Ikon) -->
-                    <a href="{{ route('admin.dashboard') }}"
+                    <a href="{{ $adminHomeUrl }}"
                         class="sidebar-collapsed-brand hidden w-full items-center justify-center py-1 group focus-visible:outline-unpam-gold"
                         title="Dashboard Admin - SiRNaMa {{ $brandAppName }}">
                         @if($brandLogoImage && file_exists(public_path($brandLogoImage)))
@@ -235,35 +238,37 @@
                             Menu Utama
                         </span>
 
-                        <a href="{{ route('admin.dashboard') }}" title="Ringkasan Tugas"
-                            class="sidebar-menu-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all {{ request()->routeIs('admin.dashboard') ? 'bg-unpam-gold text-slate-950 font-black shadow-xs' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
-                            <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('admin.dashboard') ? 'text-slate-950' : 'text-slate-400' }}"
-                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                            </svg>
-                            <span class="sidebar-text truncate">Ringkasan Tugas</span>
-                        </a>
+                        @if(!auth()->user()->isAdminChat())
+                            <a href="{{ route('admin.dashboard') }}" title="Ringkasan Tugas"
+                                class="sidebar-menu-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all {{ request()->routeIs('admin.dashboard') ? 'bg-unpam-gold text-slate-950 font-black shadow-xs' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                                <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('admin.dashboard') ? 'text-slate-950' : 'text-slate-400' }}"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                </svg>
+                                <span class="sidebar-text truncate">Ringkasan Tugas</span>
+                            </a>
 
-                        <a href="{{ route('admin.informations.index') }}" title="Informasi Kampus"
-                            class="sidebar-menu-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all {{ request()->routeIs('admin.informations.*') ? 'bg-unpam-gold text-slate-950 font-black shadow-xs' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
-                            <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('admin.informations.*') ? 'text-slate-950' : 'text-slate-400' }}"
-                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-                            </svg>
-                            <span class="sidebar-text truncate">Informasi Kampus</span>
-                        </a>
+                            <a href="{{ route('admin.informations.index') }}" title="Informasi Kampus"
+                                class="sidebar-menu-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all {{ request()->routeIs('admin.informations.*') ? 'bg-unpam-gold text-slate-950 font-black shadow-xs' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                                <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('admin.informations.*') ? 'text-slate-950' : 'text-slate-400' }}"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                                </svg>
+                                <span class="sidebar-text truncate">Informasi Kampus</span>
+                            </a>
 
-                        <a href="{{ route('admin.reminders.index') }}" title="Pengingat Mahasiswa"
-                            class="sidebar-menu-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all {{ request()->routeIs('admin.reminders.*') ? 'bg-unpam-gold text-slate-950 font-black shadow-xs' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
-                            <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('admin.reminders.*') ? 'text-slate-950' : 'text-slate-400' }}"
-                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                            </svg>
-                            <span class="sidebar-text truncate">Pengingat Mahasiswa</span>
-                        </a>
+                            <a href="{{ route('admin.reminders.index') }}" title="Pengingat Mahasiswa"
+                                class="sidebar-menu-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all {{ request()->routeIs('admin.reminders.*') ? 'bg-unpam-gold text-slate-950 font-black shadow-xs' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                                <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('admin.reminders.*') ? 'text-slate-950' : 'text-slate-400' }}"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                </svg>
+                                <span class="sidebar-text truncate">Pengingat Mahasiswa</span>
+                            </a>
+                        @endif
 
                         <a href="{{ route('admin.live-chat.index') }}" title="Meja Layanan Live Chat"
                             class="sidebar-menu-link flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all {{ request()->routeIs('admin.live-chat.*') ? 'bg-unpam-gold text-slate-950 font-black shadow-xs' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
@@ -356,7 +361,7 @@
                                 {{ auth()->user()->name ?? 'Admin' }}
                             </span>
                             <span class="text-[10px] font-semibold text-slate-400 uppercase">
-                                {{ auth()->user()->isSuperAdmin() ? 'Super Admin' : 'Admin CS' }}
+                                {{ auth()->user()->role_label }}
                             </span>
                         </div>
                     </div>
@@ -404,25 +409,27 @@
                     </button>
 
                     <!-- SEARCH BAR GLOBAL (Pengganti Navbar di Header) -->
-                    <form action="{{ route('admin.informations.index') }}" method="GET"
-                        class="w-full max-w-md xl:max-w-xl 2xl:max-w-2xl relative">
-                        <div class="relative flex items-center">
-                            <svg class="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" fill="none"
-                                stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                            <input type="search" name="q" value="{{ request('q') }}"
-                                placeholder="Pencarian cepat: cari judul informasi, pengumuman kampus..."
-                                class="w-full min-h-[40px] pl-10 pr-10 py-1.5 text-xs sm:text-sm 2xl:text-base rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-unpam-navy transition-all">
-                            @if(request('q'))
-                                <a href="{{ route('admin.informations.index') }}"
-                                    class="absolute right-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs">
-                                    &times;
-                                </a>
-                            @endif
-                        </div>
-                    </form>
+                    @if(!auth()->user()->isAdminChat())
+                        <form action="{{ route('admin.informations.index') }}" method="GET"
+                            class="w-full max-w-md xl:max-w-xl 2xl:max-w-2xl relative">
+                            <div class="relative flex items-center">
+                                <svg class="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                                <input type="search" name="q" value="{{ request('q') }}"
+                                    placeholder="Pencarian cepat: cari judul informasi, pengumuman kampus..."
+                                    class="w-full min-h-[40px] pl-10 pr-10 py-1.5 text-xs sm:text-sm 2xl:text-base rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-unpam-navy transition-all">
+                                @if(request('q'))
+                                    <a href="{{ route('admin.informations.index') }}"
+                                        class="absolute right-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs">
+                                        &times;
+                                    </a>
+                                @endif
+                            </div>
+                        </form>
+                    @endif
                 </div>
 
                 <!-- UTILITIES KANAN: Shortcut Web, Toggle Mode Malam, Status Akun -->
@@ -454,7 +461,7 @@
                     </button>
 
                     <!-- Chip Profil Admin di Header -->
-                    <div class="hidden md:flex items-center gap-2 pl-2 border-l border-slate-200 dark:border-slate-800">
+                    <div class="flex items-center gap-2 pl-2 border-l border-slate-200 dark:border-slate-800">
                         <div
                             class="w-8 h-8 rounded-full bg-unpam-navy dark:bg-slate-700 text-white font-black text-xs flex items-center justify-center shadow-xs uppercase">
                             {{ substr(auth()->user()->name ?? 'A', 0, 1) }}
@@ -464,9 +471,22 @@
                                 {{ auth()->user()->name ?? 'Admin' }}
                             </span>
                             <span class="block text-[10px] text-slate-500 dark:text-slate-400">
-                                {{ auth()->user()->isSuperAdmin() ? 'Superadmin' : 'Admin CS' }}
+                                {{ auth()->user()->role_label }}
                             </span>
                         </div>
+
+                        <!-- Ikon Exit Header -->
+                        <form action="{{ route('logout') }}" method="POST" class="inline-flex items-center ml-1"
+                            data-confirm="Apakah Anda yakin ingin keluar dari sesi admin?">
+                            @csrf
+                            <button type="submit" title="Keluar sesi admin" aria-label="Keluar sesi admin"
+                                class="min-h-[38px] min-w-[38px] inline-flex items-center justify-center p-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors shadow-2xs">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                </svg>
+                            </button>
+                        </form>
                     </div>
                 </div>
             </header>

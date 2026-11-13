@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\AppSetting;
 use App\Models\PaymentReminder;
 use App\Models\Student;
 
@@ -55,10 +56,11 @@ class ReminderDispatchService
                 ? "Yth. {$recipient['name']} ({$recipient['nim']}),\n\n"
                 : "Yth. {$recipient['name']},\n\n";
 
+            $institution = AppSetting::getValue('app_institution_name', 'Universitas Pamulang');
             $formattedMessage = $studentGreeting
                 . "*{$reminder->title}*\n"
                 . "{$reminder->message}\n\n"
-                . "Layanan Informasi & Kemahasiswaan Universitas Pamulang";
+                . "SiRNaMa • Layanan Informasi & Kemahasiswaan {$institution}";
 
             $result = $this->fonnteService->sendMessage($recipient['whatsapp_number'], $formattedMessage);
 

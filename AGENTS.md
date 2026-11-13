@@ -85,3 +85,31 @@ _(Catatan: Aturan UI/UX di bawah ini HANYA berlaku ketika pengguna secara ekspli
 1. **Penambahan & Perbaikan Berdasarkan Instruksi:** Mengerjakan penambahan fitur atau perbaikan bug sesuai perintah spesifik pengguna tanpa mengubah bagian UI hingga backend yang tidak diminta.
 2. **Minimalisasi Bug & Hardening:** Memastikan setiap fitur baru atau perbaikan yang dikerjakan bebas dari celah bug, aman, dan memiliki penanganan _error_ yang baik.
 3. **Kesiapan Hosting Instan (Zero-Config Switch):** Memastikan aplikasi selalu siap di-_deploy_ ke layanan hosting kapan saja sambil tetap mempertahankan fungsi penuh yang identik di Laragon lokal untuk keperluan _testing_.
+
+## 8. Standar Keamanan Aplikasi (Security & Hardening Rules)
+
+Setiap penambahan fitur, perbaikan bug, dan persiapan hosting WAJIB mematuhi standar keamanan berikut:
+
+1. **Kerahasiaan Kredensial & Environment (`.env`):**
+    - Dilarang keras menulis `FONNTE_TOKEN`, kredensial database, API key, atau password secara _hardcode_ di dalam _source code_, komentar kode, dokumentasi, maupun commit Git.
+    - Pastikan file `.env` selalu terdaftar di dalam `.gitignore`. Sediakan hanya `.env.example` dengan nilai kosong/dummy.
+    - Saat di lingkungan hosting/produksi, pastikan `APP_DEBUG=false` agar pesan error sistem (_stack trace_) tidak membocorkan informasi sensitif ke publik.
+
+2. **Autentikasi & Otorisasi Dashboard Admin:**
+    - Seluruh halaman dashboard, aksi CRUD informasi, pemicu pengiriman _reminder_, dan aksi Live Chat Admin WAJIB dilindungi oleh autentikasi (hanya Admin yang sudah login yang dapat mengakses).
+    - Gunakan proteksi CSRF (_Cross-Site Request Forgery_) pada seluruh form dan request pengubah data (`POST`, `PUT`, `PATCH`, `DELETE`) di sisi Admin.
+
+3. **Sanitasi Input & Proteksi XSS (Khususnya di Live Chat):**
+    - Jangan pernah mempercayai input dari pengguna publik (mahasiswa) baik dari Chatbot Website maupun dari payload Webhook WhatsApp.
+    - **WAJIB melakukan _escaping_ output** (misal menggunakan `{{ ... }}` di Blade atau `htmlspecialchars()`) saat menampilkan pesan chat, Nama, atau NIM mahasiswa di halaman Live Chat Admin untuk mencegah serangan _Stored/Reflected XSS_.
+
+4. **Keamanan Database (Anti-SQL Injection & Mass Assignment):**
+    - Gunakan _Query Builder / Eloquent ORM_ dengan _parameter binding_ atau _prepared statements_. Dilarang menggabungkan variabel input pengguna langsung ke dalam string SQL mentah (_raw query_).
+    - Batasi field yang boleh diisi menggunakan `$fillable` atau validasi request yang ketat agar pengguna tidak bisa memanipulasi kolom sensitif (seperti mengubah status percakapan atau role secara ilegal).
+
+5. **Pengamanan Endpoint Publik (Webhook Fonnte & Chatbot Web):**
+    - Karena route Webhook Fonnte dikecualikan dari CSRF agar dapat menerima request eksternal, validasi struktur payload yang masuk (pastikan parameter wajib seperti pengirim dan isi pesan benar-benar valid sebelum diproses ke database).
+    - Terapkan pembatasan laju request (_rate limiting_ / _throttling_ dasar) pada endpoint chatbot website dan login admin untuk mencegah _spamming_ atau _brute-force_.
+
+6. **Privasi Data Simulasi:**
+    - Jangan menyimpan data pribadi sensitif sungguhan di dalam repositori. Gunakan nomor telepon dan identitas mahasiswa dummy untuk keperluan pengujian dan demonstrasi.

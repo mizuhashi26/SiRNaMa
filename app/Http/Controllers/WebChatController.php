@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AppSetting;
 use App\Models\Conversation;
 use App\Services\ChatbotMenuService;
 use Illuminate\Http\JsonResponse;
@@ -16,9 +17,10 @@ class WebChatController extends Controller
 
         // Jika percakapan baru dan belum punya pesan, tampilkan sambutan awal bot
         if ($conversation->messages()->count() === 0) {
+            $brandLogoText = AppSetting::getValue('app_logo_text', 'UNPAM');
             $conversation->messages()->create([
                 'sender_type' => 'bot',
-                'sender_name' => 'Chatbot Layanan UNPAM',
+                'sender_name' => "Chatbot SiRNaMa {$brandLogoText}",
                 'message' => $chatbot->buildMainMenuText(),
                 'delivery_status' => 'delivered',
             ]);

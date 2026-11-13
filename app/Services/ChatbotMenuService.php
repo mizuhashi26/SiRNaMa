@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\AppSetting;
 use App\Models\CampusInformation;
 use App\Models\Conversation;
 use App\Models\ConversationMessage;
@@ -68,8 +69,9 @@ class ChatbotMenuService
             $conversation->closed_at = now();
             $conversation->save();
 
+            $institution = $this->getInstitutionName();
             $replyText = $wasAdminMode
-                ? "Sesi bantuan admin telah diakhiri. Anda telah dikembalikan ke layanan Chatbot otomatis UNPAM.\n\n" . $this->buildMainMenuText()
+                ? "Sesi bantuan admin telah diakhiri. Anda telah dikembalikan ke layanan Chatbot otomatis SiRNaMa ({$institution}).\n\n" . $this->buildMainMenuText()
                 : $this->buildMainMenuText();
 
             $botMessage = $this->recordBotReply($conversation, $replyText);
@@ -277,9 +279,20 @@ class ChatbotMenuService
         };
     }
 
+    protected function getInstitutionName(): string
+    {
+        return (string) AppSetting::getValue('app_institution_name', 'Universitas Pamulang');
+    }
+
+    protected function getLogoText(): string
+    {
+        return (string) AppSetting::getValue('app_logo_text', 'UNPAM');
+    }
+
     public function buildMainMenuText(): string
     {
-        return "Halo! Selamat datang di Layanan Informasi Mahasiswa UNPAM.\n\n"
+        $institution = $this->getInstitutionName();
+        return "Halo! Selamat datang di SiRNaMa - Layanan Informasi Mahasiswa {$institution}.\n\n"
             . "Silakan pilih menu layanan dengan mengetik angka atau menekan tombol di bawah:\n"
             . "1. Informasi Kampus\n"
             . "2. Informasi Pembayaran\n"
@@ -433,8 +446,9 @@ class ChatbotMenuService
             ->limit(5)
             ->get();
 
+        $logoText = $this->getLogoText();
         $lines = [
-            "*1. INFORMASI KAMPUS UNPAM*",
+            "*1. INFORMASI KAMPUS {$logoText}*",
             "Pilih sub-kategori informasi kampus di bawah ini:",
             "1.1 Akademik",
             "1.2 Kalender Akademik",
@@ -493,9 +507,10 @@ class ChatbotMenuService
             ->orderByDesc('id')
             ->get();
 
+        $institution = $this->getInstitutionName();
         $lines = [
             "*2. INFORMASI PEMBAYARAN KULIAH*",
-            "Informasi resmi jadwal pembayaran, tata cara transaksi, dan administrasi keuangan mahasiswa UNPAM.\n",
+            "Informasi resmi jadwal pembayaran, tata cara transaksi, dan administrasi keuangan mahasiswa {$institution}.\n",
             "Pilih sub-layanan informasi pembayaran:",
             "2.1 Jadwal & Ketentuan Pembayaran Kuliah",
             "2.2 Saluran Pembayaran & Nomor Rekening / VA Bank",
@@ -545,7 +560,8 @@ class ChatbotMenuService
                 })
                 ->first();
 
-            $content = $info?->content ?? "Panduan Saluran Pembayaran Pendidikan UNPAM:\n1. Pembayaran melalui nomor Virtual Account (VA) Bank pada slip tagihan.\n2. Dapat dibayar melalui Teller, ATM, Mobile Banking, atau Internet Banking.\n3. Simpan struk/bukti transaksi pembayaran Anda sebagai arsip pribadi.";
+            $institution = $this->getInstitutionName();
+            $content = $info?->content ?? "Panduan Saluran Pembayaran Pendidikan {$institution}:\n1. Pembayaran melalui nomor Virtual Account (VA) Bank pada slip tagihan.\n2. Dapat dibayar melalui Teller, ATM, Mobile Banking, atau Internet Banking.\n3. Simpan struk/bukti transaksi pembayaran Anda sebagai arsip pribadi.";
 
             return "*2.2 PANDUAN SALURAN & NOMOR REKENING / VA BANK*\n\n"
                 . "{$content}\n\n"
@@ -574,9 +590,10 @@ class ChatbotMenuService
 
     protected function recordBotReply(Conversation $conversation, string $message): ConversationMessage
     {
+        $logoText = $this->getLogoText();
         $botMsg = $conversation->messages()->create([
             'sender_type' => 'bot',
-            'sender_name' => 'Chatbot Layanan UNPAM',
+            'sender_name' => "Chatbot SiRNaMa {$logoText}",
             'message' => $message,
             'delivery_status' => 'delivered',
         ]);

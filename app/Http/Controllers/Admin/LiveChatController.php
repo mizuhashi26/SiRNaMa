@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AppSetting;
 use App\Models\Conversation;
 use App\Models\Student;
 use App\Services\ChatbotMenuService;
@@ -141,7 +142,8 @@ class LiveChatController extends Controller
         $flashNotice = 'Balasan berhasil dikirim ke mahasiswa.';
 
         if ($conversation->channel === 'whatsapp' && filled($conversation->contact_number)) {
-            $waMessage = "*[Admin Layanan UNPAM]*\n" . $messageWithSignature;
+            $brandLogo = AppSetting::getValue('app_logo_text', 'UNPAM');
+            $waMessage = "*[Admin SiRNaMa {$brandLogo}]*\n" . $messageWithSignature;
             $gatewayResult = $fonnteService->sendMessage($conversation->contact_number, $waMessage);
 
             if ($gatewayResult['success']) {
@@ -188,9 +190,11 @@ class LiveChatController extends Controller
         ]);
 
         $customNote = trim((string) $request->input('closing_note', ''));
+        $brandLogo = AppSetting::getValue('app_logo_text', 'UNPAM');
+        $institutionName = AppSetting::getValue('app_institution_name', 'Universitas Pamulang');
         $closingText = $customNote !== ''
-            ? "*[Admin Layanan UNPAM]*\n" . $customNote . "\n\n(Sesi bantuan admin telah selesai. Layanan otomatis dialihkan kembali ke Chatbot aktif. Ketik 'Menu' untuk layanan informasi lainnya)."
-            : 'Admin telah menyelesaikan pendampingan dan meninggalkan percakapan. Sesi otomatis dialihkan kembali ke Chatbot Layanan Mahasiswa (Status: Bot Aktif). Silakan pilih menu atau ketik pesan Anda.';
+            ? "*[Admin SiRNaMa {$brandLogo}]*\n" . $customNote . "\n\n(Sesi bantuan admin telah selesai. Layanan otomatis dialihkan kembali ke Chatbot aktif SiRNaMa ({$institutionName}). Ketik 'Menu' untuk layanan informasi lainnya)."
+            : "Admin telah menyelesaikan pendampingan dan meninggalkan percakapan. Sesi otomatis dialihkan kembali ke Chatbot SiRNaMa ({$institutionName}) (Status: Bot Aktif). Silakan pilih menu atau ketik pesan Anda.";
 
         $systemMsg = $conversation->messages()->create([
             'sender_type' => 'system',

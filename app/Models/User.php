@@ -16,6 +16,17 @@ class User extends Authenticatable
 
     public const ROLE_ADMIN = 'admin';
 
+    public const ROLE_ADMIN_CHAT = 'admin_chat';
+
+    /**
+     * Default attribute values for newly instantiated User models.
+     *
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'role' => self::ROLE_ADMIN,
+    ];
+
     /**
      * The attributes that are mass assignable.
      *
@@ -58,8 +69,22 @@ class User extends Authenticatable
         return $this->role === self::ROLE_SUPERADMIN;
     }
 
+    public function isAdmin(): bool
+    {
+        return $this->role === self::ROLE_ADMIN;
+    }
+
+    public function isAdminChat(): bool
+    {
+        return $this->role === self::ROLE_ADMIN_CHAT;
+    }
+
     public function getRoleLabelAttribute(): string
     {
-        return $this->isSuperAdmin() ? 'Super Admin' : 'Admin';
+        return match ($this->role) {
+            self::ROLE_SUPERADMIN => 'Super Admin',
+            self::ROLE_ADMIN_CHAT => 'Admin Chat',
+            default => 'Admin',
+        };
     }
 }

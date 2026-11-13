@@ -12,7 +12,9 @@ class AuthController extends Controller
     public function showLogin(): View|RedirectResponse
     {
         if (Auth::check()) {
-            return redirect()->route('admin.dashboard');
+            $redirectRoute = Auth::user()->isAdminChat() ? route('admin.live-chat.index') : route('admin.dashboard');
+
+            return redirect($redirectRoute);
         }
 
         return view('auth.login');
@@ -34,7 +36,9 @@ class AuthController extends Controller
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
 
-            return redirect()->intended(route('admin.dashboard'))
+            $defaultRoute = Auth::user()->isAdminChat() ? route('admin.live-chat.index') : route('admin.dashboard');
+
+            return redirect()->intended($defaultRoute)
                 ->with('success', 'Berhasil masuk ke Dashboard Admin CRM.');
         }
 

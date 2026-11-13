@@ -70,12 +70,33 @@
                 </div>
             </div>
 
-            <div class="rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 p-3.5 text-xs text-slate-700 dark:text-slate-300">
-                <strong class="text-slate-900 dark:text-white">Hak akses:</strong>
-                {{ $isEdit && $adminUser->isSuperAdmin()
-                    ? 'Super Admin (semua menu, termasuk Mahasiswa, Pengaturan, dan Kelola Admin).'
-                    : 'Admin (Ringkasan Tugas, Informasi Kampus, Pengingat Mahasiswa, dan Live Chat).' }}
-            </div>
+            @if($isEdit && $adminUser->isSuperAdmin())
+                <div class="rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 p-3.5 text-xs text-slate-700 dark:text-slate-300">
+                    <strong class="text-slate-900 dark:text-white">Hak akses:</strong>
+                    Super Admin (semua menu, termasuk Mahasiswa, Pengaturan, dan Kelola Admin).
+                </div>
+            @else
+                <div>
+                    <label for="role" class="block text-sm font-bold text-slate-900 dark:text-white mb-1">
+                        Peran / Hak Akses Admin <span class="text-red-700 dark:text-red-400">*</span>
+                    </label>
+                    @php
+                        $selectedRole = old('role', $adminUser->role ?: \App\Models\User::ROLE_ADMIN);
+                    @endphp
+                    <select id="role" name="role" required
+                            class="w-full min-h-[44px] px-3.5 py-2 rounded-lg border border-slate-400 dark:border-slate-600 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-unpam-navy">
+                        <option value="{{ \App\Models\User::ROLE_ADMIN }}" {{ $selectedRole === \App\Models\User::ROLE_ADMIN ? 'selected' : '' }}>
+                            Admin — Ringkasan Tugas, Informasi Kampus, Pengingat Mahasiswa, dan Live Chat
+                        </option>
+                        <option value="{{ \App\Models\User::ROLE_ADMIN_CHAT }}" {{ $selectedRole === \App\Models\User::ROLE_ADMIN_CHAT ? 'selected' : '' }}>
+                            Admin Chat — Khusus membalas pesan mahasiswa di Meja Layanan (Live Chat)
+                        </option>
+                    </select>
+                    <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                        Pilih <strong>Admin Chat</strong> jika akun ini hanya bertugas membalas obrolan mahasiswa di Live Chat.
+                    </p>
+                </div>
+            @endif
 
             <div class="pt-3 border-t border-slate-200 dark:border-slate-700 flex items-center justify-end gap-3">
                 <a href="{{ route('admin.users.index') }}"

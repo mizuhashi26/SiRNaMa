@@ -133,4 +133,38 @@ class AdminSettingTest extends TestCase
 
         $response->assertSessionHasErrors(['theme_primary_color']);
     }
+
+    public function test_chatbot_reflects_updated_campus_name_across_channels(): void
+    {
+        $admin = User::factory()->superadmin()->create();
+
+        // 1. Ubah nama institusi & logo text di pengaturan admin
+        $this->actingAs($admin)->put(route('admin.settings.update'), [
+            'app_institution_name' => 'Institut Teknologi Bandung',
+            'app_logo_text' => 'ITB',
+            'app_tagline' => 'In Harmonia Progressio',
+        ]);
+
+        AppSetting::clearSettingCache();
+
+        // 2. Chatbot Web (sesi awal)
+        $webRes = $this->getJson('/chat/session');
+        $webRes->assertOk();
+        $this->assertStringContainsString('Institut Teknologi Bandung', $webRes->json('messages.0.message'));
+        $this->assertSame('Chatbot SiRNaMa ITB', $webRes->json('messages.0.sender_name'));
+
+        // 3. Chatbot Web pilih Menu 1
+        $menu1Res = $this->postJson('/chat/message', ['message' => '1']);
+        $menu1Res->assertOk();
+        $this->assertStringContainsString('INFORMASI KAMPUS ITB', collect($menu1Res->json('messages'))->last()['message']);
+
+        // 4. Chatbot WhatsApp (Webhook Fonnte)
+        $waRes = $this->postJson('/api/webhook/fonnte', [
+            'sender' => '089911223344',
+            'message' => 'menu',
+            'name' => 'Ahmad Mahasiswa',
+        ]);
+        $waRes->assertOk();
+        $this->assertStringContainsString('Institut Teknologi Bandung', $waRes->json('bot_reply'));
+    }
 }

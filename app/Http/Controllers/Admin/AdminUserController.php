@@ -15,7 +15,7 @@ class AdminUserController extends Controller
 {
     public function index(): View
     {
-        $users = User::orderByRaw("CASE WHEN role = 'superadmin' THEN 0 ELSE 1 END")
+        $users = User::orderByRaw("CASE WHEN role = 'superadmin' THEN 0 WHEN role = 'admin' THEN 1 ELSE 2 END")
             ->orderBy('name')
             ->get();
 
@@ -35,11 +35,13 @@ class AdminUserController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:100'],
             'email' => ['required', 'email', 'max:150', 'unique:users,email'],
+            'role' => ['nullable', 'string', Rule::in([User::ROLE_ADMIN, User::ROLE_ADMIN_CHAT])],
             'password' => ['required', 'confirmed', Password::min(8)],
         ], [
             'name.required' => 'Nama admin wajib diisi.',
             'email.required' => 'Email wajib diisi.',
             'email.unique' => 'Email ini sudah terdaftar.',
+            'role.in' => 'Peran admin yang dipilih tidak valid.',
             'password.required' => 'Kata sandi wajib diisi.',
             'password.confirmed' => 'Konfirmasi kata sandi tidak sama.',
             'password.min' => 'Kata sandi minimal 8 karakter.',
@@ -50,7 +52,7 @@ class AdminUserController extends Controller
             'email' => strtolower(trim($validated['email'])),
             'password' => $validated['password'],
         ]);
-        $user->role = User::ROLE_ADMIN;
+        $user->role = $validated['role'] ?? User::ROLE_ADMIN;
         $user->save();
 
         return redirect()->route('admin.users.index')
@@ -70,16 +72,22 @@ class AdminUserController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:100'],
             'email' => ['required', 'email', 'max:150', Rule::unique('users', 'email')->ignore($user->id)],
+            'role' => ['nullable', 'string', Rule::in([User::ROLE_ADMIN, User::ROLE_ADMIN_CHAT])],
             'password' => ['nullable', 'confirmed', Password::min(8)],
         ], [
             'name.required' => 'Nama admin wajib diisi.',
             'email.unique' => 'Email ini sudah dipakai akun lain.',
+            'role.in' => 'Peran admin yang dipilih tidak valid.',
             'password.confirmed' => 'Konfirmasi kata sandi tidak sama.',
             'password.min' => 'Kata sandi minimal 8 karakter.',
         ]);
 
         $user->name = trim($validated['name']);
         $user->email = strtolower(trim($validated['email']));
+
+        if (! $user->isSuperAdmin() && ! empty($validated['role'])) {
+            $user->role = $validated['role'];
+        }
 
         if (! empty($validated['password'])) {
             $user->password = $validated['password'];

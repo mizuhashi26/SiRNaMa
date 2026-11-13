@@ -8,8 +8,8 @@
         <div>
             <h1 class="text-2xl font-extrabold text-slate-900 dark:text-white">Kelola Akun Admin</h1>
             <p class="text-sm text-slate-700 dark:text-slate-300">
-                Admin hanya dapat mengakses Ringkasan Tugas, Informasi Kampus, Pengingat Mahasiswa, dan Live Chat.
-                Mahasiswa, Pengaturan, dan menu ini khusus Super Admin.
+                Admin mengakses Ringkasan Tugas, Informasi Kampus, Pengingat Mahasiswa, dan Live Chat.
+                Admin Chat hanya mengakses Live Chat. Mahasiswa, Pengaturan, dan menu ini khusus Super Admin.
             </p>
         </div>
         <a href="{{ route('admin.users.create') }}"
@@ -43,8 +43,14 @@
                             </td>
                             <td class="py-3.5 px-4 font-mono text-xs text-slate-800 dark:text-slate-200">{{ $u->email }}</td>
                             <td class="py-3.5 px-4">
-                                <span
-                                    class="inline-block text-xs font-bold px-2.5 py-1 rounded {{ $u->isSuperAdmin() ? 'bg-unpam-gold text-slate-950 border border-amber-300' : 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-600' }}">
+                                @php
+                                    $roleBadgeClass = match (true) {
+                                        $u->isSuperAdmin() => 'bg-unpam-gold text-slate-950 border border-amber-300',
+                                        $u->isAdminChat() => 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-700',
+                                        default => 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-600',
+                                    };
+                                @endphp
+                                <span class="inline-block text-xs font-bold px-2.5 py-1 rounded {{ $roleBadgeClass }}">
                                     {{ $u->role_label }}
                                 </span>
                             </td>

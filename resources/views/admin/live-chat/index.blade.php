@@ -1,6 +1,10 @@
 @extends('layouts.admin')
 
-@section('title', 'Meja Layanan (Live Chat Customer Service) - Admin UNPAM')
+@php
+    $brandAppName = \App\Models\AppSetting::getValue('app_institution_name', 'Universitas Pamulang');
+@endphp
+
+@section('title', 'Meja Layanan (Live Chat Customer Service) - SiRNaMa')
 
 @section('content')
 <div class="space-y-4">
@@ -349,7 +353,7 @@
                     <div class="flex items-center gap-1.5 overflow-x-auto text-[11px] pb-1">
                         <span class="font-bold text-slate-500 dark:text-slate-400 uppercase shrink-0 text-[10px]">Balasan Cepat:</span>
                         <button type="button"
-                                onclick="insertQuickReply('Halo, selamat datang di Layanan Mahasiswa UNPAM. Ada yang bisa kami bantu?')"
+                                onclick="insertQuickReply('Halo, selamat datang di Layanan SiRNaMa {{ addslashes($brandAppName) }}. Ada yang bisa kami bantu?')"
                                 class="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-semibold whitespace-nowrap transition-colors">
                             Sapaan Pembuka
                         </button>
