@@ -305,8 +305,8 @@
                     baseBottom += occludedBottom;
                 }
 
-                // Cek apakah footer terlihat di viewport bawah
-                const footerEl = document.querySelector('footer');
+                // Cek apakah footer utama halaman publik terlihat di viewport bawah
+                const footerEl = document.getElementById('public-main-footer') || document.querySelector('body > footer');
                 if (footerEl) {
                     const footerRect = footerEl.getBoundingClientRect();
                     const windowHeight = window.innerHeight;

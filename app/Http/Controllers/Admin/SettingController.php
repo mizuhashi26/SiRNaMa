@@ -87,7 +87,7 @@ class SettingController extends Controller
             AppSetting::setValue('fonnte_api_url', trim($validated['fonnte_api_url'] ?? 'https://api.fonnte.com/send'), 'api', 'Endpoint URL API Fonnte');
         }
 
-        // Sinkronisasi otomatis ke .env agar aman dari reset database
+        // Sinkronisasi otomatis ke .env agar aman dari reset database (hanya di lingkungan yang mengizinkan penulisan file)
         if (! empty($validated['fonnte_token'])) {
             $this->syncToEnvFile([
                 'FONNTE_TOKEN' => trim($validated['fonnte_token']),
@@ -103,16 +103,21 @@ class SettingController extends Controller
             }
             AppSetting::setValue('app_logo_image', null, 'identity', 'Path Logo Gambar');
         } elseif ($request->hasFile('logo_file')) {
-            $file = $request->file('logo_file');
-            $filename = 'logo_' . time() . '.' . $file->getClientOriginalExtension();
-            $targetDir = public_path('uploads/branding');
+            try {
+                $file = $request->file('logo_file');
+                $filename = 'logo_' . time() . '.' . $file->getClientOriginalExtension();
+                $targetDir = public_path('uploads/branding');
 
-            if (! is_dir($targetDir)) {
-                mkdir($targetDir, 0755, true);
+                if (! is_dir($targetDir)) {
+                    @mkdir($targetDir, 0755, true);
+                }
+
+                $file->move($targetDir, $filename);
+                AppSetting::setValue('app_logo_image', 'uploads/branding/' . $filename, 'identity', 'Path Logo Gambar');
+            } catch (\Throwable $e) {
+                // Jangan gagalkan seluruh simpan jika filesystem lokal read-only (misal di Vercel)
+                report($e);
             }
-
-            $file->move($targetDir, $filename);
-            AppSetting::setValue('app_logo_image', 'uploads/branding/' . $filename, 'identity', 'Path Logo Gambar');
         }
 
         AppSetting::clearSettingCache();
@@ -131,7 +136,7 @@ class SettingController extends Controller
         }
 
         $envPath = base_path('.env');
-        if (! file_exists($envPath)) {
+        if (! file_exists($envPath) || ! is_writable($envPath)) {
             return;
         }
 
@@ -145,7 +150,7 @@ class SettingController extends Controller
                     $content = rtrim($content) . "\n{$key}={$valStr}\n";
                 }
             }
-            file_put_contents($envPath, $content);
+            @file_put_contents($envPath, $content);
         } catch (\Throwable) {
             // Fail safely if .env is write-restricted
         }

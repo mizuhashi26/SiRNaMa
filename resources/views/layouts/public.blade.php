@@ -163,7 +163,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-slate-900 text-slate-200 border-t border-slate-800 mt-12">
+    <footer id="public-main-footer" class="bg-slate-900 text-slate-200 border-t border-slate-800 mt-12">
         <div class="w-full max-w-7xl 2xl:max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 text-sm">
             <div class="space-y-1 max-w-xl">
                 <p class="font-bold text-white">SiRNaMa &bull; {{ $brandAppName }}</p>
