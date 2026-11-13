@@ -1,6 +1,6 @@
 @extends('layouts.public')
 
-@section('title', 'Tentang CRM Layanan Mahasiswa UNPAM')
+@section('title', 'Tentang SiRNaMa - CRM Layanan Mahasiswa UNPAM')
 
 @section('content')
     <!-- Header Banner -->
@@ -9,10 +9,10 @@
             <div
                 class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-unpam-navyDark border border-unpam-gold/50 text-unpam-gold text-xs font-semibold mb-3 shadow-sm">
                 <span class="inline-block w-2 h-2 rounded-full bg-unpam-gold"></span>
-                <span>Mengenal Sistem Layanan</span>
+                <span>SiRNaMa Platform</span>
             </div>
             <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white leading-tight">
-                Tentang CRM Layanan Mahasiswa
+                Tentang CRM Layanan Mahasiswa (SiRNaMa)
             </h1>
             <p class="text-slate-200 text-sm sm:text-base leading-relaxed mt-2 max-w-3xl">
                 Sistem pengelolaan informasi kampus, pengingat pembayaran, dan layanan bantuan mahasiswa terintegrasi
@@ -34,7 +34,7 @@
                     Mewujudkan Layanan Informasi Mahasiswa yang Cepat, Akurat, dan Mudah Dijangkau
                 </h2>
                 <p class="text-sm sm:text-base text-slate-700 dark:text-slate-300 leading-relaxed">
-                    Aplikasi ini dirancang sebagai platform CRM terpadu yang membantu pengelola kampus mempublikasikan
+                    Aplikasi <strong>SiRNaMa</strong> (<em>Sistem Informasi, Reminder, dan Layanan Mahasiswa</em>) dirancang sebagai platform CRM terpadu yang membantu pengelola kampus mempublikasikan
                     informasi akademik, mengirimkan reminder batas pembayaran secara massal melalui WhatsApp, serta
                     menangani konsultasi dan pertanyaan mahasiswa secara real-time.
                 </p>

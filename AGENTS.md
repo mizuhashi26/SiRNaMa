@@ -1,335 +1,87 @@
-# AGENTS.md --- CRM Layanan Mahasiswa UNPAM
+# AGENTS.md --- SiRNaMa (Sistem Informasi, Reminder, dan Layanan Mahasiswa)
 
-Dokumen ini adalah aturan kerja utama untuk AI coding agent di workspace
-proyek CRM Layanan Mahasiswa UNPAM. Baca dan patuhi sebelum melakukan
-perubahan kode.
+Dokumen ini adalah aturan kerja utama untuk AI coding agent di workspace proyek **SiRNaMa**. Baca dan patuhi seluruh instruksi sebelum melakukan perubahan kode.
 
-## 1. Konteks Proyek
+## ⚠️ ATURAN EMAS: STRICT CODE & UI FREEZE (WAJIB DIPATUHI)
 
-Nama proyek: **CRM Pengelolaan Informasi, Reminder, dan Layanan
-Mahasiswa Terintegrasi WhatsApp**
+- **DILARANG MENGUBAH APA PUN TANPA INSTRUKSI EKSPLISIT:** Untuk kondisi sistem saat ini, **TIDAK ADA** yang boleh diubah mulai dari tampilan (UI/UX, warna, layout, komponen, teks, CSS) hingga sisi belakang (_backend_, logika bisnis, _controller_, _routing_, skema database, maupun konfigurasi) **kecuali bagian yang secara spesifik diminta oleh pengguna**.
+- **JANGAN BERINISIATIF MEROMBAK KODE:** Dilarang melakukan _refactoring_ otomatis, "merapikan" kode yang sudah jalan, memperbarui _styling_ di halaman lain, atau memodifikasi fitur di luar cakupan perintah pengguna saat itu.
+- **ISOLASI PERUBAHAN:** Jika pengguna meminta perbaikan bug di Fitur A atau penambahan Fitur B, sentuh **HANYA** baris kode atau file yang berkaitan langsung dengan permintaan tersebut. Biarkan seluruh bagian sistem lainnya tetap utuh 100% seperti semula.
 
-Studi kasus: Universitas Pamulang (UNPAM).
+---
 
-Tujuan: membangun aplikasi CRM mandiri untuk tugas mata kuliah. Aplikasi
-membantu admin mengelola informasi kampus, mengirim reminder pembayaran
-umum, dan menangani layanan mahasiswa melalui website serta WhatsApp.
+## 1. Konteks Proyek & Identitas Sistem
 
-### Batasan penting
+- **Nama Sistem:** **SiRNaMa** (_Sistem Informasi, Reminder, dan Layanan Mahasiswa_).
+- **Cakupan Sistem:** Platform CRM akademik generik (_white-label_ / _multi-kampus_) yang dapat digunakan oleh perguruan tinggi mana saja, tidak terbatas pada satu kampus tertentu.
+- **Fase Saat Ini:** **Maturing, Bug Minimization, Feature Polishing & Zero-Friction Deployment Readiness**.
+- **Kondisi Proyek:** Fitur dasar MVP serta integrasi dua arah Chatbot Web, WhatsApp (Fonnte), dan alur Live Chat Admin sudah berjalan baik dan dikunci (_locked_) dari perubahan tanpa izin.
 
--   Aplikasi berdiri sendiri (*standalone*), bukan sistem resmi UNPAM.
--   Tidak terhubung ke database akademik, keuangan, SIAKAD, atau sistem
-    internal kampus.
--   Gunakan data dummy untuk mahasiswa, nomor WhatsApp, informasi, dan
-    jadwal pembayaran.
--   Jangan mengarang atau menampilkan informasi simulasi seolah-olah
-    pengumuman resmi UNPAM. Beri penanda simulasi pada konten demo bila
-    diperlukan.
--   Pengembangan dan pengujian dilakukan lokal melalui Laragon.
--   Belum ada kebutuhan hosting atau deployment produksi.
--   Target awal adalah MVP yang dapat didemonstrasikan dalam waktu
-    pengerjaan sekitar empat hari.
--   Prioritaskan fitur yang benar-benar berjalan daripada banyak fitur
-    yang belum selesai.
+## 2. Arsitektur Dual-Environment (Local Testing == Instant Hosting Ready)
 
-## 2. Pengguna dan Kanal
+Setiap penambahan fitur atau perbaikan bug yang diminta harus menganut prinsip **100% Environment Parity** (kode yang berjalan di Laragon lokal harus siap di-_deploy_ ke hosting detik itu juga tanpa perlu _refactor_ ulang):
 
-Hanya ada dua jenis pengguna untuk versi awal:
+1. **Zero Hardcoded URLs & Credentials:**
+    - Dilarang menulis URL `localhost`, `127.0.0.1`, nama domain statis, atau kredensial/token secara _hardcode_ di dalam _source code_.
+    - Selalu gunakan variabel konfigurasi dari `.env` (seperti `APP_URL`, `APP_ENV`, `DB_*`, `FONNTE_TOKEN`) dan helper dinamis bawaan framework/bahasa pemrograman.
+2. **Relative & Dynamic Paths:**
+    - Gunakan _path_ relatif atau helper routing/asset dinamis untuk seluruh pemanggilan gambar, CSS/JS, endpoint AJAX, dan webhook agar tidak terjadi _broken link_ atau _Mixed Content (HTTP/HTTPS)_ saat naik ke hosting.
+3. **Database & Migration Consistency:**
+    - Setiap penambahan fitur yang membutuhkan perubahan tabel/kolom wajib dicatat secara rapi (melalui _migration_ atau skrip SQL terstruktur) tanpa merusak tabel/data yang sudah ada.
+4. **Case-Sensitivity Awareness:**
+    - Mengingat Laragon berjalan di Windows (_case-insensitive_) sedangkan mayoritas server hosting berjalan di Linux (_case-sensitive_), pastikan penulisan nama file, folder, _class_, dan _import_ konsisten 100% secara huruf besar/kecil.
 
-1.  **Admin** --- login ke dashboard untuk mengelola data dan menangani
-    percakapan.
-2.  **Mahasiswa/pengunjung** --- menggunakan website publik, chatbot
-    website, atau WhatsApp. Mahasiswa tidak perlu login ke website untuk
-    MVP.
+## 3. Pengguna dan Modul Inti SiRNaMa
 
-Kanal layanan:
+### Pengguna:
 
--   Website publik: menampilkan informasi kampus dan menyediakan chatbot
-    berbasis menu.
--   WhatsApp: chatbot berbasis menu dan reminder melalui Fonnte.
--   Dashboard admin: satu tempat untuk mengelola informasi, reminder,
-    dan percakapan dari kanal yang didukung.
+1. **Admin Kampus:** Mengelola informasi akademik, mengatur jadwal/pengiriman reminder, dan melayani mahasiswa melalui Live Chat terpusat.
+2. **Mahasiswa / Pengunjung:** Mengakses informasi dan layanan melalui portal web publik, chatbot website, atau WhatsApp tanpa perlu login.
 
-## 3. Modul dan Ruang Lingkup MVP
+### Modul Sistem:
 
-### A. Pengelolaan informasi kampus
+- **Pengelolaan Informasi Kampus (Single Source of Truth):** Satu basis data informasi umum (akademik, kalender, jadwal, pengumuman, administrasi) yang otomatis menyuplai halaman web publik, chatbot website, dan chatbot WhatsApp.
+- **Reminder Pembayaran & Akademik Umum:** Pengelolaan dan pengiriman pengingat terpusat (manual maupun terjadwal) ke daftar kontak WhatsApp mahasiswa.
+- **Dual-Channel Chatbot (Web & WhatsApp Fonnte):** Chatbot berbasis menu/kata kunci yang responsif dan konsisten di kedua kanal.
+- **Live Chat Admin Terpusat:** Menangani eskalasi dari mode `BOT_ACTIVE` ke `WAITING_ADMIN`, `ADMIN_ACTIVE`, hingga `CLOSED` (dilengkapi pencatatan identitas NIM, Nama, dan keperluan mahasiswa).
 
-Admin mengelola informasi melalui dashboard. Informasi yang
-dipublikasikan menjadi sumber data yang sama untuk:
+## 4. Prinsip UI/UX: Modern Fungsional (Strict Anti-Slop)
 
--   Halaman informasi website.
--   Chatbot website.
--   Chatbot WhatsApp.
+_(Catatan: Aturan UI/UX di bawah ini HANYA berlaku ketika pengguna secara eksplisit meminta pembuatan halaman/komponen baru atau meminta perbaikan tampilan tertentu. Jangan mengubah UI yang sudah ada jika tidak diminta)._
 
-Contoh kategori: akademik, kalender akademik, jadwal ujian, pengumuman,
-kegiatan, dan administrasi.
-
-Hindari menyimpan salinan informasi yang berbeda untuk setiap kanal.
-Ambil informasi dari sumber data yang sama.
-
-### B. Reminder pembayaran umum
-
-Reminder berlaku untuk **tagihan/pembayaran umum seluruh mahasiswa**,
-bukan tagihan individual.
-
-Fitur yang direncanakan:
-
--   Admin membuat reminder dan mengisi judul, isi pesan, serta
-    tanggal/waktu pengiriman.
--   Admin dapat mengirim manual melalui tombol.
--   Sistem dapat mengirim otomatis sesuai jadwal jika scheduler dan
-    lingkungan pengujian sudah siap.
--   Pesan dikirim ke daftar nomor WhatsApp mahasiswa dummy yang
-    terdaftar.
-
-Di luar ruang lingkup MVP:
-
--   Perhitungan tagihan per mahasiswa.
--   Pengecekan status pelunasan individual.
--   Payment gateway.
--   Sinkronisasi ke sistem keuangan kampus.
-
-### C. Chatbot website
-
--   Berbentuk widget/kotak chat.
--   Menggunakan menu pilihan atau tombol, bukan AI generatif atau
-    pemahaman bahasa bebas.
--   Menu awal yang disarankan:
-    1.  Informasi Kampus
-    2.  Informasi Pembayaran
-    3.  Hubungi Admin
--   Isi informasi diambil dari data yang sama dengan website dan chatbot
-    WhatsApp.
-
-### D. Chatbot WhatsApp
-
--   Gunakan Fonnte sebagai WhatsApp Gateway.
--   Pesan keluar menggunakan API Fonnte.
--   Pesan masuk diproses melalui webhook Fonnte.
--   Gunakan menu angka/keyword sederhana.
--   Menu awal konsisten dengan chatbot website:
-    1.  Informasi Kampus
-    2.  Informasi Pembayaran
-    3.  Hubungi Admin
--   Jangan mengklaim integrasi berhasil sebelum menguji pengiriman dan
-    penerimaan pesan sungguhan.
-
-### E. Live chat admin terpusat
-
-Percakapan dari website dan WhatsApp yang berhasil diintegrasikan
-ditampilkan pada satu menu Live Chat di dashboard.
-
-Status percakapan:
-
--   `BOT_ACTIVE` --- chatbot sedang menangani percakapan.
--   `WAITING_ADMIN` --- mahasiswa meminta admin.
--   `ADMIN_ACTIVE` --- admin sudah mengambil alih.
--   `CLOSED` --- percakapan selesai.
-
-Alur:
-
-1.  Mahasiswa memilih Hubungi Admin.
-2.  Percakapan masuk ke dashboard dengan status Menunggu Admin.
-3.  Admin menekan **Ambil Alih**.
-4.  Status berubah menjadi Admin Aktif.
-5.  Admin dapat membalas melalui dashboard.
-6.  Admin dapat memilih untuk menangani percakapan langsung melalui
-    WhatsApp jika mekanisme dan sinkronisasinya didukung serta sudah
-    diuji.
-7.  Admin menekan **Akhiri Percakapan**.
-8.  Status menjadi Selesai; chatbot dapat melayani interaksi berikutnya
-    sesuai aturan sesi.
-
-**Penting:** Jangan berasumsi Fonnte otomatis menyinkronkan pesan yang
-diketik langsung dari aplikasi WhatsApp ke dashboard. Periksa
-dokumentasi dan kemampuan webhook Fonnte yang benar-benar tersedia. Jika
-sinkronisasi dua arah tidak dapat dipastikan, jelaskan keterbatasannya
-dan prioritaskan balasan melalui dashboard yang dikirim menggunakan API
-Fonnte.
-
-### F. Riwayat interaksi --- opsional
-
-Jika waktu memungkinkan, simpan identitas/kontak, kanal, isi pesan,
-waktu, dan status percakapan. Analitik lanjutan bukan prioritas MVP.
-
-## 4. Prinsip Teknis
-
--   Mulai dengan memeriksa isi workspace dan kondisi proyek sebelum
-    membuat atau mengubah file.
--   Jangan mengasumsikan framework, versi, struktur folder, atau
-    dependency sebelum memeriksa proyek dan mengonfirmasi keputusan yang
-    belum ditetapkan.
--   Lingkungan lokal menggunakan Laragon dan MySQL.
--   Jika proyek Laravel digunakan, ikuti versi dan pola yang benar-benar
-    terpasang pada proyek; jangan melakukan upgrade framework tanpa
-    persetujuan.
--   Gunakan konfigurasi `.env` untuk kredensial dan rahasia.
--   Jangan pernah menulis token Fonnte, password, API key, atau data
-    sensitif ke source code, dokumentasi publik, screenshot, atau commit
-    Git.
--   Sediakan `.env.example` tanpa nilai rahasia bila diperlukan.
--   Gunakan Laravel Scheduler hanya jika stack yang dipilih
-    mendukungnya; dokumentasikan cara menjalankannya secara lokal.
--   Webhook Fonnte memerlukan URL publik yang dapat dijangkau dari
-    internet. Untuk pengujian lokal, gunakan tunnel yang disetujui
-    pengguna (misalnya Cloudflare Tunnel atau ngrok). Jangan mengklaim
-    `localhost` dapat menerima webhook publik secara langsung.
--   Validasi input di server. Jangan mengandalkan validasi frontend
-    saja.
--   Terapkan autentikasi dan otorisasi untuk seluruh halaman admin dan
-    endpoint pengelolaan.
--   Escape output pengguna untuk mengurangi risiko XSS.
--   Jangan menyimpan data pribadi mahasiswa sungguhan; gunakan data
-    dummy.
--   Hindari dependency baru jika fitur dapat dibuat dengan dependency
-    yang sudah ada.
--   Jangan menambahkan AI/LLM ke chatbot; chatbot MVP berbasis menu dan
-    aturan sederhana.
+- **Modern, Bukan Futuristik:** Gunakan pendekatan desain _clean enterprise_ yang menyatu dengan desain SiRNaMa yang sudah ada. Gunakan permukaan warna netral yang bersih, kontras teks yang tajam, tipografi yang jelas, dan _spacing_ yang terukur.
+- **LARANGAN VISUAL (Anti-Slop):**
+    - Dilarang menggunakan gaya _cyberpunk_, _neon glow_, _glassmorphism_ berlebihan, atau _gradient_ warna-warni acak khas template AI generik.
+    - Dilarang menambahkan dekorasi tanpa fungsi, kartu bertumpuk yang tidak perlu, atau animasi yang memperlambat kerja admin.
+- **Branding SiRNaMa:** Gunakan nama dan identitas **SiRNaMa** secara konsisten pada fitur atau teks baru yang diminta.
 
 ## 5. Aturan Workflow untuk Agent
 
 ### Sebelum mengerjakan
 
-1.  Baca `AGENTS.md` dan dokumen konsep proyek jika tersedia.
-2.  Periksa struktur folder, `README`, file konfigurasi, dependency,
-    migration, dan status Git.
-3.  Identifikasi bagian yang sudah berjalan dan jangan merusaknya.
-4.  Untuk tugas yang belum jelas, ajukan pertanyaan yang paling penting
-    sebelum implementasi.
-5.  Untuk pekerjaan lebih dari satu perubahan kecil, buat rencana
-    singkat berurutan dan jelaskan file yang akan disentuh.
+1. Periksa kondisi file dan kode yang sudah ada di workspace.
+2. Pastikan Anda memahami batas-batas kode yang **harus dibiarkan utuh**.
+3. Untuk penambahan fitur atau perbaikan bug yang menyentuh beberapa file, sampaikan rencana singkat beserta daftar file yang akan disentuh sebelum mengeksekusi perubahan.
 
 ### Saat mengerjakan
 
--   Kerjakan satu modul atau satu alur pengguna dalam satu waktu.
--   Pilih perubahan terkecil yang menyelesaikan kebutuhan.
--   Pertahankan konvensi dan arsitektur proyek yang sudah ada.
--   Jangan melakukan refactor besar, mengganti UI global, mengganti
-    dependency, atau mengubah skema database yang tidak terkait dengan
-    tugas.
--   Jangan membuat data, endpoint, response API, atau kemampuan
-    integrasi palsu untuk membuat demo terlihat berhasil.
--   Jika integrasi eksternal belum dapat diuji, tandai sebagai belum
-    terverifikasi dan sediakan fallback demo yang jelas.
--   Jangan menimpa file pengguna atau menghapus data tanpa persetujuan.
+- Kerjakan **hanya** apa yang diminta oleh pengguna pada giliran tersebut.
+- Tulis kode yang defensif: tangani _error handling_, _empty state_, _loading state_, dan validasi input server maupun client agar meminimalisir potensi bug saat demo/produksi.
+- Pastikan kode baru tidak merusak kompatibilitas antara lokal (Laragon) dan server hosting.
 
 ### Setelah mengerjakan
 
-1.  Jalankan pemeriksaan yang relevan: test, lint, build, migration
-    check, atau pemeriksaan manual.
-2.  Uji alur utama dari sisi pengguna, bukan hanya memastikan file
-    berhasil dibuat.
-3.  Laporkan file yang berubah, perintah yang dijalankan, hasil tes, dan
-    hal yang belum terverifikasi.
-4.  Jangan menyatakan fitur selesai jika pengujian gagal atau belum
-    dilakukan.
-5.  Jika ada error, investigasi penyebabnya sebelum membuat perubahan
-    tambahan.
+1. Lakukan verifikasi bahwa perubahan berjalan sesuai permintaan dan **tidak ada efek samping (regresi)** pada fitur atau tampilan lain.
+2. Jelaskan secara ringkas file apa saja yang diubah dan cara mengujinya di lokal.
 
-## 6. Pemanfaatan Plugin/Skills
+## 6. Pemanfaatan Plugin/Skills (Antigravity)
 
-Plugin yang pengguna sebut tersedia di Antigravity:
+- **Caveman:** Gunakan sebagai mode utama untuk memastikan setiap perubahan kode maupun perbaikan bug dilakukan secara presisi (_surgical_) dan terisolasi tanpa menyentuh kode di luar instruksi.
+- **Anti-Slop:** Gunakan saat pengguna meminta pembuatan komponen UI baru atau perbaikan tampilan agar hasilnya tetap bersih, modern-fungsional, dan selaras dengan tampilan yang sudah ada.
+- **Superpowers:** Gunakan saat merancang fitur baru yang diminta pengguna dan memverifikasi kesiapan pengujian.
 
--   **Superpowers** --- gunakan untuk brainstorming kebutuhan,
-    perencanaan implementasi, pemecahan tugas, TDD, review, dan
-    verifikasi bila skill terkait tersedia.
--   **Caveman** --- gunakan untuk investigasi terarah, perubahan
-    kecil/surgical, eksplorasi kode, dan review bila skill terkait
-    tersedia.
--   **Anti-Slop** --- gunakan untuk menjaga kualitas UI, konsistensi
-    visual, keterbacaan, dan menghindari hasil generik bila skill
-    terkait tersedia.
+## 7. Fokus Pengerjaan Saat Ini
 
-Aturan penggunaan:
-
-1.  Periksa skill/plugin yang benar-benar tersedia di lingkungan
-    Antigravity.
-2.  Baca instruksi `SKILL.md` atau dokumentasi plugin sebelum
-    menggunakannya.
-3.  Ikuti nama skill, cara pemanggilan, dan batasan yang tertulis pada
-    plugin; jangan mengarang command atau menganggap semua plugin
-    otomatis aktif.
-4.  Jangan menjalankan semua workflow plugin untuk setiap perubahan
-    kecil.
-5.  Pilih skill yang paling relevan dengan tugas:
-    -   Perencanaan/fitur baru: Superpowers.
-    -   Investigasi bug atau perubahan terarah: Caveman.
-    -   UI dan audit kualitas tampilan: Anti-Slop.
-    -   Pengujian dan verifikasi: workflow testing/verifikasi yang
-        tersedia, terutama Superpowers.
-6.  Plugin adalah alat bantu, bukan pengganti pengujian nyata dan
-    penilaian teknis.
-
-## 7. Prinsip UI/UX
-
--   Gunakan identitas visual UNPAM sebagai referensi studi kasus, tetapi
-    jangan mengesankan aplikasi ini sebagai layanan resmi kampus.
--   Buat tampilan modern, rapi, konsisten, dan responsif.
--   Prioritaskan keterbacaan, hierarki informasi, navigasi sederhana,
-    dan status yang jelas.
--   Hindari dekorasi berlebihan, gradient acak, terlalu banyak kartu,
-    animasi yang tidak perlu, dan komponen yang tidak memiliki fungsi.
--   Dashboard harus mengutamakan pekerjaan admin: informasi, reminder,
-    dan percakapan.
--   Website publik harus mudah digunakan mahasiswa melalui desktop
-    maupun ponsel.
--   Chat widget harus mudah ditemukan dan tidak menutupi konten utama.
--   Gunakan label bahasa Indonesia yang konsisten.
-
-## 8. Prioritas Pengerjaan Empat Hari
-
-Urutan prioritas yang disarankan:
-
-1.  Fondasi aplikasi, login admin, dashboard, data mahasiswa, dan CRUD
-    informasi.
-2.  Halaman website dan sumber informasi bersama.
-3.  Reminder umum dengan pengiriman manual melalui Fonnte.
-4.  Chatbot website berbasis menu.
-5.  Chatbot WhatsApp dan webhook Fonnte.
-6.  Live chat dashboard: pesan masuk, Ambil Alih, balasan dari
-    dashboard, dan Akhiri Percakapan.
-7.  Scheduler untuk reminder otomatis dan sinkronisasi balasan WhatsApp
-    langsung jika waktu serta kemampuan teknis memungkinkan.
-8.  Pengujian, perbaikan, dan persiapan skenario presentasi.
-
-Jangan mengorbankan alur utama yang sudah berfungsi demi fitur opsional.
-
-## 9. Kriteria Selesai
-
-Sebuah fitur hanya boleh dinyatakan selesai jika:
-
--   Kebutuhan dan perilakunya sesuai dengan brief.
--   Implementasi terhubung dengan database atau layanan yang benar,
-    bukan sekadar tampilan statis.
--   Validasi dan kondisi gagal dasar ditangani.
--   Alur utama telah diuji.
--   Tidak merusak fitur yang sudah ada.
--   Hasil pengujian dilaporkan secara jujur.
-
-Untuk integrasi Fonnte, bedakan dengan jelas: - Berhasil diuji. - Belum
-diuji karena konfigurasi/akses. - Tidak didukung atau belum dapat
-dipastikan.
-
-## 10. Cara Berkomunikasi
-
--   Gunakan bahasa Indonesia yang jelas dan langsung.
--   Jelaskan istilah teknis seperlunya.
--   Jangan memberikan klaim keberhasilan tanpa bukti pengujian.
--   Jika ada beberapa opsi, rekomendasikan opsi paling sederhana dan
-    realistis untuk MVP.
--   Jangan memperluas ruang lingkup tanpa persetujuan pengguna.
--   Ingat target utama: aplikasi lokal yang stabil dan siap
-    didemonstrasikan, bukan sistem produksi kampus.
-
-------------------------------------------------------------------------
-
-## Dokumen Referensi Proyek
-
-Jika tersedia di root workspace, gunakan dokumen berikut sebagai konteks
-kebutuhan:
-
--   `konsep_crm_layanan_mahasiswa_unpam.md` --- ringkasan konsep dan
-    keputusan diskusi proyek.
-
-Jika dokumen referensi bertentangan dengan keputusan terbaru pengguna,
-tanyakan atau ikuti keputusan terbaru yang eksplisit.
+1. **Penambahan & Perbaikan Berdasarkan Instruksi:** Mengerjakan penambahan fitur atau perbaikan bug sesuai perintah spesifik pengguna tanpa mengubah bagian UI hingga backend yang tidak diminta.
+2. **Minimalisasi Bug & Hardening:** Memastikan setiap fitur baru atau perbaikan yang dikerjakan bebas dari celah bug, aman, dan memiliki penanganan _error_ yang baik.
+3. **Kesiapan Hosting Instan (Zero-Config Switch):** Memastikan aplikasi selalu siap di-_deploy_ ke layanan hosting kapan saja sambil tetap mempertahankan fungsi penuh yang identik di Laragon lokal untuk keperluan _testing_.

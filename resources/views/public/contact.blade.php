@@ -1,6 +1,6 @@
 @extends('layouts.public')
 
-@section('title', 'Kontak & Lokasi Kampus - Layanan Mahasiswa UNPAM')
+@section('title', 'Kontak & Lokasi Kampus - SiRNaMa UNPAM')
 
 @section('content')
     <!-- Header Banner -->

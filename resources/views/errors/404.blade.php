@@ -22,7 +22,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>404 Halaman Tidak Ditemukan - {{ $brandAppName }}</title>
+    <title>404 Halaman Tidak Ditemukan - SiRNaMa {{ $brandAppName }}</title>
     <script>
         if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
@@ -92,8 +92,7 @@
                             class="h-12 sm:h-14 w-12 sm:w-14 object-contain bg-transparent shrink-0 drop-shadow" />
                     @endif
                     <div>
-                        <span class="block font-bold text-base sm:text-lg leading-tight text-white">Layanan
-                            Mahasiswa</span>
+                        <span class="block font-bold text-base sm:text-lg leading-tight text-white">SiRNaMa</span>
                         <span class="block text-xs text-slate-300">{{ $brandAppName }}</span>
                     </div>
                 </a>

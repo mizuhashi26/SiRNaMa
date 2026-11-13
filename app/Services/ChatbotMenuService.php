@@ -56,7 +56,33 @@ class ChatbotMenuService
         $conversation->last_message_at = now();
         $conversation->save();
 
-        // Jika sedang ADMIN_ACTIVE, bot tidak membalas agar tidak menimpa percakapan admin.
+        // Perintah kembali ke Chatbot (bisa dipanggil kapan saja: saat BOT_ACTIVE, WAITING_ADMIN, maupun ADMIN_ACTIVE)
+        if ($this->isExitToMainMenuCommand($normalized)) {
+            $wasAdminMode = in_array($conversation->status, [
+                Conversation::STATUS_ADMIN_ACTIVE,
+                Conversation::STATUS_WAITING_ADMIN,
+            ], true);
+
+            $conversation->status = Conversation::STATUS_BOT_ACTIVE;
+            $conversation->assigned_admin_id = null;
+            $conversation->closed_at = now();
+            $conversation->save();
+
+            $replyText = $wasAdminMode
+                ? "Sesi bantuan admin telah diakhiri. Anda telah dikembalikan ke layanan Chatbot otomatis UNPAM.\n\n" . $this->buildMainMenuText()
+                : $this->buildMainMenuText();
+
+            $botMessage = $this->recordBotReply($conversation, $replyText);
+
+            return [
+                'conversation' => $conversation->fresh(),
+                'user_message' => $userMessage,
+                'bot_message' => $botMessage,
+                'options' => $this->getMainMenuOptions(),
+            ];
+        }
+
+        // Jika sedang ADMIN_ACTIVE dan bukan perintah kembali ke bot, bot diam agar tidak menimpa obrolan admin.
         if ($conversation->status === Conversation::STATUS_ADMIN_ACTIVE) {
             return [
                 'conversation' => $conversation->fresh(),
@@ -66,22 +92,8 @@ class ChatbotMenuService
             ];
         }
 
-        // Jika sedang WAITING_ADMIN, izinkan kembali ke menu bot jika ketik 0 / keluar / menu / batal.
+        // Jika sedang WAITING_ADMIN dan bukan perintah batal/menu
         if ($conversation->status === Conversation::STATUS_WAITING_ADMIN) {
-            if ($this->isExitToMainMenuCommand($normalized)) {
-                $conversation->status = Conversation::STATUS_BOT_ACTIVE;
-                $conversation->save();
-
-                $replyText = "Permintaan bantuan admin dibatalkan. Anda kembali ke layanan Chatbot.\n\n" . $this->buildMainMenuText();
-                $botMessage = $this->recordBotReply($conversation, $replyText);
-
-                return [
-                    'conversation' => $conversation->fresh(),
-                    'user_message' => $userMessage,
-                    'bot_message' => $botMessage,
-                    'options' => $this->getMainMenuOptions(),
-                ];
-            }
 
             // Jika memilih 3 kembali saat sudah WAITING_ADMIN
             if (in_array($normalized, ['3', 'hubungi admin', 'admin'], true)) {
@@ -125,7 +137,13 @@ class ChatbotMenuService
 
     protected function isExitToMainMenuCommand(string $normalized): bool
     {
-        return in_array($normalized, ['0', 'keluar', 'menu', 'menu utama', 'utama', 'batal', 'kembali', 'exit', 'back'], true);
+        $cleaned = trim($normalized);
+        $stripped = ltrim($cleaned, '#!/');
+        return in_array($stripped, [
+            '0', 'bot', 'kembali ke bot', 'kembalikan ke bot',
+            'keluar', 'menu', 'menu utama', 'utama', 'batal',
+            'kembali', 'selesai', 'akhiri', 'exit', 'back'
+        ], true) || in_array($cleaned, ['#bot', '!bot', '/bot', '#selesai', '!selesai'], true);
     }
 
     /**

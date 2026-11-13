@@ -1,6 +1,6 @@
 @extends('layouts.public')
 
-@section('title', 'Pusat Informasi Kampus & Layanan Mahasiswa UNPAM')
+@section('title', 'Pusat Informasi Kampus & Layanan Mahasiswa - SiRNaMa UNPAM')
 
 @section('content')
     <!-- Hero Fungsional & Pencarian -->

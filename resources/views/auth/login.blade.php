@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Login Admin - CRM Layanan Mahasiswa UNPAM</title>
+    <title>Login Admin - SiRNaMa UNPAM</title>
     <script>
         if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
@@ -78,7 +78,7 @@
                         class="h-11 sm:h-12 w-11 sm:w-12 object-contain bg-transparent shrink-0 drop-shadow" />
                 @endif
                 <div>
-                    <span class="block font-bold leading-tight">Layanan Mahasiswa</span>
+                    <span class="block font-bold leading-tight">SiRNaMa</span>
                     <span class="block text-xs font-normal text-slate-300">{{ $brandAppName }}</span>
                 </div>
             </a>

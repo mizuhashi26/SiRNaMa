@@ -94,38 +94,42 @@ class FonnteWebhookController extends Controller
         }
 
         $lowerMsg = mb_strtolower(trim($messageText));
-        $isReturnToBotCommand = in_array($lowerMsg, [
-            '#bot', '!bot', '/bot', 'kembali ke bot', 'kembalikan ke bot', '#selesai', 'selesai', '#close', 'akhiri'
-        ], true);
+        $strippedMsg = ltrim($lowerMsg, '#!/');
+        $isReturnToBotCommand = in_array($strippedMsg, [
+            '0', 'bot', 'kembali ke bot', 'kembalikan ke bot',
+            'keluar', 'menu', 'menu utama', 'utama', 'batal',
+            'kembali', 'selesai', 'akhiri', 'exit', 'back'
+        ], true) || in_array($lowerMsg, ['#bot', '!bot', '/bot', '#selesai', '!selesai'], true);
+
+        // KASUS 0: Perintah Kembali ke Bot (baik dari Admin maupun Mahasiswa di WhatsApp)
+        if ($isReturnToBotCommand) {
+            $conversation->status = Conversation::STATUS_BOT_ACTIVE;
+            $conversation->assigned_admin_id = null;
+            $conversation->closed_at = now();
+            $conversation->last_message_at = now();
+            $conversation->save();
+
+            $replyText = "Sesi bantuan admin telah selesai. Layanan otomatis dialihkan kembali ke Chatbot aktif UNPAM.\n\n" . $chatbot->buildMainMenuText();
+            $botMsg = $conversation->messages()->create([
+                'sender_type' => 'bot',
+                'sender_name' => 'Chatbot Layanan UNPAM',
+                'message' => $replyText,
+                'delivery_status' => 'delivered',
+            ]);
+
+            $fonnteService->sendMessage($studentPhone, $replyText);
+
+            return response()->json([
+                'ok' => true,
+                'message' => 'Sesi berhasil dialihkan kembali ke Chatbot via perintah WhatsApp.',
+                'conversation_id' => $conversation->id,
+                'status' => Conversation::STATUS_BOT_ACTIVE,
+                'bot_replied' => true,
+            ]);
+        }
 
         // KASUS 1: Pesan dari Admin Langsung melalui Aplikasi WhatsApp
         if ($isFromMe) {
-            if ($isReturnToBotCommand) {
-                // Admin mengetik perintah kembali ke Bot langsung dari WhatsApp
-                $conversation->status = Conversation::STATUS_BOT_ACTIVE;
-                $conversation->assigned_admin_id = null;
-                $conversation->closed_at = now();
-                $conversation->last_message_at = now();
-                $conversation->save();
-
-                $replyText = "Sesi bantuan admin telah selesai. Layanan otomatis dialihkan kembali ke Chatbot aktif UNPAM.\n\n" . $chatbot->buildMainMenuText();
-                $conversation->messages()->create([
-                    'sender_type' => 'system',
-                    'sender_name' => 'Admin (WhatsApp)',
-                    'message' => 'Admin mengetik perintah kembali ke Bot via WhatsApp.',
-                    'delivery_status' => 'delivered',
-                ]);
-
-                $fonnteService->sendMessage($studentPhone, $replyText);
-
-                return response()->json([
-                    'ok' => true,
-                    'message' => 'Sesi berhasil dialihkan kembali ke Chatbot via perintah admin di WhatsApp.',
-                    'conversation_id' => $conversation->id,
-                    'status' => Conversation::STATUS_BOT_ACTIVE,
-                ]);
-            }
-
             // Otomatis ubah status menjadi ADMIN_ACTIVE (ambil alih bot)
             $conversation->status = Conversation::STATUS_ADMIN_ACTIVE;
             $conversation->last_message_at = now();
@@ -145,33 +149,6 @@ class FonnteWebhookController extends Controller
                 'conversation_id' => $conversation->id,
                 'message_id' => $adminMessage->id,
                 'status' => Conversation::STATUS_ADMIN_ACTIVE,
-            ]);
-        }
-
-        // KASUS 1.5: Saat sedang ADMIN_ACTIVE dan mahasiswa/pengguna meminta kembali ke bot
-        if ($conversation->status === Conversation::STATUS_ADMIN_ACTIVE && $isReturnToBotCommand) {
-            $conversation->status = Conversation::STATUS_BOT_ACTIVE;
-            $conversation->assigned_admin_id = null;
-            $conversation->closed_at = now();
-            $conversation->last_message_at = now();
-            $conversation->save();
-
-            $replyText = "Sesi bantuan admin telah diakhiri. Anda telah dikembalikan ke layanan Chatbot Layanan Mahasiswa UNPAM.\n\n" . $chatbot->buildMainMenuText();
-            $botMessage = $conversation->messages()->create([
-                'sender_type' => 'bot',
-                'sender_name' => 'Chatbot Layanan UNPAM',
-                'message' => $replyText,
-                'delivery_status' => 'delivered',
-            ]);
-
-            $fonnteService->sendMessage($studentPhone, $replyText);
-
-            return response()->json([
-                'ok' => true,
-                'message' => 'Sesi berhasil dialihkan kembali ke Chatbot via perintah WhatsApp.',
-                'conversation_id' => $conversation->id,
-                'status' => Conversation::STATUS_BOT_ACTIVE,
-                'bot_replied' => true,
             ]);
         }
 

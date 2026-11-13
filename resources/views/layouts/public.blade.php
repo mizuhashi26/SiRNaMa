@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Pusat Informasi & Layanan Mahasiswa UNPAM')</title>
+    <title>@yield('title', 'SiRNaMa - Pusat Informasi & Layanan Mahasiswa UNPAM')</title>
     <script>
         if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
@@ -56,7 +56,7 @@
                         <img src="{{ asset('images/unpam-logo.svg') }}" alt="Logo Kampus" class="h-8 sm:h-9 w-8 sm:w-9 object-contain bg-transparent shrink-0 drop-shadow" />
                     @endif
                     <div class="leading-tight">
-                        <span class="block font-bold text-sm sm:text-base leading-tight text-white whitespace-nowrap">Layanan Mahasiswa</span>
+                        <span class="block font-bold text-sm sm:text-base leading-tight text-white whitespace-nowrap">SiRNaMa</span>
                         <span class="block text-[10px] text-slate-300 hidden sm:block whitespace-nowrap">{{ $brandAppName }}</span>
                     </div>
                 </a>
@@ -166,7 +166,7 @@
     <footer class="bg-slate-900 text-slate-200 border-t border-slate-800 mt-12">
         <div class="w-full max-w-7xl 2xl:max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 text-sm">
             <div class="space-y-1 max-w-xl">
-                <p class="font-bold text-white">Portal Layanan {{ $brandAppName }}</p>
+                <p class="font-bold text-white">SiRNaMa &bull; {{ $brandAppName }}</p>
                 <p class="text-slate-300">
                     {{ $brandFooterText }}
                 </p>

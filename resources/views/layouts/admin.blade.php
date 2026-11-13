@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Dashboard Admin - CRM Layanan Mahasiswa UNPAM')</title>
+    <title>@yield('title', 'Dashboard Admin - SiRNaMa UNPAM')</title>
     <script>
         // Theme init
         if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -184,7 +184,7 @@
                         <div class="leading-tight min-w-0">
                             <span
                                 class="block font-black text-sm text-white tracking-tight truncate group-hover:text-amber-400 transition-colors">
-                                Admin Layanan
+                                SiRNaMa Admin
                             </span>
                             <span class="block text-[11px] font-medium text-slate-400 truncate">
                                 {{ $brandAppName }}
@@ -195,7 +195,7 @@
                     <!-- Brand Saat Sidebar Ditutup (Hanya Ikon) -->
                     <a href="{{ route('admin.dashboard') }}"
                         class="sidebar-collapsed-brand hidden w-full items-center justify-center py-1 group focus-visible:outline-unpam-gold"
-                        title="Dashboard Admin - {{ $brandAppName }}">
+                        title="Dashboard Admin - SiRNaMa {{ $brandAppName }}">
                         @if($brandLogoImage && file_exists(public_path($brandLogoImage)))
                             <img src="{{ asset($brandLogoImage) }}" alt="Logo Kampus"
                                 class="h-8 w-auto max-w-[40px] object-contain bg-transparent shrink-0 drop-shadow" />
@@ -508,7 +508,7 @@
                 class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-3.5 px-4 sm:px-6 lg:px-8 2xl:px-12 text-xs text-slate-500 dark:text-slate-400">
                 <div
                     class="w-full max-w-none 2xl:max-w-[2200px] mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-                    <span>Portal Pengelolaan Layanan Mahasiswa UNPAM &bull; Studi Kasus Akademik</span>
+                    <span>SiRNaMa (Sistem Informasi, Reminder, dan Layanan Mahasiswa) &bull; {{ $brandAppName }}</span>
                     <span>{{ $brandAppName }}</span>
                 </div>
             </footer>

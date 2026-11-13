@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Pusat Kendali Admin - CRM Layanan Mahasiswa UNPAM')
+@section('title', 'Pusat Kendali Admin - SiRNaMa UNPAM')
 
 @section('content')
     <div class="space-y-6">
