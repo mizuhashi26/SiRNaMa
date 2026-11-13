@@ -204,6 +204,29 @@ class AdminRoleAccessTest extends TestCase
         $this->actingAs($adminChat)->get(route('admin.users.index'))->assertForbidden();
     }
 
+    public function test_admin_routes_and_logout_include_no_cache_security_headers(): void
+    {
+        $admin = User::factory()->create([
+            'role' => User::ROLE_ADMIN,
+        ]);
+
+        // Verifikasi route admin memuat security header no-cache
+        $res = $this->actingAs($admin)->get(route('admin.dashboard'));
+        $res->assertOk();
+        $this->assertStringContainsString('no-cache', (string) $res->headers->get('Cache-Control'));
+        $this->assertStringContainsString('no-store', (string) $res->headers->get('Cache-Control'));
+        $this->assertStringContainsString('must-revalidate', (string) $res->headers->get('Cache-Control'));
+        $res->assertHeader('Pragma', 'no-cache');
+
+        // Verifikasi logout menghancurkan sesi dan menyertakan header no-cache
+        $logoutRes = $this->actingAs($admin)->post(route('logout'));
+        $logoutRes->assertRedirect(route('login'));
+        $this->assertStringContainsString('no-cache', (string) $logoutRes->headers->get('Cache-Control'));
+        $this->assertStringContainsString('no-store', (string) $logoutRes->headers->get('Cache-Control'));
+        $logoutRes->assertHeader('Pragma', 'no-cache');
+        $this->assertGuest();
+    }
+
     public function test_superadmin_can_create_and_update_admin_chat_user(): void
     {
         $superadmin = User::factory()->superadmin()->create();

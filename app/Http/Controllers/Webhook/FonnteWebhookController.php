@@ -11,6 +11,7 @@ use App\Services\FonnteService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class FonnteWebhookController extends Controller
 {
@@ -42,12 +43,50 @@ class FonnteWebhookController extends Controller
             }
         }
 
-        $rawSender = (string) ($request->input('sender') ?? $request->input('pengirim') ?? $request->input('from') ?? '');
-        $rawTarget = (string) ($request->input('target') ?? $request->input('receiver') ?? $request->input('to') ?? '');
-        $messageText = trim((string) ($request->input('message') ?? $request->input('pesan') ?? $request->input('text') ?? ''));
-        $pushName = trim((string) ($request->input('name') ?? $request->input('pushname') ?? ''));
+        // Normalisasi key payload alternatif dari berbagai format webhook Fonnte
+        $rawSenderInput = $request->input('sender') ?? $request->input('pengirim') ?? $request->input('from');
+        $rawMessageInput = $request->input('message') ?? $request->input('pesan') ?? $request->input('text');
+        $rawTargetInput = $request->input('target') ?? $request->input('receiver') ?? $request->input('to');
+        $rawNameInput = $request->input('name') ?? $request->input('pushname');
 
-        // 1. Validasi isi pesan (message): tidak boleh kosong
+        // Validasi menggunakan Validator Laravel untuk menolak tipe ngawur (array/null/object) dan payload ekstrem
+        $validator = Validator::make([
+            'sender' => $rawSenderInput,
+            'message' => $rawMessageInput,
+            'target' => $rawTargetInput,
+            'name' => $rawNameInput,
+        ], [
+            'sender' => ['required', 'string', 'max:50'],
+            'message' => ['required', 'string', 'max:5000'],
+            'target' => ['nullable', 'string', 'max:50'],
+            'name' => ['nullable', 'string', 'max:150'],
+        ], [
+            'sender.required' => 'Field pengirim (sender) wajib ada.',
+            'sender.string' => 'Field pengirim (sender) harus berupa string.',
+            'sender.max' => 'Panjang pengirim (sender) maksimal 50 karakter.',
+            'message.required' => 'Isi pesan (message) tidak boleh kosong.',
+            'message.string' => 'Isi pesan (message) harus berupa string.',
+            'message.max' => 'Panjang pesan (message) maksimal 5000 karakter.',
+            'target.string' => 'Field target harus berupa string.',
+            'target.max' => 'Panjang target maksimal 50 karakter.',
+            'name.string' => 'Field nama harus berupa string.',
+            'name.max' => 'Panjang nama maksimal 150 karakter.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'ok' => false,
+                'message' => $validator->errors()->first(),
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $rawSender = (string) $rawSenderInput;
+        $rawTarget = (string) ($rawTargetInput ?? '');
+        $messageText = trim((string) $rawMessageInput);
+        $pushName = trim((string) ($rawNameInput ?? ''));
+
+        // 1. Validasi isi pesan (message): tidak boleh string kosong setelah di-trim
         if ($messageText === '') {
             return response()->json([
                 'ok' => false,

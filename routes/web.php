@@ -43,7 +43,7 @@ Route::post('/logout', [AuthController::class, 'logout'])
 // Dashboard & Modul Admin CRM
 Route::prefix('admin')
     ->name('admin.')
-    ->middleware('auth')
+    ->middleware(['auth', 'nocache'])
     ->group(function () {
         // === Akses Admin & Super Admin (Dilarang untuk Admin Chat): Ringkasan, Informasi, Pengingat ===
         Route::middleware('contentadmin')->group(function () {

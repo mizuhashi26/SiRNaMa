@@ -367,6 +367,31 @@ class WhatsAppLiveChatFlowTest extends TestCase
             $res->assertOk()
                 ->assertJsonPath('ok', true);
         }
+
+        // 6. Fuzzing: Payload JSON Kosong ({}) wajib ditolak 422
+        $this->postJson(route('webhook.fonnte'), [])
+            ->assertStatus(422)
+            ->assertJsonPath('ok', false);
+
+        // 7. Fuzzing: Sender berupa Array atau message bernilai null wajib ditolak 422
+        $this->postJson(route('webhook.fonnte'), [
+            'sender' => ['123', '456'],
+            'message' => 'Halo',
+        ])->assertStatus(422)
+          ->assertJsonPath('ok', false);
+
+        $this->postJson(route('webhook.fonnte'), [
+            'sender' => '081298765432',
+            'message' => null,
+        ])->assertStatus(422)
+          ->assertJsonPath('ok', false);
+
+        // 8. Fuzzing: Message berupa teks raksasa melebihi 5000 karakter wajib ditolak 422
+        $this->postJson(route('webhook.fonnte'), [
+            'sender' => '081298765432',
+            'message' => str_repeat('A', 5001),
+        ])->assertStatus(422)
+          ->assertJsonPath('ok', false);
     }
 }
 
