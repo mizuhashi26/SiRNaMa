@@ -26,7 +26,7 @@
         "APP_ROUTES_CACHE": "/tmp/routes.php",
         "APP_SERVICES_CACHE": "/tmp/services.php",
         "VIEW_COMPILED_PATH": "/tmp/storage/framework/views",
-        "LOG_CHANNEL": "stderr",
+        "LOG_CHANNEL": "null",
         "CACHE_STORE": "database",
         "SESSION_DRIVER": "database",
         "QUEUE_CONNECTION": "sync"
