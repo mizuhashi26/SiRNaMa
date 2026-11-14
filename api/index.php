@@ -38,6 +38,10 @@ require __DIR__ . '/../vendor/autoload.php';
 // Bootstrap Laravel and handle request
 $app = require_once __DIR__ . '/../bootstrap/app.php';
 
+// Prevent Symfony/Laravel from treating "/api" as a subdirectory baseUrl
+$_SERVER['SCRIPT_NAME'] = '/index.php';
+$_SERVER['PHP_SELF'] = '/index.php';
+
 // Bind storage path to /tmp for runtime writes
 $app->useStoragePath($storageTmpPath);
 
