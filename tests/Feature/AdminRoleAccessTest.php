@@ -244,6 +244,18 @@ class AdminRoleAccessTest extends TestCase
         $allowedRes->assertRedirect(route('admin.dashboard'));
         $this->assertAuthenticatedAs($admin);
         $this->assertDatabaseMissing('sessions', ['id' => 'other-device-session-id-123']);
+
+        // 3. Logout menghapus seluruh sisa sesi akun di tabel sessions sehingga perangkat lain bisa login kembali
+        \Illuminate\Support\Facades\DB::table('sessions')->insert([
+            'id' => 'stale-session-id-456',
+            'user_id' => $admin->id,
+            'ip_address' => '127.0.0.1',
+            'user_agent' => 'StaleBrowser',
+            'payload' => base64_encode(serialize([])),
+            'last_activity' => now()->timestamp,
+        ]);
+        $this->actingAs($admin)->post(route('logout'))->assertRedirect(route('login'));
+        $this->assertDatabaseMissing('sessions', ['user_id' => $admin->id]);
     }
 
     public function test_admin_routes_and_logout_include_no_cache_security_headers(): void

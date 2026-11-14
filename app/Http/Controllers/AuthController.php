@@ -80,10 +80,19 @@ class AuthController extends Controller
 
     public function logout(Request $request): RedirectResponse
     {
+        $userId = Auth::id();
+
         Auth::logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
+        // Bersihkan seluruh sisa sesi milik akun ini di tabel sessions agar perangkat lain langsung bisa masuk
+        if ($userId && config('session.driver') === 'database') {
+            DB::table((string) config('session.table', 'sessions'))
+                ->where('user_id', $userId)
+                ->delete();
+        }
 
         return redirect()->route('login')
             ->with('success', 'Anda telah keluar dari sesi Admin.')
