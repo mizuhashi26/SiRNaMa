@@ -40,6 +40,171 @@ class StudentImportService
     }
 
     /**
+     * Parse and import students from raw multi-line pasted text without uploading a file.
+     * Supports pipe (|), tab, semicolon (;), or comma (,) delimiters, with or without header row.
+     *
+     * @return array{total: int, imported: int, updated: int, skipped: int, errors: array<int, string>}
+     */
+    public function importFromText(string $rawText, bool $overwriteExisting = true): array
+    {
+        $rows = $this->parseTextRows($rawText);
+
+        if (empty($rows)) {
+            return [
+                'total' => 0,
+                'imported' => 0,
+                'updated' => 0,
+                'skipped' => 0,
+                'errors' => ['Daftar teks mahasiswa masih kosong atau format baris tidak terbaca.'],
+            ];
+        }
+
+        return $this->processRows($rows, $overwriteExisting, 'Ditambahkan massal', true);
+    }
+
+    /**
+     * Import already-structured student rows (from multi-row form input).
+     *
+     * @param array<int, array<string, mixed>> $rows
+     * @return array{total: int, imported: int, updated: int, skipped: int, errors: array<int, string>}
+     */
+    public function importStructuredRows(array $rows, bool $overwriteExisting = true, bool $requirePhone = true): array
+    {
+        if (empty($rows)) {
+            return [
+                'total' => 0,
+                'imported' => 0,
+                'updated' => 0,
+                'skipped' => 0,
+                'errors' => ['Belum ada data mahasiswa yang diisi.'],
+            ];
+        }
+
+        return $this->processRows($rows, $overwriteExisting, '', $requirePhone);
+    }
+
+    /**
+     * Parse raw text lines into normalized row arrays.
+     *
+     * @return array<int, array<string, string>>
+     */
+    protected function parseTextRows(string $rawText): array
+    {
+        $rawLines = preg_split('/\r\n|\r|\n/', $rawText) ?: [];
+        $entries = [];
+
+        foreach ($rawLines as $idx => $line) {
+            $trimmed = trim($line);
+            if ($trimmed === '' || str_starts_with($trimmed, '#') || str_starts_with($trimmed, '//')) {
+                continue;
+            }
+            $entries[] = ['line' => $idx + 1, 'text' => $trimmed];
+        }
+
+        if (empty($entries)) {
+            return [];
+        }
+
+        $firstText = $entries[0]['text'];
+        $delimiter = ',';
+        $delimiterCounts = [
+            '|' => substr_count($firstText, '|'),
+            "\t" => substr_count($firstText, "\t"),
+            ';' => substr_count($firstText, ';'),
+            ',' => substr_count($firstText, ','),
+        ];
+        arsort($delimiterCounts);
+        $topDelimiter = (string) array_key_first($delimiterCounts);
+        if (($delimiterCounts[$topDelimiter] ?? 0) > 0) {
+            $delimiter = $topDelimiter;
+        }
+
+        $firstCols = array_map(fn ($v) => trim((string) $v), str_getcsv($firstText, $delimiter));
+        $normalizedHeader = array_map(fn ($h) => $this->normalizeHeader($h), $firstCols);
+        $hasHeader = in_array('nim', $normalizedHeader, true)
+            && (in_array('name', $normalizedHeader, true)
+                || in_array('whatsapp_number', $normalizedHeader, true)
+                || in_array('study_program', $normalizedHeader, true));
+
+        $startIdx = $hasHeader ? 1 : 0;
+        $rows = [];
+
+        for ($i = $startIdx; $i < count($entries); $i++) {
+            $entry = $entries[$i];
+            $cols = array_map(fn ($v) => trim((string) $v), str_getcsv($entry['text'], $delimiter));
+            if (empty(array_filter($cols, fn ($val) => $val !== ''))) {
+                continue;
+            }
+
+            $row = ['_line' => (string) $entry['line']];
+
+            if ($hasHeader) {
+                $isThreeColPhoneShortcut = count($cols) === 3
+                    && count($normalizedHeader) > 3
+                    && ($normalizedHeader[2] ?? '') !== 'whatsapp_number'
+                    && $this->looksLikePhone($cols[2] ?? '');
+
+                if ($isThreeColPhoneShortcut) {
+                    $row['nim'] = $cols[0] ?? '';
+                    $row['name'] = $cols[1] ?? '';
+                    $row['whatsapp_number'] = $cols[2] ?? '';
+                } else {
+                    foreach ($normalizedHeader as $colIndex => $attr) {
+                        if ($attr !== '' && isset($cols[$colIndex])) {
+                            $row[$attr] = $cols[$colIndex];
+                        }
+                    }
+                }
+            } else {
+                $colCount = count($cols);
+                $row['nim'] = $cols[0] ?? '';
+                $row['name'] = $cols[1] ?? '';
+
+                if ($colCount === 3) {
+                    if ($this->looksLikePhone($cols[2] ?? '')) {
+                        $row['whatsapp_number'] = $cols[2];
+                    } else {
+                        $row['study_program'] = $cols[2];
+                    }
+                } elseif ($colCount === 4) {
+                    $row['study_program'] = $cols[2] ?? '';
+                    if ($this->looksLikePhone($cols[3] ?? '')) {
+                        $row['whatsapp_number'] = $cols[3];
+                    } else {
+                        $row['regular_class'] = $cols[3] ?? '';
+                    }
+                } else {
+                    $row['study_program'] = $cols[2] ?? '';
+                    if ($this->looksLikePhone($cols[3] ?? '') && ! $this->looksLikePhone($cols[4] ?? '')) {
+                        $row['whatsapp_number'] = $cols[3] ?? '';
+                        $row['semester'] = $cols[4] ?? '1';
+                        $row['notes'] = $cols[5] ?? '';
+                    } else {
+                        $row['regular_class'] = $cols[3] ?? '';
+                        $row['whatsapp_number'] = $cols[4] ?? '';
+                        $row['semester'] = $cols[5] ?? '1';
+                        $row['notes'] = $cols[6] ?? '';
+                    }
+                }
+            }
+
+            $rows[] = $row;
+        }
+
+        return $rows;
+    }
+
+    /**
+     * Check whether a value looks like an Indonesian WhatsApp/phone number.
+     */
+    protected function looksLikePhone(string $value): bool
+    {
+        $compact = preg_replace('/[\s\-\.\(\)]+/', '', trim($value)) ?? '';
+
+        return (bool) preg_match('/^(?:\+?62|08|8)[0-9]{7,13}$/', $compact);
+    }
+
+    /**
      * Parse CSV file with delimiter auto-detection.
      *
      * @return array<int, array<string, string>>
@@ -264,11 +429,15 @@ class StudentImportService
     /**
      * Process parsed rows and upsert students into database.
      *
-     * @param array<int, array<string, string>> $rows
+     * @param array<int, array<string, mixed>> $rows
      * @return array{total: int, imported: int, updated: int, skipped: int, errors: array<int, string>}
      */
-    protected function processRows(array $rows): array
-    {
+    protected function processRows(
+        array $rows,
+        bool $overwriteExisting = true,
+        string $defaultNotes = 'Diimpor massal',
+        bool $requirePhone = false
+    ): array {
         $total = count($rows);
         $imported = 0;
         $updated = 0;
@@ -278,10 +447,10 @@ class StudentImportService
         $allPrograms = Student::STUDY_PROGRAMS;
 
         foreach ($rows as $index => $row) {
-            $rowNum = $index + 2; // Baris spreadsheet (header = 1)
+            $rowNum = isset($row['_line']) ? (int) $row['_line'] : ($index + 2);
 
-            $rawNim = $row['nim'] ?? '';
-            $nimDigits = preg_replace('/[^0-9]/', '', $rawNim);
+            $rawNim = (string) ($row['nim'] ?? '');
+            $nimDigits = preg_replace('/[^0-9]/', '', $rawNim) ?? '';
 
             // Validasi NIM 12 digit
             if (strlen($nimDigits) !== 12) {
@@ -295,20 +464,25 @@ class StudentImportService
                 }
             }
 
-            $name = trim($row['name'] ?? '');
+            $name = trim((string) ($row['name'] ?? ''));
             if ($name === '') {
                 $errors[] = "Baris {$rowNum}: Nama mahasiswa kosong.";
                 $skipped++;
                 continue;
             }
 
-            $rawProdi = trim($row['study_program'] ?? '');
+            $rawProdi = trim((string) ($row['study_program'] ?? ''));
             $matchedProdi = $this->matchStudyProgram($rawProdi, $allPrograms);
 
-            $rawPhone = trim($row['whatsapp_number'] ?? '');
+            $rawPhone = trim((string) ($row['whatsapp_number'] ?? ''));
             $phone = Student::normalizePhone($rawPhone);
+            if ($requirePhone && strlen($phone) < 10) {
+                $errors[] = "Baris {$rowNum}: Nomor WhatsApp '{$rawPhone}' tidak valid atau masih kosong.";
+                $skipped++;
+                continue;
+            }
             if ($phone === '') {
-                $phone = '628' . substr($nimDigits, -9); // Fallback dummy phone jika kosong
+                $phone = '628' . substr($nimDigits, -9); // Fallback dummy phone jika kosong pada spreadsheet
             }
 
             $semester = (int) ($row['semester'] ?? 1);
@@ -316,22 +490,37 @@ class StudentImportService
                 $semester = 1;
             }
 
-            $rawReg = trim($row['regular_class'] ?? '');
-            $regularClass = $this->matchRegularClass($rawReg);
+            $rawReg = trim((string) ($row['regular_class'] ?? ''));
+            $regularClass = array_key_exists($rawReg, Student::REGULAR_CLASSES)
+                ? $rawReg
+                : $this->matchRegularClass($rawReg);
 
-            $notes = trim($row['notes'] ?? 'Diimpor massal');
+            $notes = trim((string) ($row['notes'] ?? ''));
+            if ($notes === '' && $defaultNotes !== '') {
+                $notes = $defaultNotes;
+            }
+
+            $isActive = array_key_exists('is_active', $row)
+                ? (bool) $row['is_active']
+                : true;
 
             $existing = Student::where('nim', $nimDigits)->first();
 
             if ($existing) {
+                if (! $overwriteExisting) {
+                    $errors[] = "Baris {$rowNum}: NIM {$nimDigits} sudah terdaftar (dilewati).";
+                    $skipped++;
+                    continue;
+                }
+
                 $existing->update([
                     'name' => $name,
                     'study_program' => $matchedProdi,
                     'regular_class' => $regularClass,
                     'semester' => $semester,
                     'whatsapp_number' => $phone,
-                    'is_active' => true,
-                    'notes' => $notes,
+                    'is_active' => $isActive,
+                    'notes' => $notes !== '' ? $notes : $existing->notes,
                 ]);
                 $updated++;
             } else {
@@ -342,8 +531,8 @@ class StudentImportService
                     'regular_class' => $regularClass,
                     'semester' => $semester,
                     'whatsapp_number' => $phone,
-                    'is_active' => true,
-                    'notes' => $notes,
+                    'is_active' => $isActive,
+                    'notes' => $notes !== '' ? $notes : null,
                 ]);
                 $imported++;
             }

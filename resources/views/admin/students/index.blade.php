@@ -15,10 +15,15 @@
         <div class="flex flex-wrap items-center gap-2.5">
             <button type="button"
                     onclick="document.getElementById('importModal').classList.remove('hidden')"
-                    class="min-h-[44px] inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold shadow-xs transition-colors">
+                    class="min-h-[44px] inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold shadow-xs transition-colors cursor-pointer">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
                 Import Excel / CSV
             </button>
+            <a href="{{ route('admin.students.bulk-create') }}"
+               class="min-h-[44px] inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-unpam-gold hover:bg-amber-400 text-slate-950 text-xs sm:text-sm font-extrabold shadow-xs border border-amber-300 transition-colors">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                <span>+ Tambah Massal</span>
+            </a>
             <a href="{{ route('admin.students.create') }}"
                class="min-h-[44px] inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-unpam-navy dark:bg-slate-700 hover:bg-slate-800 dark:hover:bg-slate-600 text-white text-xs sm:text-sm font-bold shadow-xs transition-colors">
                 <span>+ Tambah Mahasiswa</span>
@@ -107,22 +112,26 @@
         </div>
 
         @if($students->isEmpty())
-            <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-10 text-center space-y-4 shadow-xs">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 sm:p-10 text-center space-y-4 shadow-xs">
                 <div class="w-14 h-14 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-400 flex items-center justify-center mx-auto">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                 </div>
                 <div class="space-y-1">
                     <h2 class="text-base font-bold text-slate-900 dark:text-white">Belum Ada Data Mahasiswa</h2>
                     <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-md mx-auto">
-                        Tambahkan data mahasiswa secara manual atau upload file Excel / CSV berisi data mahasiswa untuk pengiriman reminder.
+                        Tambahkan data mahasiswa secara manual (satuan atau massal tanpa file) atau upload file Excel / CSV berisi data mahasiswa untuk pengiriman reminder.
                     </p>
                 </div>
-                <div class="flex flex-wrap justify-center gap-2 pt-2">
+                <div class="flex flex-wrap justify-center gap-2.5 pt-2">
                     <button type="button"
                             onclick="document.getElementById('importModal').classList.remove('hidden')"
-                            class="min-h-[44px] inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs sm:text-sm font-bold hover:bg-emerald-700 shadow-xs">
+                            class="min-h-[44px] inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs sm:text-sm font-bold hover:bg-emerald-700 shadow-xs cursor-pointer">
                         Upload Excel / CSV
                     </button>
+                    <a href="{{ route('admin.students.bulk-create') }}"
+                       class="min-h-[44px] inline-flex items-center px-4 py-2 rounded-xl bg-unpam-gold hover:bg-amber-400 text-slate-950 text-xs sm:text-sm font-extrabold border border-amber-300 shadow-xs transition-colors">
+                        + Tambah Massal
+                    </a>
                     <a href="{{ route('admin.students.create') }}"
                        class="min-h-[44px] inline-flex items-center px-4 py-2 rounded-xl bg-unpam-navy dark:bg-slate-700 text-white text-xs sm:text-sm font-bold hover:bg-slate-800 dark:hover:bg-slate-600 shadow-xs">
                         + Tambah Manual
@@ -142,8 +151,8 @@
                                            title="Pilih Semua di Halaman Ini">
                                 </th>
                                 <th class="py-3.5 px-4 font-bold">NIM (12 Digit)</th>
-                                <th class="py-3.5 px-4 font-bold">Nama Mahasiswa</th>
-                                <th class="py-3.5 px-4 font-bold">Program Studi</th>
+                                <th class="py-3.5 px-4 font-bold min-w-[160px]">Nama Mahasiswa</th>
+                                <th class="py-3.5 px-4 font-bold min-w-[160px]">Program Studi</th>
                                 <th class="py-3.5 px-4 font-bold">Reguler</th>
                                 <th class="py-3.5 px-4 font-bold">WhatsApp</th>
                                 <th class="py-3.5 px-4 font-bold">Status</th>
@@ -225,21 +234,22 @@
 </form>
 
 <!-- Modal Upload Excel / CSV -->
-<div id="importModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-2xl border border-slate-200 dark:border-slate-700">
-        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-3">
-            <div class="flex items-center gap-2.5">
-                <div class="w-9 h-9 rounded-lg bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 flex items-center justify-center font-bold">
+<div id="importModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-4 sm:p-6 space-y-5 shadow-2xl border border-slate-200 dark:border-slate-700">
+        <div class="flex items-start justify-between gap-3 border-b border-slate-200 dark:border-slate-700 pb-3">
+            <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-9 h-9 rounded-lg bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 flex items-center justify-center font-bold shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
                 </div>
-                <div>
-                    <h2 id="modalTitle" class="text-base font-bold text-slate-900 dark:text-white">Upload Data Mahasiswa Sekaligus</h2>
+                <div class="min-w-0">
+                    <h2 id="modalTitle" class="text-base font-bold text-slate-900 dark:text-white leading-snug">Upload Data Mahasiswa Sekaligus</h2>
                     <p class="text-xs text-slate-500 dark:text-slate-400">Dukungan format file: Excel (.xlsx, .xls) atau CSV (.csv)</p>
                 </div>
             </div>
             <button type="button"
                     onclick="document.getElementById('importModal').classList.add('hidden')"
-                    class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center justify-center text-lg">
+                    aria-label="Tutup modal impor"
+                    class="min-w-[36px] min-h-[36px] rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center justify-center text-lg shrink-0 cursor-pointer">
                 &times;
             </button>
         </div>
@@ -269,7 +279,7 @@
                     <li><strong>nomor_wa</strong>: Format diawali 62 atau 08 (contoh: <code class="bg-slate-200 dark:bg-slate-700 px-1 rounded">628123456789</code>).</li>
                     <li><strong>semester</strong>: Angka 1 - 14 (opsional, default 1).</li>
                 </ul>
-                <div class="pt-2 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                <div class="pt-2 border-t border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-2">
                     <span class="text-[11px] text-slate-500 dark:text-slate-400">Butuh contoh format?</span>
                     <a href="{{ route('admin.students.template') }}" class="text-emerald-700 dark:text-emerald-400 font-bold hover:underline flex items-center gap-1">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
@@ -278,7 +288,7 @@
                 </div>
             </div>
 
-            <div class="flex items-center justify-end gap-2.5 pt-2">
+            <div class="flex flex-wrap items-center justify-end gap-2.5 pt-2">
                 <button type="button"
                         onclick="document.getElementById('importModal').classList.add('hidden')"
                         class="min-h-[44px] px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 font-semibold text-xs sm:text-sm">
@@ -353,6 +363,18 @@
                 if (form) form.submit();
             }
         };
+
+        const importModal = document.getElementById('importModal');
+        if (importModal) {
+            importModal.addEventListener('click', function (ev) {
+                if (ev.target === importModal) importModal.classList.add('hidden');
+            });
+            document.addEventListener('keydown', function (ev) {
+                if (ev.key === 'Escape' && !importModal.classList.contains('hidden')) {
+                    importModal.classList.add('hidden');
+                }
+            });
+        }
     });
 </script>
 @endsection

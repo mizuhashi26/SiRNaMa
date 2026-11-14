@@ -84,7 +84,7 @@
         <div class="max-w-6xl mx-auto px-4 sm:px-6">
             <div class="flex items-center justify-between py-3 gap-4">
                 <a href="{{ $homeUrl }}"
-                    class="flex items-center gap-3.5 min-h-[44px] focus-visible:outline-unpam-gold">
+                    class="flex items-center gap-3.5 min-h-[44px] min-w-0 focus-visible:outline-unpam-gold">
                     @php($resolvedLogoUrl = \App\Models\AppSetting::resolveLogoUrl($brandLogoImage))
                     @if($resolvedLogoUrl)
                         <img src="{{ $resolvedLogoUrl }}" alt="Logo Kampus"
@@ -93,9 +93,9 @@
                         <img src="{{ asset('images/unpam-logo.svg') }}" alt="Logo Kampus"
                             class="h-12 sm:h-14 w-12 sm:w-14 object-contain bg-transparent shrink-0 drop-shadow" />
                     @endif
-                    <div>
+                    <div class="min-w-0">
                         <span class="block font-bold text-base sm:text-lg leading-tight text-white">SiRNaMa</span>
-                        <span class="block text-xs text-slate-300">{{ $brandAppName }}</span>
+                        <span class="block text-xs text-slate-300 break-words">{{ $brandAppName }}</span>
                     </div>
                 </a>
 
@@ -181,9 +181,9 @@
         <div class="w-full max-w-xl mx-auto text-center space-y-6">
             <!-- Badge Status -->
             <div
-                class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-300 text-xs font-bold uppercase tracking-wider shadow-xs">
-                <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                Error 404 &bull; Halaman Tidak Ditemukan
+                class="inline-flex items-center gap-2 max-w-full px-3.5 py-1.5 rounded-full bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-300 text-xs font-bold uppercase tracking-wider shadow-xs">
+                <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse shrink-0"></span>
+                <span>Error 404 &bull; Halaman Tidak Ditemukan</span>
             </div>
 
             <!-- Ilustrasi Tipografi 404 -->

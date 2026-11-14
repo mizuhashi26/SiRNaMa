@@ -11,12 +11,12 @@
     <!-- Header Meja Layanan CS -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-300 dark:border-slate-700">
         <div>
-            <div class="flex items-center gap-2 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+            <div class="flex flex-wrap items-center gap-2 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
                 <span>Pusat Layanan Mahasiswa</span>
                 <span>&bull;</span>
                 <span class="text-unpam-navy dark:text-amber-400 font-black">Konsol Customer Service</span>
             </div>
-            <h1 class="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2.5">
+            <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight flex flex-wrap items-center gap-2 sm:gap-2.5">
                 <span>Meja Layanan Live Chat Terpadu</span>
                 <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200">
                     Kanal WhatsApp &amp; Website
@@ -43,10 +43,10 @@
     <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-300 dark:border-slate-700 shadow-xs overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[600px]">
         
         <!-- PANEL KIRI (4 Kolom / 33%): Kotak Masuk Tiket & Daftar Kontak -->
-        <aside aria-label="Kotak Masuk Percakapan Mahasiswa" class="lg:col-span-4 border-r border-slate-200 dark:border-slate-700 flex flex-col bg-slate-50/70 dark:bg-slate-900/60">
+        <aside aria-label="Kotak Masuk Percakapan Mahasiswa" class="lg:col-span-4 border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-slate-700 flex flex-col bg-slate-50/70 dark:bg-slate-900/60">
             <!-- Header Inbox & Filter CS -->
             <div class="p-3.5 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 space-y-3">
-                <div class="flex items-center justify-between">
+                <div class="flex flex-wrap items-center justify-between gap-2">
                     <span class="text-xs font-extrabold text-slate-800 dark:text-slate-200 uppercase tracking-wider">Kotak Masuk Obrolan</span>
                     <span class="text-xs font-bold text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-700/60 px-2 py-0.5 rounded-full border border-slate-200 dark:border-slate-600">
                         {{ $conversations->count() }} Percakapan
@@ -58,40 +58,40 @@
                     <input type="text"
                            id="csContactSearch"
                            placeholder="Cari nama atau nomor WA..."
-                           class="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-unpam-navy">
-                    <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                           class="w-full min-h-[40px] pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-unpam-navy">
+                    <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </div>
 
                 <!-- Tabs Filter Status CS -->
-                <div class="flex items-center gap-1 text-xs font-bold overflow-x-auto pb-0.5">
+                <div class="flex flex-wrap items-center gap-1.5 text-xs font-bold">
                     <a href="{{ route('admin.live-chat.index') }}"
-                       class="px-2.5 py-1 rounded-md transition-colors whitespace-nowrap {{ empty($statusFilter) && empty($channelFilter) ? 'bg-unpam-navy text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600' }}">
+                       class="min-h-[34px] inline-flex items-center px-2.5 py-1 rounded-md transition-colors {{ empty($statusFilter) && empty($channelFilter) ? 'bg-unpam-navy text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600' }}">
                         Semua
                     </a>
                     <a href="{{ route('admin.live-chat.index', ['status' => 'WAITING_ADMIN']) }}"
-                       class="px-2.5 py-1 rounded-md transition-colors whitespace-nowrap flex items-center gap-1 {{ $statusFilter === 'WAITING_ADMIN' ? 'bg-amber-400 text-slate-950 font-black' : 'bg-amber-50 dark:bg-amber-950/60 text-amber-900 dark:text-amber-200 border border-amber-200 dark:border-amber-700 hover:bg-amber-100 dark:hover:bg-amber-900' }}">
+                       class="min-h-[34px] inline-flex items-center gap-1 px-2.5 py-1 rounded-md transition-colors {{ $statusFilter === 'WAITING_ADMIN' ? 'bg-amber-400 text-slate-950 font-black' : 'bg-amber-50 dark:bg-amber-950/60 text-amber-900 dark:text-amber-200 border border-amber-200 dark:border-amber-700 hover:bg-amber-100 dark:hover:bg-amber-900' }}">
                         <span>Menunggu</span>
                         @if($waitingCount > 0)
                             <span class="px-1.5 py-0.2 rounded-full text-[10px] font-black bg-red-600 text-white">{{ $waitingCount }}</span>
                         @endif
                     </a>
                     <a href="{{ route('admin.live-chat.index', ['status' => 'BOT_ACTIVE']) }}"
-                       class="px-2.5 py-1 rounded-md transition-colors whitespace-nowrap {{ $statusFilter === 'BOT_ACTIVE' ? 'bg-slate-800 dark:bg-slate-600 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600' }}">
+                       class="min-h-[34px] inline-flex items-center px-2.5 py-1 rounded-md transition-colors {{ $statusFilter === 'BOT_ACTIVE' ? 'bg-slate-800 dark:bg-slate-600 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600' }}">
                         Bot Aktif
                     </a>
                     <a href="{{ route('admin.live-chat.index', ['channel' => 'whatsapp']) }}"
-                       class="px-2.5 py-1 rounded-md transition-colors whitespace-nowrap {{ $channelFilter === 'whatsapp' ? 'bg-emerald-600 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600' }}">
+                       class="min-h-[34px] inline-flex items-center px-2.5 py-1 rounded-md transition-colors {{ $channelFilter === 'whatsapp' ? 'bg-emerald-600 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600' }}">
                         WhatsApp
                     </a>
                     <a href="{{ route('admin.live-chat.index', ['channel' => 'web']) }}"
-                       class="px-2.5 py-1 rounded-md transition-colors whitespace-nowrap {{ $channelFilter === 'web' ? 'bg-blue-600 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600' }}">
+                       class="min-h-[34px] inline-flex items-center px-2.5 py-1 rounded-md transition-colors {{ $channelFilter === 'web' ? 'bg-blue-600 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600' }}">
                         Website
                     </a>
                 </div>
             </div>
 
             <!-- List Kontak Chat CS -->
-            <div id="csContactList" class="flex-1 overflow-y-auto max-h-[560px] divide-y divide-slate-100 dark:divide-slate-700/60">
+            <div id="csContactList" class="flex-1 overflow-y-auto max-h-[300px] lg:max-h-[560px] divide-y divide-slate-100 dark:divide-slate-700/60">
                 @forelse($conversations as $item)
                     @php
                         $isSelected = $activeConversation && $activeConversation->id === $item->id;
@@ -119,28 +119,28 @@
 
                             <!-- Detail Mahasiswa -->
                             <div class="flex-1 min-w-0">
-                                <div class="flex items-center justify-between gap-1 mb-1">
-                                    <h2 class="text-sm font-bold text-slate-900 dark:text-white truncate flex items-center gap-1.5">
-                                        <span class="truncate">{{ $item->user_name ?: $item->external_user_id }}</span>
+                                <div class="flex items-start justify-between gap-2 mb-1">
+                                    <h2 class="text-sm font-bold text-slate-900 dark:text-white flex flex-wrap items-center gap-1.5 min-w-0">
+                                        <span class="break-words">{{ $item->user_name ?: $item->external_user_id }}</span>
                                         @if($item->channel === 'whatsapp' && !isset($registeredPhones[$item->contact_number]))
                                             <span class="text-[9px] font-bold px-1 rounded bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-700 shrink-0">Baru</span>
                                         @endif
                                     </h2>
-                                    <span class="text-[10px] text-slate-400 font-mono shrink-0">
+                                    <span class="text-[10px] text-slate-400 font-mono shrink-0 pt-0.5">
                                         {{ $item->last_message_at?->format('H:i') ?? '-' }}
                                     </span>
                                 </div>
 
-                                <div class="flex items-center justify-between gap-1 mb-1.5">
+                                <div class="flex flex-wrap items-center justify-between gap-1.5 mb-1.5">
                                     <span class="inline-block text-[10px] uppercase px-2 py-0.5 rounded-full border {{ $statusBadge }}">
                                         {{ $item->status_label }}
                                     </span>
                                     @if($item->contact_number)
-                                        <span class="text-[11px] font-mono text-slate-500 dark:text-slate-400 truncate">+{{ $item->contact_number }}</span>
+                                        <span class="text-[11px] font-mono text-slate-500 dark:text-slate-400 break-all">+{{ $item->contact_number }}</span>
                                     @endif
                                 </div>
 
-                                <p class="text-xs text-slate-500 dark:text-slate-400 truncate">
+                                <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 break-words leading-snug">
                                     @if($lastMsg)
                                         <span class="font-semibold text-slate-700 dark:text-slate-300">{{ $lastMsg->sender_type === 'user' ? 'Mhs:' : 'CS:' }}</span>
                                         {{ $lastMsg->message }}
@@ -176,14 +176,14 @@
                 </div>
             @else
                 <!-- Header Percakapan CS -->
-                <div class="px-5 py-3.5 border-b border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-900/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-unpam-navy dark:bg-slate-700 text-white font-black text-sm flex items-center justify-center shadow-xs">
+                <div class="px-3.5 sm:px-5 py-3.5 border-b border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-900/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="w-10 h-10 rounded-full bg-unpam-navy dark:bg-slate-700 text-white font-black text-sm flex items-center justify-center shadow-xs shrink-0">
                             {{ strtoupper(substr($activeConversation->user_name ?: $activeConversation->external_user_id, 0, 2)) }}
                         </div>
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <h2 class="text-base font-black text-slate-900 dark:text-white leading-tight">
+                        <div class="min-w-0">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <h2 class="text-sm sm:text-base font-black text-slate-900 dark:text-white leading-tight break-words">
                                     {{ $activeConversation->user_name ?: $activeConversation->external_user_id }}
                                 </h2>
                                 <span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full {{ $activeConversation->channel === 'whatsapp' ? 'bg-emerald-100 dark:bg-emerald-950/70 text-emerald-900 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-700' : 'bg-blue-100 dark:bg-blue-950/70 text-blue-900 dark:text-blue-200 border border-blue-300 dark:border-blue-700' }}">
@@ -219,8 +219,8 @@
                         </div>
                     </div>
 
-                                        <!-- Tombol Kendali Sesi CS -->
-                    <div class="flex items-center gap-2 shrink-0">
+                    <!-- Tombol Kendali Sesi CS -->
+                    <div class="flex flex-wrap items-center gap-2">
                         @if($activeConversation->channel === 'whatsapp' && $activeConversation->contact_number)
                             <!-- Tombol Balas Langsung di WhatsApp -->
                             <form action="{{ route('admin.live-chat.take-over', $activeConversation) }}"
@@ -266,7 +266,7 @@
                 <!-- Area Riwayat Pesan CS (Bisa Discroll Alami) -->
                 <div id="admin-chat-messages"
                      data-poll-url="{{ route('admin.live-chat.poll', $activeConversation) }}"
-                     class="flex-1 p-5 space-y-4 bg-slate-50/60 dark:bg-slate-950/40 overflow-y-auto max-h-[460px]">
+                     class="flex-1 p-3 sm:p-5 space-y-4 bg-slate-50/60 dark:bg-slate-950/40 overflow-y-auto max-h-[460px]">
                     @forelse($activeConversation->messages as $msg)
                         @php
                             $isUser = $msg->sender_type === 'user';
@@ -281,9 +281,9 @@
                                 </span>
                             </div>
                         @elseif($isAdmin)
-                            <div class="flex justify-end pl-12">
-                                <div class="max-w-md sm:max-w-lg bg-unpam-navy dark:bg-slate-800 text-white rounded-2xl rounded-tr-xs px-4 py-3 shadow-xs space-y-1">
-                                    <div class="flex items-center justify-between gap-3 text-[10px] text-slate-300">
+                            <div class="flex justify-end pl-4 sm:pl-12">
+                                <div class="max-w-full sm:max-w-lg bg-unpam-navy dark:bg-slate-800 text-white rounded-2xl rounded-tr-xs px-3.5 sm:px-4 py-3 shadow-xs space-y-1">
+                                    <div class="flex flex-wrap items-center justify-between gap-2 text-[10px] text-slate-300">
                                         <span class="font-bold text-unpam-gold">{{ $msg->sender_name ?: 'CS Layanan' }} (ADMIN)</span>
                                         <span class="font-mono">{{ $msg->created_at?->format('H:i') }}</span>
                                     </div>
@@ -298,9 +298,9 @@
                                 </div>
                             </div>
                         @else
-                            <div class="flex justify-start pr-12">
-                                <div class="max-w-md sm:max-w-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-2xl rounded-tl-xs px-4 py-3 shadow-xs space-y-1">
-                                    <div class="flex items-center justify-between gap-3 text-[10px] text-slate-400">
+                            <div class="flex justify-start pr-4 sm:pr-12">
+                                <div class="max-w-full sm:max-w-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-2xl rounded-tl-xs px-3.5 sm:px-4 py-3 shadow-xs space-y-1">
+                                    <div class="flex flex-wrap items-center justify-between gap-2 text-[10px] text-slate-400">
                                         <span class="font-bold text-slate-700 dark:text-slate-300">{{ $msg->sender_name ?: 'Mahasiswa' }} (MAHASISWA)</span>
                                         <span class="font-mono">{{ $msg->created_at?->format('H:i') }}</span>
                                     </div>
@@ -350,28 +350,28 @@
                     @endif
 
                     <!-- Template Balasan Cepat CS (Canned Responses) -->
-                    <div class="flex items-center gap-1.5 overflow-x-auto text-[11px] pb-1">
+                    <div class="flex flex-wrap items-center gap-1.5 text-[11px]">
                         <span class="font-bold text-slate-500 dark:text-slate-400 uppercase shrink-0 text-[10px]">Balasan Cepat:</span>
                         <button type="button"
                                 onclick="insertQuickReply('Halo, selamat datang di Layanan SiRNaMa {{ addslashes($brandAppName) }}. Ada yang bisa kami bantu?')"
-                                class="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-semibold whitespace-nowrap transition-colors">
+                                class="min-h-[34px] px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-semibold transition-colors cursor-pointer">
                             Sapaan Pembuka
                         </button>
                         <button type="button"
                                 onclick="insertQuickReply('Baik, mohon tunggu sebentar ya. Kami sedang melakukan verifikasi data pada sistem.')"
-                                class="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-semibold whitespace-nowrap transition-colors">
+                                class="min-h-[34px] px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-semibold transition-colors cursor-pointer">
                             Mohon Tunggu
                         </button>
                         <button type="button"
                                 onclick="insertQuickReply('Sama-sama, senang bisa membantu. Jika ada hal lain yang perlu ditanyakan, silakan hubungi kami kembali.')"
-                                class="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-semibold whitespace-nowrap transition-colors">
+                                class="min-h-[34px] px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-semibold transition-colors cursor-pointer">
                             Penutup Layanan
                         </button>
                     </div>
 
-                    <form action="{{ route('admin.live-chat.reply', $activeConversation) }}" method="POST" class="flex items-end gap-2.5">
+                    <form action="{{ route('admin.live-chat.reply', $activeConversation) }}" method="POST" class="flex flex-col sm:flex-row sm:items-end gap-2.5">
                         @csrf
-                        <div class="flex-1 relative">
+                        <div class="flex-1 min-w-0 relative">
                             <textarea id="csReplyInput"
                                       name="message"
                                       rows="2"
@@ -380,7 +380,7 @@
                                       class="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-unpam-navy resize-none"></textarea>
                         </div>
                         <button type="submit"
-                                class="min-h-[46px] px-5 py-2.5 rounded-xl bg-unpam-navy dark:bg-slate-700 hover:bg-slate-800 dark:hover:bg-slate-600 text-white font-bold text-xs sm:text-sm shadow-xs transition-colors inline-flex items-center gap-2 shrink-0">
+                                class="w-full sm:w-auto min-h-[46px] px-5 py-2.5 rounded-xl bg-unpam-navy dark:bg-slate-700 hover:bg-slate-800 dark:hover:bg-slate-600 text-white font-bold text-xs sm:text-sm shadow-xs transition-colors inline-flex items-center justify-center gap-2 shrink-0 cursor-pointer">
                             <span>Kirim Balasan</span>
                             <svg class="w-4 h-4 text-unpam-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
                         </button>

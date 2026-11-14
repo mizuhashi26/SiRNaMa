@@ -36,34 +36,34 @@
 
             <div class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl p-5 space-y-3 text-sm shadow-xs">
                 <h2 class="text-base font-bold text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-700 pb-2">Status &amp; Ringkasan</h2>
-                <dl class="space-y-2">
-                    <div class="flex justify-between">
-                        <dt class="text-slate-600 dark:text-slate-400">Status Terakhir:</dt>
-                        <dd class="font-bold text-slate-900 dark:text-white">{{ strtoupper($reminder->status) }}</dd>
+                <dl class="space-y-2.5">
+                    <div class="flex items-start justify-between gap-3">
+                        <dt class="text-slate-600 dark:text-slate-400 shrink-0">Status Terakhir:</dt>
+                        <dd class="font-bold text-slate-900 dark:text-white text-right break-words">{{ strtoupper($reminder->status) }}</dd>
                     </div>
-                    <div class="flex justify-between">
-                        <dt class="text-slate-600 dark:text-slate-400">Target Penerima:</dt>
-                        <dd class="font-bold text-slate-900 dark:text-white">{{ $reminder->target_type_label }}</dd>
+                    <div class="flex items-start justify-between gap-3">
+                        <dt class="text-slate-600 dark:text-slate-400 shrink-0">Target Penerima:</dt>
+                        <dd class="font-bold text-slate-900 dark:text-white text-right break-words">{{ $reminder->target_type_label }}</dd>
                     </div>
-                    <div class="flex justify-between">
-                        <dt class="text-slate-600 dark:text-slate-400">Jadwal:</dt>
-                        <dd class="font-semibold text-slate-900 dark:text-slate-200">{{ $reminder->scheduled_at?->format('d M Y, H:i') ?? 'Manual' }}</dd>
+                    <div class="flex items-start justify-between gap-3">
+                        <dt class="text-slate-600 dark:text-slate-400 shrink-0">Jadwal:</dt>
+                        <dd class="font-semibold text-slate-900 dark:text-slate-200 text-right break-words">{{ $reminder->scheduled_at?->format('d M Y, H:i') ?? 'Manual' }}</dd>
                     </div>
-                    <div class="flex justify-between">
-                        <dt class="text-slate-600 dark:text-slate-400">Terakhir Dikirim:</dt>
-                        <dd class="font-semibold text-slate-900 dark:text-slate-200">{{ $reminder->sent_at?->format('d M Y, H:i:s') ?? 'Belum pernah' }}</dd>
+                    <div class="flex items-start justify-between gap-3">
+                        <dt class="text-slate-600 dark:text-slate-400 shrink-0">Terakhir Dikirim:</dt>
+                        <dd class="font-semibold text-slate-900 dark:text-slate-200 text-right break-words">{{ $reminder->sent_at?->format('d M Y, H:i:s') ?? 'Belum pernah' }}</dd>
                     </div>
-                    <div class="flex justify-between">
-                        <dt class="text-slate-600 dark:text-slate-400">Total Target:</dt>
-                        <dd class="font-bold text-slate-900 dark:text-white">{{ $reminder->total_targets }} mahasiswa</dd>
+                    <div class="flex items-start justify-between gap-3">
+                        <dt class="text-slate-600 dark:text-slate-400 shrink-0">Total Target:</dt>
+                        <dd class="font-bold text-slate-900 dark:text-white text-right">{{ $reminder->total_targets }} mahasiswa</dd>
                     </div>
-                    <div class="flex justify-between">
-                        <dt class="text-slate-600 dark:text-slate-400">Berhasil Terkirim:</dt>
-                        <dd class="font-bold text-emerald-700 dark:text-emerald-400">{{ $reminder->sent_count }}</dd>
+                    <div class="flex items-start justify-between gap-3">
+                        <dt class="text-slate-600 dark:text-slate-400 shrink-0">Berhasil Terkirim:</dt>
+                        <dd class="font-bold text-emerald-700 dark:text-emerald-400 text-right">{{ $reminder->sent_count }}</dd>
                     </div>
-                    <div class="flex justify-between">
-                        <dt class="text-slate-600 dark:text-slate-400">Gagal / Belum Diuji:</dt>
-                        <dd class="font-bold text-red-700 dark:text-red-400">{{ $reminder->failed_count }}</dd>
+                    <div class="flex items-start justify-between gap-3">
+                        <dt class="text-slate-600 dark:text-slate-400 shrink-0">Gagal / Belum Diuji:</dt>
+                        <dd class="font-bold text-red-700 dark:text-red-400 text-right">{{ $reminder->failed_count }}</dd>
                     </div>
                 </dl>
 

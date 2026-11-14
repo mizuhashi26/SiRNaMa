@@ -121,13 +121,13 @@
         <div id="chatbot-header-handle"
             title="Tahan dan geser untuk memindahkan. Klik dua kali untuk kembali ke posisi awal."
             class="bg-unpam-navy text-white px-3.5 py-2.5 flex items-center justify-between gap-2 border-b-2 border-unpam-gold cursor-move active:cursor-grabbing select-none shrink-0">
-            <div class="flex items-center gap-2.5 pointer-events-none">
+            <div class="flex items-center gap-2.5 min-w-0 pointer-events-none">
                 <!-- Bulat Berkedip Nyata -->
-                <span class="unpam-blinking-dot" aria-hidden="true"></span>
-                <div>
+                <span class="unpam-blinking-dot shrink-0" aria-hidden="true"></span>
+                <div class="min-w-0">
                     <!-- Judul Ringkas -->
                     <h2 class="font-bold text-sm text-white leading-snug">SiRNaMa Chat</h2>
-                    <p id="chatbot-status-badge" class="text-[11px] text-amber-200 leading-none">Status: Memuat sesi...
+                    <p id="chatbot-status-badge" class="text-[11px] text-amber-200 leading-snug break-words">Status: Memuat sesi...
                     </p>
                 </div>
             </div>
@@ -212,7 +212,7 @@
             class="bg-slate-100 dark:bg-slate-800 border-t border-slate-300 dark:border-slate-700 p-2.5 flex items-center gap-2 shrink-0">
             <label for="chatbot-input" class="sr-only">Ketik angka menu atau pesan untuk Admin</label>
             <input type="text" id="chatbot-input" name="message" required placeholder="Ketik 1, 2, 3 atau pesan Anda..."
-                class="flex-1 min-h-[40px] px-3 py-1.5 rounded-lg border border-slate-400 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-unpam-gold">
+                class="flex-1 min-w-0 min-h-[40px] px-3 py-1.5 rounded-lg border border-slate-400 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-unpam-gold">
             <button type="submit" id="chatbot-submit-btn"
                 class="min-h-[40px] px-4 py-1.5 rounded-lg bg-unpam-gold text-slate-950 font-bold text-sm hover:bg-unpam-goldHover shadow-sm shrink-0">
                 Kirim
@@ -643,7 +643,7 @@
                     options.forEach(function (opt) {
                         const btn = document.createElement('button');
                         btn.type = 'button';
-                        btn.className = 'min-h-[32px] px-2.5 py-1.5 rounded-md text-[11px] sm:text-xs font-semibold border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-unpam-gold hover:text-slate-950 dark:hover:bg-unpam-gold dark:hover:text-slate-950 hover:border-amber-400 text-slate-800 dark:text-slate-100 transition-colors shrink-0 shadow-xs';
+                        btn.className = 'max-w-full min-h-[34px] px-2.5 py-1.5 rounded-md text-left whitespace-normal break-words leading-snug text-[11px] sm:text-xs font-semibold border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-unpam-gold hover:text-slate-950 dark:hover:bg-unpam-gold dark:hover:text-slate-950 hover:border-amber-400 text-slate-800 dark:text-slate-100 transition-colors shadow-xs cursor-pointer';
                         btn.textContent = opt.label;
                         btn.addEventListener('click', function (e) {
                             e.stopPropagation();

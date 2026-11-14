@@ -59,16 +59,16 @@
     <header class="bg-unpam-navy dark:bg-slate-950 text-white sticky top-0 z-30 shadow-md border-b dark:border-slate-800">
         <div class="w-full max-w-7xl 2xl:max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12">
             <div class="flex items-center justify-between py-1.5 sm:py-2 gap-3">
-                <a href="{{ route('public.index') }}" class="flex items-center gap-2.5 min-h-[38px] shrink-0 focus-visible:outline-unpam-gold">
+                <a href="{{ route('public.index') }}" class="flex items-center gap-2.5 min-h-[38px] min-w-0 focus-visible:outline-unpam-gold">
                     @php($resolvedLogoUrl = \App\Models\AppSetting::resolveLogoUrl($brandLogoImage))
                     @if($resolvedLogoUrl)
                         <img src="{{ $resolvedLogoUrl }}" alt="Logo Kampus" class="h-8 sm:h-9 w-auto max-w-[100px] object-contain bg-transparent shrink-0" />
                     @else
                         <img src="{{ asset('images/unpam-logo.svg') }}" alt="Logo Kampus" class="h-8 sm:h-9 w-8 sm:w-9 object-contain bg-transparent shrink-0 drop-shadow" />
                     @endif
-                    <div class="leading-tight">
-                        <span class="block font-bold text-sm sm:text-base leading-tight text-white whitespace-nowrap">SiRNaMa</span>
-                        <span class="block text-[10px] text-slate-300 hidden sm:block whitespace-nowrap">{{ $brandAppName }}</span>
+                    <div class="leading-tight min-w-0">
+                        <span class="block font-bold text-sm sm:text-base leading-tight text-white">SiRNaMa</span>
+                        <span class="block text-[10px] text-slate-300 hidden sm:block leading-tight break-words">{{ $brandAppName }}</span>
                     </div>
                 </a>
 

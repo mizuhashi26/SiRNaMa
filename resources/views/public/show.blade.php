@@ -15,10 +15,10 @@
                 {{ $information->category_label }}
             </a>
             <span>/</span>
-            <span class="text-slate-600 dark:text-slate-400">{{ $information->title }}</span>
+            <span class="text-slate-600 dark:text-slate-400 break-words">{{ $information->title }}</span>
         </nav>
 
-        <article class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg p-6 sm:p-8 space-y-6">
+        <article class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg p-4 sm:p-8 space-y-6">
             <header class="space-y-3 border-b border-slate-200 dark:border-slate-700 pb-5">
                 <div class="flex flex-wrap items-center gap-2">
                     <span class="inline-block text-xs font-bold px-2.5 py-1 rounded {{ $information->category === 'pembayaran' ? 'bg-amber-100 text-slate-950 border border-amber-300 dark:bg-amber-900/40 dark:text-amber-200 dark:border-amber-700' : 'bg-slate-200 text-slate-900 dark:bg-slate-700 dark:text-slate-200' }}">
@@ -29,18 +29,18 @@
                     </span>
                 </div>
 
-                <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white leading-tight">
+                <h1 class="text-xl sm:text-3xl font-extrabold text-slate-900 dark:text-white leading-tight break-words">
                     {{ $information->title }}
                 </h1>
 
                 @if($information->summary)
-                    <p class="text-base font-medium text-slate-700 dark:text-slate-300 leading-relaxed">
+                    <p class="text-base font-medium text-slate-700 dark:text-slate-300 leading-relaxed break-words">
                         {{ $information->summary }}
                     </p>
                 @endif
             </header>
 
-            <div class="prose max-w-none text-slate-900 dark:text-slate-100 leading-relaxed space-y-4 text-sm sm:text-base whitespace-pre-line">{{ $information->content }}</div>
+            <div class="prose max-w-none text-slate-900 dark:text-slate-100 leading-relaxed space-y-4 text-sm sm:text-base whitespace-pre-line break-words">{{ $information->content }}</div>
 
             <footer class="pt-6 border-t border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <p class="text-xs text-slate-600 dark:text-slate-400">

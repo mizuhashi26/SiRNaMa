@@ -24,19 +24,19 @@
 
         <!-- Bagian 1: Identitas & Logo Website -->
         <div class="bg-white dark:bg-slate-800 rounded-xl shadow-xs border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div class="px-6 py-4 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-lg bg-unpam-navy text-unpam-gold flex items-center justify-center font-bold text-sm shadow-xs">
+            <div class="px-4 sm:px-6 py-4 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-9 h-9 rounded-lg bg-unpam-navy text-unpam-gold flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
                         ID
                     </div>
-                    <div>
+                    <div class="min-w-0">
                         <h2 class="text-base font-bold text-slate-900 dark:text-white">Identitas &amp; Logo Website</h2>
                         <p class="text-xs text-slate-500 dark:text-slate-400">Nama institusi, badge logo, file gambar logo, tagline dan footer publik.</p>
                     </div>
                 </div>
             </div>
 
-            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
                 <div>
                     <label for="app_institution_name" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                         Nama Institusi Kampus <span class="text-red-500">*</span>
@@ -77,11 +77,11 @@
                            class="w-full px-3.5 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-sm text-slate-600 dark:text-slate-300 file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-unpam-navy file:text-white hover:file:bg-slate-800 cursor-pointer">
                     <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5">Format disarankan: PNG transparan atau SVG. Ukuran maksimal 2MB.</p>
 
-                    <div class="mt-4 p-4 bg-unpam-navy rounded-xl border border-slate-700 flex items-center justify-between">
+                    <div class="mt-4 p-4 bg-unpam-navy rounded-xl border border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         @php($resolvedLogoUrl = \App\Models\AppSetting::resolveLogoUrl($logoImage))
                         @php($defaultLogoUrl = asset('images/unpam-logo.svg'))
-                        <div class="flex items-center gap-4">
-                            <div class="p-2 bg-slate-900/50 rounded-lg flex items-center justify-center">
+                        <div class="flex items-center gap-4 min-w-0">
+                            <div class="p-2 bg-slate-900/50 rounded-lg flex items-center justify-center shrink-0">
                                 <img id="logoPreviewImg"
                                      src="{{ $resolvedLogoUrl ?? $defaultLogoUrl }}"
                                      data-saved-src="{{ $resolvedLogoUrl ?? $defaultLogoUrl }}"
@@ -89,16 +89,16 @@
                                      alt="Preview Logo"
                                      class="h-14 sm:h-16 w-auto max-w-[140px] object-contain bg-transparent drop-shadow">
                             </div>
-                            <div>
-                                <span class="block text-xs font-bold text-white">Preview Logo di Header (Latar Gelap Navy)</span>
-                                <span id="logoPreviewStatus" class="block text-[11px] text-slate-300"
+                            <div class="min-w-0">
+                                <span class="block text-xs font-bold text-white leading-snug">Preview Logo di Header (Latar Gelap Navy)</span>
+                                <span id="logoPreviewStatus" class="block text-[11px] text-slate-300 leading-snug break-words"
                                       data-saved-text="{{ $resolvedLogoUrl ? 'Menggunakan logo khusus yang diupload.' : 'Menggunakan logo default SVG transparan.' }}">
                                     {{ $resolvedLogoUrl ? 'Menggunakan logo khusus yang diupload.' : 'Menggunakan logo default SVG transparan.' }}
                                 </span>
                             </div>
                         </div>
                         @if($resolvedLogoUrl)
-                            <label class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-900/80 hover:bg-red-800 text-xs text-red-200 border border-red-700 cursor-pointer">
+                            <label class="self-start sm:self-auto min-h-[38px] inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-900/80 hover:bg-red-800 text-xs text-red-200 border border-red-700 cursor-pointer shrink-0">
                                 <input type="checkbox" id="remove_logo_image" name="remove_logo_image" value="1" class="rounded border-red-500 text-red-600 focus:ring-red-500">
                                 <span class="font-bold">Reset ke Logo Bawaan</span>
                             </label>
@@ -121,19 +121,19 @@
 
         <!-- Bagian 2: Kustomisasi Warna & Tema Web -->
         <div class="bg-white dark:bg-slate-800 rounded-xl shadow-xs border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div class="px-6 py-4 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-unpam-navy to-unpam-gold text-white flex items-center justify-center font-bold text-sm shadow-xs">
+            <div class="px-4 sm:px-6 py-4 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-unpam-navy to-unpam-gold text-white flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4 5 5 0 013-4.594M7 21h10a4 4 0 004-4 5 5 0 00-3-4.594M7 21v-2a4 4 0 014-4h2a4 4 0 014 4v2M12 7a4 4 0 100-8 4 4 0 000 8z"/></svg>
                     </div>
-                    <div>
+                    <div class="min-w-0">
                         <h2 class="text-base font-bold text-slate-900 dark:text-white">Kustomisasi Warna &amp; Tema Web</h2>
                         <p class="text-xs text-slate-500 dark:text-slate-400">Ubah palet warna utama (primary) dan warna aksen tombol website sesuai kebutuhan.</p>
                     </div>
                 </div>
             </div>
 
-            <div class="p-6 space-y-6">
+            <div class="p-4 sm:p-6 space-y-6">
                 <!-- Preset Cepat Warna -->
                 <div>
                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
@@ -242,7 +242,7 @@
                 <!-- Preview Komponen Warna Langsung -->
                 <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 space-y-3">
                     <p class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">Preview Hasil Warna:</p>
-                    <div id="themePreviewHeader" class="p-3 rounded-lg text-white flex items-center justify-between" style="background-color: {{ old('theme_primary_color', $themePrimaryColor) }}; border-bottom: 3px solid {{ old('theme_accent_color', $themeAccentColor) }};">
+                    <div id="themePreviewHeader" class="p-3 rounded-lg text-white flex flex-wrap items-center justify-between gap-2" style="background-color: {{ old('theme_primary_color', $themePrimaryColor) }}; border-bottom: 3px solid {{ old('theme_accent_color', $themeAccentColor) }};">
                         <div class="flex items-center gap-2">
                             <span class="w-3 h-3 rounded-full" style="background-color: {{ old('theme_accent_color', $themeAccentColor) }};"></span>
                             <span class="text-xs font-bold">Header &amp; Navigasi Portal Layanan</span>
@@ -257,19 +257,19 @@
 
         <!-- Bagian 3: Profil & Nama Akun Admin -->
         <div class="bg-white dark:bg-slate-800 rounded-xl shadow-xs border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div class="px-6 py-4 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-lg bg-slate-800 dark:bg-slate-700 text-white flex items-center justify-center font-bold text-sm shadow-xs">
+            <div class="px-4 sm:px-6 py-4 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-9 h-9 rounded-lg bg-slate-800 dark:bg-slate-700 text-white flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
                         <svg class="w-5 h-5 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                     </div>
-                    <div>
+                    <div class="min-w-0">
                         <h2 class="text-base font-bold text-slate-900 dark:text-white">Profil &amp; Nama Akun Admin</h2>
                         <p class="text-xs text-slate-500 dark:text-slate-400">Nama identitas admin yang tampil di navbar dan sebagai akhiran balasan live chat (contoh: -Admin 1).</p>
                     </div>
                 </div>
             </div>
 
-            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
                 <div>
                     <label for="admin_name" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                         Nama Lengkap / Nama Admin <span class="text-red-500">*</span>
@@ -301,12 +301,12 @@
 
         <!-- Bagian 4: Integrasi WhatsApp API (Fonnte Gateway) -->
         <div class="bg-white dark:bg-slate-800 rounded-xl shadow-xs border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div class="px-6 py-4 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold text-sm shadow-xs">
+            <div class="px-4 sm:px-6 py-4 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-9 h-9 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
                         WA
                     </div>
-                    <div>
+                    <div class="min-w-0">
                         <h2 class="text-base font-bold text-slate-900 dark:text-white">Integrasi WhatsApp Gateway (Fonnte)</h2>
                         <p class="text-xs text-slate-500 dark:text-slate-400">Koneksi pengiriman reminder otomatis dan chatbot WhatsApp.</p>
                     </div>
@@ -323,7 +323,7 @@
                 @endif
             </div>
 
-            <div class="p-6 space-y-6">
+            <div class="p-4 sm:p-6 space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label for="fonnte_token" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
@@ -368,15 +368,15 @@
                     <p class="text-xs text-slate-600 dark:text-slate-400">
                         Salin URL ini dan masukkan ke pengaturan Webhook di dashboard Fonnte agar pesan dari WhatsApp mahasiswa dapat dibalas oleh bot dan admin secara otomatis:
                     </p>
-                    <div class="flex items-center gap-2">
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-2">
                         <input type="text"
                                readonly
                                value="{{ $webhookUrl }}"
                                id="webhookUrlField"
-                               class="flex-1 bg-white dark:bg-slate-950 px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 text-xs font-mono text-slate-700 dark:text-slate-300 selection:bg-unpam-gold">
+                               class="w-full sm:flex-1 bg-white dark:bg-slate-950 px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 text-xs font-mono text-slate-700 dark:text-slate-300 selection:bg-unpam-gold">
                         <button type="button"
                                 onclick="navigator.clipboard.writeText(document.getElementById('webhookUrlField').value); alert('URL Webhook berhasil disalin!');"
-                                class="min-h-[38px] px-3.5 py-2 rounded-lg bg-slate-800 dark:bg-slate-700 hover:bg-slate-700 dark:hover:bg-slate-600 text-white text-xs font-bold transition-colors">
+                                class="min-h-[42px] px-4 py-2 rounded-lg bg-slate-800 dark:bg-slate-700 hover:bg-slate-700 dark:hover:bg-slate-600 text-white text-xs font-bold transition-colors shrink-0 cursor-pointer">
                             Salin URL
                         </button>
                     </div>
@@ -389,19 +389,19 @@
 
         <!-- Bagian 5: Kontak Layanan & Operasional -->
         <div class="bg-white dark:bg-slate-800 rounded-xl shadow-xs border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div class="px-6 py-4 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-lg bg-unpam-gold text-slate-950 flex items-center justify-center font-bold text-sm shadow-xs">
+            <div class="px-4 sm:px-6 py-4 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-9 h-9 rounded-lg bg-unpam-gold text-slate-950 flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
                         CS
                     </div>
-                    <div>
+                    <div class="min-w-0">
                         <h2 class="text-base font-bold text-slate-900 dark:text-white">Kontak Layanan Mahasiswa</h2>
                         <p class="text-xs text-slate-500 dark:text-slate-400">Nomor WhatsApp admin CS dan nomor kontak darurat.</p>
                     </div>
                 </div>
             </div>
 
-            <div class="p-6">
+            <div class="p-4 sm:p-6">
                 <div class="max-w-md">
                     <label for="admin_contact_phone" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                         Nomor WhatsApp CS Admin
@@ -418,7 +418,7 @@
         </div>
 
         <!-- Tombol Simpan -->
-        <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+        <div class="flex flex-wrap items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
             <a href="{{ route('admin.dashboard') }}"
                class="min-h-[44px] px-5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 font-semibold text-sm inline-flex items-center transition-colors">
                 Batal

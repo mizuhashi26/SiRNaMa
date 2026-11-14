@@ -9,9 +9,9 @@
         <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Pemisah Visual dan Penanda Konteks -->
             <div
-                class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-unpam-navyDark dark:bg-slate-900 border border-unpam-gold/50 dark:border-amber-400/40 text-unpam-gold text-xs font-semibold mb-4 shadow-sm">
-                <span class="inline-block w-2 h-2 rounded-full bg-unpam-gold"></span>
-                <span>Pusat Informasi & Layanan Terpadu Mahasiswa</span>
+                class="inline-flex items-center gap-2 max-w-full px-3.5 py-1.5 rounded-full bg-unpam-navyDark dark:bg-slate-900 border border-unpam-gold/50 dark:border-amber-400/40 text-unpam-gold text-xs font-semibold mb-4 shadow-sm">
+                <span class="inline-block w-2 h-2 rounded-full bg-unpam-gold shrink-0"></span>
+                <span class="leading-snug">Pusat Informasi &amp; Layanan Terpadu Mahasiswa</span>
             </div>
 
             <div class="max-w-4xl space-y-3 sm:space-y-4">
@@ -80,18 +80,18 @@
                                     class="inline-block text-xs font-bold bg-amber-100 dark:bg-amber-950/70 text-slate-950 dark:text-amber-300 border border-amber-300 dark:border-amber-600/70 px-2.5 py-0.5 rounded-md">
                                     {{ $payInfo->category_label }}
                                 </span>
-                                <h3 class="font-bold text-base 2xl:text-lg text-slate-900 dark:text-white leading-snug">
+                                <h3 class="font-bold text-base 2xl:text-lg text-slate-900 dark:text-white leading-snug break-words">
                                     <a href="{{ route('public.show', $payInfo->slug) }}"
                                         class="hover:text-unpam-navy dark:hover:text-amber-300 hover:underline transition-colors">
                                         {{ $payInfo->title }}
                                     </a>
                                 </h3>
-                                <p class="text-xs sm:text-sm 2xl:text-base text-slate-700 dark:text-slate-300 leading-relaxed">
+                                <p class="text-xs sm:text-sm 2xl:text-base text-slate-700 dark:text-slate-300 leading-relaxed break-words">
                                     {{ $payInfo->summary ?: \Illuminate\Support\Str::limit(strip_tags($payInfo->content), 120) }}
                                 </p>
                             </div>
                             <div
-                                class="pt-3 mt-3 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between text-xs text-slate-600 dark:text-slate-400">
+                                class="pt-3 mt-3 border-t border-slate-100 dark:border-slate-700 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-600 dark:text-slate-400">
                                 <span>{{ $payInfo->published_at?->format('d M Y') ?? $payInfo->created_at->format('d M Y') }}</span>
                                 <a href="{{ route('public.show', $payInfo->slug) }}"
                                     class="font-bold text-unpam-navy dark:text-amber-300 hover:underline min-h-[36px] inline-flex items-center">
@@ -165,20 +165,20 @@
                                     @endif
                                 </div>
 
-                                <h3 class="text-lg font-bold text-slate-900 dark:text-white leading-snug">
+                                <h3 class="text-lg font-bold text-slate-900 dark:text-white leading-snug break-words">
                                     <a href="{{ route('public.show', $info->slug) }}"
                                         class="hover:text-unpam-navy dark:hover:text-amber-300 hover:underline transition-colors">
                                         {{ $info->title }}
                                     </a>
                                 </h3>
 
-                                <p class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                                <p class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed break-words">
                                     {{ $info->summary ?: \Illuminate\Support\Str::limit(strip_tags($info->content), 140) }}
                                 </p>
                             </div>
 
                             <div
-                                class="pt-4 mt-4 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between text-xs text-slate-600 dark:text-slate-400">
+                                class="pt-4 mt-4 border-t border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-600 dark:text-slate-400">
                                 <span>Dipublikasikan:
                                     {{ $info->published_at?->format('d M Y') ?? $info->created_at->format('d M Y') }}</span>
                                 <a href="{{ route('public.show', $info->slug) }}"

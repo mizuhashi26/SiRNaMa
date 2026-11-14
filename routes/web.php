@@ -75,6 +75,8 @@ Route::prefix('admin')
         // === Khusus Super Admin: Mahasiswa, Pengaturan, Kelola Admin ===
         Route::middleware('superadmin')->group(function () {
             // Pengelolaan & Batch Import Data Mahasiswa
+            Route::get('students/bulk', [StudentController::class, 'bulkCreate'])->name('students.bulk-create');
+            Route::post('students/bulk', [StudentController::class, 'bulkStore'])->name('students.bulk-store');
             Route::post('students/import', [StudentController::class, 'import'])->name('students.import');
             Route::get('students/template', [StudentController::class, 'downloadTemplate'])->name('students.template');
             Route::post('students/bulk-delete', [StudentController::class, 'bulkDelete'])->name('students.bulk-delete');

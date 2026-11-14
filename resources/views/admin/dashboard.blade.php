@@ -49,17 +49,17 @@
         <!-- Bar Status Ringkas & Gateway Fonnte -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <!-- Kartu 1: Live Chat & Interaksi -->
-            <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 shadow-sm flex items-center justify-between">
-                <div>
+            <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 shadow-sm flex items-center justify-between gap-3">
+                <div class="min-w-0">
                     <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Live Chat &amp; Layanan</p>
-                    <div class="flex items-baseline gap-2 mt-1">
+                    <div class="flex flex-wrap items-baseline gap-2 mt-1">
                         <span
                             class="text-2xl font-extrabold {{ $counts['waiting_admin'] > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-slate-900 dark:text-white' }}">
                             {{ $counts['total_active'] }}
                         </span>
                         <span class="text-xs text-slate-500 dark:text-slate-400">Sesi Aktif</span>
                     </div>
-                    <div class="flex items-center gap-1.5 mt-1.5 text-[11px]">
+                    <div class="flex flex-wrap items-center gap-1.5 mt-1.5 text-[11px]">
                         @if($counts['waiting_admin'] > 0)
                             <span class="font-bold text-amber-800 dark:text-amber-200 bg-amber-100 dark:bg-amber-900/60 px-1.5 py-0.5 rounded border border-amber-200 dark:border-amber-700">
                                 {{ $counts['waiting_admin'] }} Butuh Admin
@@ -69,7 +69,7 @@
                     </div>
                 </div>
                 <div
-                    class="w-10 h-10 rounded-lg {{ $counts['waiting_admin'] > 0 ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 animate-pulse' : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300' }} flex items-center justify-center">
+                    class="w-10 h-10 rounded-lg shrink-0 {{ $counts['waiting_admin'] > 0 ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 animate-pulse' : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300' }} flex items-center justify-center">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -78,15 +78,15 @@
             </div>
 
             <!-- Kartu 2: Informasi Kampus Terbit -->
-            <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 shadow-sm flex items-center justify-between">
-                <div>
+            <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 shadow-sm flex items-center justify-between gap-3">
+                <div class="min-w-0">
                     <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Informasi Terbit</p>
-                    <div class="flex items-baseline gap-2 mt-1">
+                    <div class="flex flex-wrap items-baseline gap-2 mt-1">
                         <span class="text-2xl font-extrabold text-slate-900 dark:text-white">{{ $counts['published_info'] }}</span>
                         <span class="text-xs text-slate-500 dark:text-slate-400">Artikel Aktif</span>
                     </div>
                 </div>
-                <div class="w-10 h-10 rounded-lg bg-blue-50 text-unpam-navy dark:bg-slate-700 dark:text-amber-300 flex items-center justify-center">
+                <div class="w-10 h-10 rounded-lg shrink-0 bg-blue-50 text-unpam-navy dark:bg-slate-700 dark:text-amber-300 flex items-center justify-center">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
@@ -95,15 +95,15 @@
             </div>
 
             <!-- Kartu 3: Mahasiswa Dummy Terdaftar -->
-            <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 shadow-sm flex items-center justify-between">
-                <div>
+            <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 shadow-sm flex items-center justify-between gap-3">
+                <div class="min-w-0">
                     <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Mahasiswa Terdaftar</p>
-                    <div class="flex items-baseline gap-2 mt-1">
+                    <div class="flex flex-wrap items-baseline gap-2 mt-1">
                         <span class="text-2xl font-extrabold text-slate-900 dark:text-white">{{ $counts['active_students'] }}</span>
                         <span class="text-xs text-slate-500 dark:text-slate-400">Penerima WA</span>
                     </div>
                 </div>
-                <div class="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 flex items-center justify-center">
+                <div class="w-10 h-10 rounded-lg shrink-0 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 flex items-center justify-center">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -112,12 +112,12 @@
             </div>
 
             <!-- Kartu 4: Gateway WhatsApp Fonnte -->
-            <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 shadow-sm flex items-center justify-between">
-                <div>
+            <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 shadow-sm flex items-center justify-between gap-3">
+                <div class="min-w-0">
                     <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">WhatsApp Gateway</p>
                     <div class="flex items-center gap-1.5 mt-1.5">
                         <span
-                            class="w-2.5 h-2.5 rounded-full {{ $fonnteConfigured ? 'bg-emerald-500' : 'bg-amber-500' }}"></span>
+                            class="w-2.5 h-2.5 rounded-full shrink-0 {{ $fonnteConfigured ? 'bg-emerald-500' : 'bg-amber-500' }}"></span>
                         <span class="text-xs font-bold {{ $fonnteConfigured ? 'text-emerald-800 dark:text-emerald-400' : 'text-amber-800 dark:text-amber-300' }}">
                             {{ $fonnteConfigured ? 'Terkoneksi' : 'Token Belum Diisi' }}
                         </span>
@@ -130,7 +130,7 @@
                     @endif
                 </div>
                 <div
-                    class="w-10 h-10 rounded-lg {{ $fonnteConfigured ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400' : 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400' }} flex items-center justify-center">
+                    class="w-10 h-10 rounded-lg shrink-0 {{ $fonnteConfigured ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400' : 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400' }} flex items-center justify-center">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
@@ -141,10 +141,10 @@
 
         <!-- Prioritas 1: Antrean & Percakapan Live Chat -->
         <section aria-labelledby="heading-livechat-queue"
-            class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-5 sm:p-6 shadow-sm space-y-4">
+            class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 sm:p-6 shadow-sm space-y-4">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200 dark:border-slate-700">
-                <div>
-                    <h2 id="heading-livechat-queue" class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <div class="min-w-0">
+                    <h2 id="heading-livechat-queue" class="text-lg font-bold text-slate-900 dark:text-white flex flex-wrap items-center gap-2">
                         <span>Percakapan Mahasiswa &amp; Live Chat</span>
                         @if($counts['waiting_admin'] > 0)
                             <span
@@ -153,11 +153,11 @@
                             </span>
                         @endif
                     </h2>
-                    <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+                    <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1">
                         Seluruh interaksi mahasiswa dan tamu dari Website &amp; WhatsApp, baik yang sedang dilayani Bot maupun yang memerlukan respons Admin.
                     </p>
                 </div>
-                <div class="flex items-center gap-2 self-start sm:self-auto">
+                <div class="flex items-center gap-2 self-start sm:self-auto shrink-0">
                     <a href="{{ route('admin.live-chat.index') }}"
                         class="min-h-[44px] inline-flex items-center px-4 py-2 rounded-lg bg-unpam-navy text-white text-xs sm:text-sm font-bold hover:bg-slate-800 transition-colors shadow-sm">
                         Buka Live Chat Terpusat
@@ -166,24 +166,24 @@
             </div>
 
             <!-- Tab Filter Percakapan -->
-            <div class="flex items-center gap-2 border-b border-slate-200 dark:border-slate-700 pb-2 text-xs font-bold overflow-x-auto">
+            <div class="flex flex-wrap items-center gap-2 border-b border-slate-200 dark:border-slate-700 pb-2.5 text-xs font-bold">
                 <a href="{{ route('admin.dashboard', ['tab' => 'all']) }}"
-                    class="px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap {{ ($currentTab ?? 'all') === 'all' ? 'bg-unpam-navy text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600' }}">
+                    class="min-h-[36px] inline-flex items-center px-3 py-1.5 rounded-lg transition-colors {{ ($currentTab ?? 'all') === 'all' ? 'bg-unpam-navy text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600' }}">
                     Semua Aktif ({{ $counts['total_active'] }})
                 </a>
                 <a href="{{ route('admin.dashboard', ['tab' => 'waiting']) }}"
-                    class="px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap flex items-center gap-1.5 {{ ($currentTab ?? '') === 'waiting' ? 'bg-amber-400 text-slate-950 font-black' : 'bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-300 border border-amber-200 dark:border-amber-800 hover:bg-amber-100' }}">
+                    class="min-h-[36px] inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors {{ ($currentTab ?? '') === 'waiting' ? 'bg-amber-400 text-slate-950 font-black' : 'bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-300 border border-amber-200 dark:border-amber-800 hover:bg-amber-100' }}">
                     <span>Menunggu Admin</span>
                     @if($counts['waiting_admin'] > 0)
                         <span class="px-1.5 py-0.2 rounded-full text-[10px] font-black bg-red-600 text-white">{{ $counts['waiting_admin'] }}</span>
                     @endif
                 </a>
                 <a href="{{ route('admin.dashboard', ['tab' => 'bot']) }}"
-                    class="px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap {{ ($currentTab ?? '') === 'bot' ? 'bg-slate-800 dark:bg-slate-600 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600' }}">
+                    class="min-h-[36px] inline-flex items-center px-3 py-1.5 rounded-lg transition-colors {{ ($currentTab ?? '') === 'bot' ? 'bg-slate-800 dark:bg-slate-600 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600' }}">
                     Dilayani Bot ({{ $counts['bot_active'] }})
                 </a>
                 <a href="{{ route('admin.dashboard', ['tab' => 'admin']) }}"
-                    class="px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap {{ ($currentTab ?? '') === 'admin' ? 'bg-emerald-700 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600' }}">
+                    class="min-h-[36px] inline-flex items-center px-3 py-1.5 rounded-lg transition-colors {{ ($currentTab ?? '') === 'admin' ? 'bg-emerald-700 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600' }}">
                     Admin Aktif ({{ $counts['admin_active'] }})
                 </a>
             </div>
@@ -221,14 +221,14 @@
                                 @endphp
                                 <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/60 transition-colors">
                                     <td class="py-3.5 px-4 font-semibold text-slate-900 dark:text-white">
-                                        <div class="flex items-center gap-2.5">
+                                        <div class="flex items-center gap-2.5 min-w-0">
                                             <div
                                                 class="w-9 h-9 rounded-full {{ $conv->channel === 'whatsapp' ? 'bg-emerald-100 text-emerald-900 dark:bg-emerald-900/60 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700' : 'bg-blue-100 text-blue-900 dark:bg-blue-900/60 dark:text-blue-300 border border-blue-300 dark:border-blue-700' }} flex items-center justify-center font-bold text-xs uppercase shrink-0">
                                                 {{ substr($conv->user_name ?: $conv->external_user_id, 0, 2) }}
                                             </div>
-                                            <div>
-                                                <div class="flex items-center gap-1.5">
-                                                    <span class="block font-bold">{{ $conv->user_name ?: $conv->external_user_id }}</span>
+                                            <div class="min-w-0">
+                                                <div class="flex flex-wrap items-center gap-1.5">
+                                                    <span class="block font-bold break-words">{{ $conv->user_name ?: $conv->external_user_id }}</span>
                                                     @if($conv->channel === 'whatsapp')
                                                         @if($isRegistered)
                                                             <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700">
@@ -241,7 +241,7 @@
                                                         @endif
                                                     @endif
                                                 </div>
-                                                <div class="flex items-center gap-2 text-xs font-mono text-slate-500 dark:text-slate-400 mt-0.5">
+                                                <div class="flex flex-wrap items-center gap-2 text-xs font-mono text-slate-500 dark:text-slate-400 mt-0.5">
                                                     @if($conv->contact_number)
                                                         <span>+{{ $conv->contact_number }}</span>
                                                     @endif
@@ -284,12 +284,12 @@
                                             </span>
                                         @endif
                                     </td>
-                                    <td class="py-3.5 px-4 text-xs text-slate-600 dark:text-slate-300 max-w-xs">
+                                    <td class="py-3.5 px-4 text-xs text-slate-600 dark:text-slate-300 min-w-[200px] sm:max-w-xs">
                                         @if($lastMsg)
-                                            <div class="truncate">
+                                            <p class="line-clamp-2 break-words leading-snug">
                                                 <span class="font-semibold text-slate-800 dark:text-slate-200">{{ $lastMsg->sender_type === 'user' ? 'Mhs:' : ($lastMsg->sender_type === 'admin' ? 'CS:' : 'Bot:') }}</span>
                                                 {{ $lastMsg->message }}
-                                            </div>
+                                            </p>
                                         @endif
                                         <div class="text-[11px] text-slate-400 mt-0.5">
                                             {{ $conv->last_message_at?->diffForHumans() ?? '-' }}
@@ -320,7 +320,7 @@
             <!-- Kolom Kiri: Reminder Pembayaran Umum -->
             <section aria-labelledby="heading-reminders-box"
                 class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-5 sm:p-6 shadow-sm space-y-4">
-                <div class="flex items-center justify-between gap-2 pb-3 border-b border-slate-200 dark:border-slate-700">
+                <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-200 dark:border-slate-700">
                     <div>
                         <h2 id="heading-reminders-box" class="text-base font-bold text-slate-900 dark:text-white">
                             Reminder Pembayaran Umum
@@ -328,7 +328,7 @@
                         <p class="text-xs text-slate-500 dark:text-slate-400">Jadwal pengingat tagihan massal via WhatsApp.</p>
                     </div>
                     <a href="{{ route('admin.reminders.index') }}"
-                        class="text-xs font-bold text-unpam-navy dark:text-amber-400 hover:underline">
+                        class="text-xs font-bold text-unpam-navy dark:text-amber-400 hover:underline shrink-0">
                         Lihat Semua &rarr;
                     </a>
                 </div>
@@ -346,12 +346,12 @@
                     <ul class="divide-y divide-slate-100 dark:divide-slate-700 text-sm">
                         @foreach($upcomingReminders as $rem)
                             <li class="py-3 flex items-start justify-between gap-3">
-                                <div class="space-y-1">
+                                <div class="min-w-0 flex-1 space-y-1">
                                     <a href="{{ route('admin.reminders.show', $rem) }}"
-                                        class="font-bold text-slate-900 dark:text-white hover:text-unpam-navy dark:hover:text-amber-400 hover:underline block leading-snug">
+                                        class="font-bold text-slate-900 dark:text-white hover:text-unpam-navy dark:hover:text-amber-400 hover:underline block leading-snug break-words">
                                         {{ $rem->title }}
                                     </a>
-                                    <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                                    <div class="flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
                                         <span>Jadwal: {{ $rem->scheduled_at?->format('d M Y H:i') ?? 'Manual' }}</span>
                                         <span>&bull;</span>
                                         <span
@@ -372,8 +372,8 @@
 
             <!-- Kolom Kanan: Informasi Kampus & Chatbot Knowledge Base -->
             <section aria-labelledby="heading-info-box"
-                class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-5 sm:p-6 shadow-sm space-y-4">
-                <div class="flex items-center justify-between gap-2 pb-3 border-b border-slate-200 dark:border-slate-700">
+                class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 sm:p-6 shadow-sm space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-200 dark:border-slate-700">
                     <div>
                         <h2 id="heading-info-box" class="text-base font-bold text-slate-900 dark:text-white">
                             Sumber Informasi Kampus & Bot
@@ -381,7 +381,7 @@
                         <p class="text-xs text-slate-500 dark:text-slate-400">Data informasi terbit otomatis sinkron ke Web & Bot WhatsApp.</p>
                     </div>
                     <a href="{{ route('admin.informations.index') }}"
-                        class="text-xs font-bold text-unpam-navy dark:text-amber-400 hover:underline">
+                        class="text-xs font-bold text-unpam-navy dark:text-amber-400 hover:underline shrink-0">
                         Lihat Semua &rarr;
                     </a>
                 </div>
@@ -399,15 +399,15 @@
                     <ul class="divide-y divide-slate-100 dark:divide-slate-700 text-sm">
                         @foreach($recentInformations as $info)
                             <li class="py-3 flex items-start justify-between gap-3">
-                                <div class="space-y-1">
-                                    <div class="flex items-center gap-1.5">
+                                <div class="min-w-0 flex-1 space-y-1">
+                                    <div class="flex flex-wrap items-center gap-1.5">
                                         <span
                                             class="inline-block text-[10px] font-extrabold uppercase px-2 py-0.5 rounded {{ $info->is_published ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300' : 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300' }}">
                                             {{ $info->is_published ? 'Terbit' : 'Draft' }}
                                         </span>
                                         <span class="text-xs text-slate-500 dark:text-slate-400">{{ $info->category_label }}</span>
                                     </div>
-                                    <p class="font-bold text-slate-900 dark:text-white leading-snug">{{ $info->title }}</p>
+                                    <p class="font-bold text-slate-900 dark:text-white leading-snug break-words">{{ $info->title }}</p>
                                 </div>
                                 <a href="{{ route('admin.informations.edit', $info) }}"
                                     class="min-h-[38px] inline-flex items-center px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 text-xs font-bold text-slate-800 dark:text-slate-200 transition-colors shrink-0">

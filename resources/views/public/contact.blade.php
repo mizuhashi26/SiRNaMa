@@ -118,8 +118,8 @@
 
             <!-- Kolom 2 (KANAN, lg:col-span-5): WhatsApp Bot CRM & Jadwal Admin Membalas -->
             <div
-                class="lg:col-span-5 bg-white dark:bg-slate-800 border-2 border-emerald-500/80 dark:border-emerald-600 rounded-2xl p-6 sm:p-7 shadow-sm space-y-5 order-1 lg:order-2">
-                <div class="flex items-center justify-between gap-3">
+                class="lg:col-span-5 bg-white dark:bg-slate-800 border-2 border-emerald-500/80 dark:border-emerald-600 rounded-2xl p-4 sm:p-7 shadow-sm space-y-5 order-1 lg:order-2">
+                <div class="flex flex-wrap items-center justify-between gap-2.5">
                     <span
                         class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/80 px-2.5 py-1 rounded-full border border-emerald-300 dark:border-emerald-700">
                         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -145,7 +145,7 @@
                         Bot</p>
                     <div class="flex items-center justify-between gap-2">
                         <span
-                            class="text-lg sm:text-xl font-mono font-extrabold text-emerald-800 dark:text-emerald-300 tracking-wide">
+                            class="text-lg sm:text-xl font-mono font-extrabold text-emerald-800 dark:text-emerald-300 tracking-wide break-all">
                             {{ $formattedBotPhone }}
                         </span>
                     </div>
@@ -166,11 +166,11 @@
                         <h3 class="text-xs font-bold uppercase tracking-wider">Jadwal Admin Membalas (Live Chat)</h3>
                     </div>
                     <ul class="text-xs text-slate-700 dark:text-slate-200 space-y-1.5 leading-relaxed">
-                        <li class="flex items-center justify-between">
+                        <li class="flex flex-wrap items-center justify-between gap-1.5">
                             <span>Senin - Jumat:</span>
                             <span class="font-bold text-slate-900 dark:text-white">07.00 - 23.00 WIB</span>
                         </li>
-                        <li class="flex items-center justify-between">
+                        <li class="flex flex-wrap items-center justify-between gap-1.5">
                             <span>Sabtu:</span>
                             <span class="font-bold text-slate-900 dark:text-white">08.00 - 20.00 WIB</span>
                         </li>
