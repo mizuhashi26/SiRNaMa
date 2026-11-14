@@ -25,11 +25,13 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->report(function (\Throwable $e) {
             error_log(sprintf(
-                'LARAVEL_ERR: [%s] %s in %s:%d',
+                'LARAVEL_ERR: [%s] %s in %s:%d (db_host=%s db_port=%s)',
                 get_class($e),
                 $e->getMessage(),
                 $e->getFile(),
-                $e->getLine()
+                $e->getLine(),
+                (string) config('database.connections.mysql.host'),
+                (string) config('database.connections.mysql.port')
             ));
         });
     })->create();
