@@ -174,11 +174,12 @@
                     @php
                         $adminHomeUrl = auth()->user()->isAdminChat() ? route('admin.live-chat.index') : route('admin.dashboard');
                     @endphp
+                    @php($resolvedLogoUrl = \App\Models\AppSetting::resolveLogoUrl($brandLogoImage))
                     <!-- Brand Saat Sidebar Terbuka (Full) -->
                     <a href="{{ $adminHomeUrl }}"
                         class="sidebar-full-brand flex items-center gap-3 group focus-visible:outline-unpam-gold min-w-0">
-                        @if($brandLogoImage && file_exists(public_path($brandLogoImage)))
-                            <img src="{{ asset($brandLogoImage) }}" alt="Logo Kampus"
+                        @if($resolvedLogoUrl)
+                            <img src="{{ $resolvedLogoUrl }}" alt="Logo Kampus"
                                 class="h-9 w-auto max-w-[80px] object-contain bg-transparent shrink-0 drop-shadow" />
                         @else
                             <img src="{{ asset('images/unpam-logo.svg') }}" alt="Logo Kampus"
@@ -199,8 +200,8 @@
                     <a href="{{ $adminHomeUrl }}"
                         class="sidebar-collapsed-brand hidden w-full items-center justify-center py-1 group focus-visible:outline-unpam-gold"
                         title="Dashboard Admin - SiRNaMa {{ $brandAppName }}">
-                        @if($brandLogoImage && file_exists(public_path($brandLogoImage)))
-                            <img src="{{ asset($brandLogoImage) }}" alt="Logo Kampus"
+                        @if($resolvedLogoUrl)
+                            <img src="{{ $resolvedLogoUrl }}" alt="Logo Kampus"
                                 class="h-8 w-auto max-w-[40px] object-contain bg-transparent shrink-0 drop-shadow" />
                         @else
                             <img src="{{ asset('images/unpam-logo.svg') }}" alt="Logo Kampus"

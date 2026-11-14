@@ -95,28 +95,22 @@ class SettingController extends Controller
             ]);
         }
 
-        // Penanganan Logo File
+        // Penanganan Logo File (disimpan sebagai Data URI di database agar kompatibel dengan serverless read-only)
         if ($request->boolean('remove_logo_image')) {
             $oldLogo = AppSetting::getValue('app_logo_image');
-            if ($oldLogo && file_exists(public_path($oldLogo))) {
+            if ($oldLogo && ! str_starts_with($oldLogo, 'data:') && file_exists(public_path($oldLogo))) {
                 @unlink(public_path($oldLogo));
             }
-            AppSetting::setValue('app_logo_image', null, 'identity', 'Path Logo Gambar');
+            AppSetting::setValue('app_logo_image', null, 'identity', 'Data/Path Logo Gambar');
         } elseif ($request->hasFile('logo_file')) {
-            try {
-                $file = $request->file('logo_file');
-                $filename = 'logo_' . time() . '.' . $file->getClientOriginalExtension();
-                $targetDir = public_path('uploads/branding');
+            $file = $request->file('logo_file');
+            $ext = strtolower($file->getClientOriginalExtension());
+            $mime = $ext === 'svg' ? 'image/svg+xml' : ($file->getMimeType() ?: 'image/png');
+            $contents = file_get_contents($file->getRealPath());
 
-                if (! is_dir($targetDir)) {
-                    @mkdir($targetDir, 0755, true);
-                }
-
-                $file->move($targetDir, $filename);
-                AppSetting::setValue('app_logo_image', 'uploads/branding/' . $filename, 'identity', 'Path Logo Gambar');
-            } catch (\Throwable $e) {
-                // Jangan gagalkan seluruh simpan jika filesystem lokal read-only (misal di Vercel)
-                report($e);
+            if ($contents !== false) {
+                $dataUri = 'data:' . $mime . ';base64,' . base64_encode($contents);
+                AppSetting::setValue('app_logo_image', $dataUri, 'identity', 'Data/Path Logo Gambar');
             }
         }
 

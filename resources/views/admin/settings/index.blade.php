@@ -78,24 +78,28 @@
                     <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5">Format disarankan: PNG transparan atau SVG. Ukuran maksimal 2MB.</p>
 
                     <div class="mt-4 p-4 bg-unpam-navy rounded-xl border border-slate-700 flex items-center justify-between">
+                        @php($resolvedLogoUrl = \App\Models\AppSetting::resolveLogoUrl($logoImage))
+                        @php($defaultLogoUrl = asset('images/unpam-logo.svg'))
                         <div class="flex items-center gap-4">
                             <div class="p-2 bg-slate-900/50 rounded-lg flex items-center justify-center">
-                                @if(!empty($logoImage) && file_exists(public_path($logoImage)))
-                                    <img src="{{ asset($logoImage) }}" alt="Logo Aktif" class="h-14 sm:h-16 w-auto max-w-[140px] object-contain bg-transparent">
-                                @else
-                                    <img src="{{ asset('images/unpam-logo.svg') }}" alt="Logo Default" class="h-14 sm:h-16 w-14 sm:w-16 object-contain bg-transparent drop-shadow">
-                                @endif
+                                <img id="logoPreviewImg"
+                                     src="{{ $resolvedLogoUrl ?? $defaultLogoUrl }}"
+                                     data-saved-src="{{ $resolvedLogoUrl ?? $defaultLogoUrl }}"
+                                     data-default-src="{{ $defaultLogoUrl }}"
+                                     alt="Preview Logo"
+                                     class="h-14 sm:h-16 w-auto max-w-[140px] object-contain bg-transparent drop-shadow">
                             </div>
                             <div>
                                 <span class="block text-xs font-bold text-white">Preview Logo di Header (Latar Gelap Navy)</span>
-                                <span class="block text-[11px] text-slate-300">
-                                    {{ !empty($logoImage) ? 'Menggunakan logo khusus yang diupload.' : 'Menggunakan logo default SVG transparan.' }}
+                                <span id="logoPreviewStatus" class="block text-[11px] text-slate-300"
+                                      data-saved-text="{{ $resolvedLogoUrl ? 'Menggunakan logo khusus yang diupload.' : 'Menggunakan logo default SVG transparan.' }}">
+                                    {{ $resolvedLogoUrl ? 'Menggunakan logo khusus yang diupload.' : 'Menggunakan logo default SVG transparan.' }}
                                 </span>
                             </div>
                         </div>
-                        @if(!empty($logoImage))
+                        @if($resolvedLogoUrl)
                             <label class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-900/80 hover:bg-red-800 text-xs text-red-200 border border-red-700 cursor-pointer">
-                                <input type="checkbox" name="remove_logo_image" value="1" class="rounded border-red-500 text-red-600 focus:ring-red-500">
+                                <input type="checkbox" id="remove_logo_image" name="remove_logo_image" value="1" class="rounded border-red-500 text-red-600 focus:ring-red-500">
                                 <span class="font-bold">Reset ke Logo Bawaan</span>
                             </label>
                         @endif
@@ -470,6 +474,57 @@
             toggleBtn.addEventListener('click', () => {
                 const isPassword = tokenInput.getAttribute('type') === 'password';
                 tokenInput.setAttribute('type', isPassword ? 'text' : 'password');
+            });
+        }
+
+        // Live preview logo langsung saat memilih file tanpa harus klik Simpan
+        const logoInput = document.getElementById('logo_file');
+        const logoPreviewImg = document.getElementById('logoPreviewImg');
+        const logoPreviewStatus = document.getElementById('logoPreviewStatus');
+        const removeLogoCheckbox = document.getElementById('remove_logo_image');
+
+        if (logoInput && logoPreviewImg) {
+            logoInput.addEventListener('change', (e) => {
+                const file = e.target.files && e.target.files[0];
+                if (!file) {
+                    logoPreviewImg.src = logoPreviewImg.dataset.savedSrc || logoPreviewImg.dataset.defaultSrc;
+                    if (logoPreviewStatus) {
+                        logoPreviewStatus.textContent = logoPreviewStatus.dataset.savedText || '';
+                    }
+                    return;
+                }
+
+                if (removeLogoCheckbox) {
+                    removeLogoCheckbox.checked = false;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    if (ev.target && typeof ev.target.result === 'string') {
+                        logoPreviewImg.src = ev.target.result;
+                        if (logoPreviewStatus) {
+                            logoPreviewStatus.textContent = 'Preview logo baru (' + file.name + ') — klik Simpan untuk menerapkan.';
+                        }
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        if (removeLogoCheckbox && logoPreviewImg) {
+            removeLogoCheckbox.addEventListener('change', () => {
+                if (removeLogoCheckbox.checked) {
+                    if (logoInput) logoInput.value = '';
+                    logoPreviewImg.src = logoPreviewImg.dataset.defaultSrc;
+                    if (logoPreviewStatus) {
+                        logoPreviewStatus.textContent = 'Akan dikembalikan ke logo default setelah disimpan.';
+                    }
+                } else {
+                    logoPreviewImg.src = logoPreviewImg.dataset.savedSrc || logoPreviewImg.dataset.defaultSrc;
+                    if (logoPreviewStatus) {
+                        logoPreviewStatus.textContent = logoPreviewStatus.dataset.savedText || '';
+                    }
+                }
             });
         }
 

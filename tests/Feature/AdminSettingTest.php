@@ -167,4 +167,40 @@ class AdminSettingTest extends TestCase
         $waRes->assertOk();
         $this->assertStringContainsString('Institut Teknologi Bandung', $waRes->json('bot_reply'));
     }
+
+    public function test_superadmin_can_upload_and_reset_logo_as_data_uri(): void
+    {
+        $admin = User::factory()->superadmin()->create();
+        $fakePng = \Illuminate\Http\UploadedFile::fake()->image('logo-kampus.png', 120, 120);
+
+        $uploadRes = $this->actingAs($admin)->put(route('admin.settings.update'), [
+            'app_institution_name' => 'Universitas Pamulang',
+            'app_logo_text' => 'UNPAM',
+            'app_tagline' => 'Sistem Informasi',
+            'logo_file' => $fakePng,
+        ]);
+
+        $uploadRes->assertRedirect(route('admin.settings.index'));
+
+        AppSetting::clearSettingCache();
+        $storedLogo = AppSetting::getValue('app_logo_image');
+        $this->assertIsString($storedLogo);
+        $this->assertStringStartsWith('data:image/', $storedLogo);
+
+        // Pastikan halaman publik dan settings merender logo Data URI tersebut
+        $this->get(route('public.index'))->assertOk()->assertSee($storedLogo, false);
+        $this->actingAs($admin)->get(route('admin.settings.index'))->assertOk()->assertSee($storedLogo, false);
+
+        // Uji reset logo ke bawaan
+        $resetRes = $this->actingAs($admin)->put(route('admin.settings.update'), [
+            'app_institution_name' => 'Universitas Pamulang',
+            'app_logo_text' => 'UNPAM',
+            'app_tagline' => 'Sistem Informasi',
+            'remove_logo_image' => '1',
+        ]);
+        $resetRes->assertRedirect(route('admin.settings.index'));
+
+        AppSetting::clearSettingCache();
+        $this->assertNull(AppSetting::getValue('app_logo_image'));
+    }
 }

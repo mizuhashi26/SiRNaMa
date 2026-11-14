@@ -70,8 +70,9 @@
         <div class="max-w-5xl mx-auto flex items-center justify-between">
             <a href="{{ route('public.index') }}"
                 class="min-h-[44px] inline-flex items-center gap-3 font-bold text-sm sm:text-base text-white">
-                @if($brandLogoImage && file_exists(public_path($brandLogoImage)))
-                    <img src="{{ asset($brandLogoImage) }}" alt="Logo Kampus"
+                @php($resolvedLogoUrl = \App\Models\AppSetting::resolveLogoUrl($brandLogoImage))
+                @if($resolvedLogoUrl)
+                    <img src="{{ $resolvedLogoUrl }}" alt="Logo Kampus"
                         class="h-11 sm:h-12 w-auto max-w-[110px] object-contain bg-transparent shrink-0" />
                 @else
                     <img src="{{ asset('images/unpam-logo.svg') }}" alt="Logo Kampus"

@@ -39,7 +39,11 @@ class AppSetting extends Model
     {
         try {
             $settings = static::getPersistentSettings();
-            $settings[$key] = $value;
+            if ($value === null || $value === '') {
+                unset($settings[$key]);
+            } else {
+                $settings[$key] = $value;
+            }
 
             $dir = dirname(static::persistentFilePath());
             if (! is_dir($dir)) {
@@ -98,12 +102,28 @@ class AppSetting extends Model
             ]
         );
 
-        // Simpan juga ke file persistent backup di storage (aman dari reset database)
-        if ($value !== null && $value !== '') {
-            static::savePersistentSetting($key, $value);
-        }
+        // Simpan atau hapus di file persistent backup di storage
+        static::savePersistentSetting($key, $value);
 
         return $model;
+    }
+
+    public static function resolveLogoUrl(?string $logoValue = null): ?string
+    {
+        $val = $logoValue ?? static::getValue('app_logo_image');
+        if (empty($val)) {
+            return null;
+        }
+
+        if (str_starts_with($val, 'data:image/') || str_starts_with($val, 'http://') || str_starts_with($val, 'https://')) {
+            return $val;
+        }
+
+        if (file_exists(public_path($val))) {
+            return asset($val);
+        }
+
+        return null;
     }
 
     public static function restorePersistentToDatabase(): void

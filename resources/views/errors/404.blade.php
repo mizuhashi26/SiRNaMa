@@ -84,8 +84,9 @@
             <div class="flex items-center justify-between py-3 gap-4">
                 <a href="{{ $homeUrl }}"
                     class="flex items-center gap-3.5 min-h-[44px] focus-visible:outline-unpam-gold">
-                    @if($brandLogoImage && file_exists(public_path($brandLogoImage)))
-                        <img src="{{ asset($brandLogoImage) }}" alt="Logo Kampus"
+                    @php($resolvedLogoUrl = \App\Models\AppSetting::resolveLogoUrl($brandLogoImage))
+                    @if($resolvedLogoUrl)
+                        <img src="{{ $resolvedLogoUrl }}" alt="Logo Kampus"
                             class="h-12 sm:h-14 w-auto max-w-[120px] object-contain bg-transparent shrink-0" />
                     @else
                         <img src="{{ asset('images/unpam-logo.svg') }}" alt="Logo Kampus"
