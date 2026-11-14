@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'SiRNaMa - Pusat Informasi & Layanan Mahasiswa UNPAM')</title>
+    <meta name="description" content="@yield('meta_description', 'SiRNaMa - Sistem Informasi Reminder dan Layanan Mahasiswa berbasis Web dan WhatsApp Gateway')">
+    <meta name="keywords" content="@yield('meta_keywords', 'SiRNaMa, Sistem Informasi Layanan Mahasiswa, CRM Mahasiswa, Helpdesk Kampus')">
+    <meta name="robots" content="@yield('meta_robots', 'index, follow')">
+    <link rel="canonical" href="{{ url()->current() }}">
+    <meta property="og:title" content="@yield('title', 'SiRNaMa - Pusat Informasi &amp; Layanan Mahasiswa UNPAM')">
+    <meta property="og:description" content="@yield('meta_description', 'SiRNaMa - Sistem Informasi Reminder dan Layanan Mahasiswa berbasis Web dan WhatsApp Gateway')">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:type" content="@yield('og_type', 'website')">
+    <meta property="og:site_name" content="SiRNaMa">
+    <meta property="og:locale" content="id_ID">
     <script>
         if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');

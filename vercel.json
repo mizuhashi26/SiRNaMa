@@ -9,7 +9,7 @@
     },
     "routes": [
         {
-            "src": "/(build|assets|vendor|favicon.ico|robots.txt|css|js|images|uploads)(.*)",
+            "src": "/(build|assets|vendor|favicon.ico|robots.txt|googlecbb8cd52a43470c8\\.html|css|js|images|uploads)(.*)",
             "dest": "/public/$1$2"
         },
         {

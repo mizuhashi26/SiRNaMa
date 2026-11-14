@@ -1,6 +1,7 @@
 @extends('layouts.public')
 
 @section('title', 'Tentang SiRNaMa - CRM Layanan Mahasiswa UNPAM')
+@section('meta_description', 'Tentang SiRNaMa - Sistem pengelolaan informasi kampus, pengingat pembayaran, dan layanan bantuan mahasiswa terintegrasi Web dan WhatsApp Gateway.')
 
 @section('content')
     <!-- Header Banner -->

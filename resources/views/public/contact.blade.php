@@ -1,6 +1,7 @@
 @extends('layouts.public')
 
 @section('title', 'Kontak & Lokasi Kampus - SiRNaMa UNPAM')
+@section('meta_description', 'Kontak resmi dan saluran layanan mahasiswa Universitas Pamulang melalui Chatbot WhatsApp 24 jam dan Live Chat SiRNaMa.')
 
 @section('content')
     <!-- Header Banner -->

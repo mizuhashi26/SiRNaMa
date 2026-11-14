@@ -6,6 +6,7 @@ use App\Models\AppSetting;
 use App\Models\CampusInformation;
 use App\Models\Student;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\View\View;
 
 class PublicPortalController extends Controller
@@ -116,6 +117,75 @@ class PublicPortalController extends Controller
             'officialCampuses' => $officialCampuses,
             'officialEmail' => 'info@unpam.ac.id',
             'officialWebsite' => 'https://unpam.ac.id',
+        ]);
+    }
+
+    /**
+     * Generate dynamic XML sitemap for public pages and published campus information.
+     */
+    public function sitemap(): Response
+    {
+        $nowIso = now()->toAtomString();
+        $urls = [
+            [
+                'loc' => route('public.index'),
+                'lastmod' => $nowIso,
+                'changefreq' => 'daily',
+                'priority' => '1.0',
+            ],
+            [
+                'loc' => route('public.about'),
+                'lastmod' => $nowIso,
+                'changefreq' => 'monthly',
+                'priority' => '0.8',
+            ],
+            [
+                'loc' => route('public.contact'),
+                'lastmod' => $nowIso,
+                'changefreq' => 'monthly',
+                'priority' => '0.8',
+            ],
+        ];
+
+        try {
+            $informations = CampusInformation::published()
+                ->orderByDesc('updated_at')
+                ->get(['slug', 'updated_at', 'published_at']);
+
+            if ($informations->isNotEmpty() && $informations->first()->updated_at) {
+                $urls[0]['lastmod'] = $informations->first()->updated_at->toAtomString();
+            }
+
+            foreach ($informations as $info) {
+                $urls[] = [
+                    'loc' => route('public.show', $info->slug),
+                    'lastmod' => ($info->updated_at ?? $info->published_at ?? now())->toAtomString(),
+                    'changefreq' => 'weekly',
+                    'priority' => '0.7',
+                ];
+            }
+        } catch (\Throwable) {
+            // Keep base public URLs indexed even when DB query fails during startup/cold start.
+        }
+
+        $xmlLines = [
+            '<?xml version="1.0" encoding="UTF-8"?>',
+            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+        ];
+
+        foreach ($urls as $item) {
+            $xmlLines[] = '    <url>';
+            $xmlLines[] = '        <loc>' . htmlspecialchars($item['loc'], ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</loc>';
+            $xmlLines[] = '        <lastmod>' . htmlspecialchars($item['lastmod'], ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</lastmod>';
+            $xmlLines[] = '        <changefreq>' . $item['changefreq'] . '</changefreq>';
+            $xmlLines[] = '        <priority>' . $item['priority'] . '</priority>';
+            $xmlLines[] = '    </url>';
+        }
+
+        $xmlLines[] = '</urlset>';
+
+        return response(implode("\n", $xmlLines) . "\n", 200, [
+            'Content-Type' => 'application/xml; charset=UTF-8',
         ]);
     }
 }

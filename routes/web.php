@@ -18,6 +18,7 @@ Route::get('/', [PublicPortalController::class, 'index'])->name('public.index');
 Route::get('/tentang', [PublicPortalController::class, 'about'])->name('public.about');
 Route::get('/kontak', [PublicPortalController::class, 'contact'])->name('public.contact');
 Route::get('/informasi/{slug}', [PublicPortalController::class, 'show'])->name('public.show');
+Route::get('/sitemap.xml', [PublicPortalController::class, 'sitemap'])->name('public.sitemap');
 
 // Endpoint Chatbot Website (JSON untuk Widget)
 Route::get('/chat/session', [WebChatController::class, 'session'])->name('webchat.session');
