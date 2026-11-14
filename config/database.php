@@ -58,7 +58,21 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+                PDO::MYSQL_ATTR_SSL_CA => (static function () {
+                    $ca = env('MYSQL_ATTR_SSL_CA');
+                    if ($ca && is_file($ca)) {
+                        return $ca;
+                    }
+
+                    $bundledCa = base_path('database/certs/isrgrootx1.pem');
+                    $host = (string) env('DB_HOST', '127.0.0.1');
+
+                    if (($ca || ! in_array($host, ['127.0.0.1', 'localhost'], true)) && is_file($bundledCa)) {
+                        return $bundledCa;
+                    }
+
+                    return null;
+                })(),
             ]) : [],
         ],
 
@@ -78,7 +92,21 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+                PDO::MYSQL_ATTR_SSL_CA => (static function () {
+                    $ca = env('MYSQL_ATTR_SSL_CA');
+                    if ($ca && is_file($ca)) {
+                        return $ca;
+                    }
+
+                    $bundledCa = base_path('database/certs/isrgrootx1.pem');
+                    $host = (string) env('DB_HOST', '127.0.0.1');
+
+                    if (($ca || ! in_array($host, ['127.0.0.1', 'localhost'], true)) && is_file($bundledCa)) {
+                        return $bundledCa;
+                    }
+
+                    return null;
+                })(),
             ]) : [],
         ],
 
