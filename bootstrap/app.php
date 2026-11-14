@@ -23,5 +23,13 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->report(function (\Throwable $e) {
+            error_log(sprintf(
+                'LARAVEL_ERR: [%s] %s in %s:%d',
+                get_class($e),
+                $e->getMessage(),
+                $e->getFile(),
+                $e->getLine()
+            ));
+        });
     })->create();
