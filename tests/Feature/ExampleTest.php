@@ -18,14 +18,16 @@ class ExampleTest extends TestCase
 
     public function test_custom_404_page_has_navbar_and_back_link(): void
     {
-        $response = $this->get('/halaman-acak-tidak-tersedia-404');
+        foreach (['/halaman-acak-tidak-tersedia-404', '/json', '/composer.json', '/.env', '/.git/HEAD'] as $path) {
+            $response = $this->get($path);
 
-        $response->assertStatus(404);
-        $response->assertSee('Semua Informasi');
-        $response->assertSee('Akademik');
-        $response->assertSee('Info Pembayaran');
-        $response->assertSee('Ke Beranda Informasi');
-        $response->assertSee('Kembali Sebelumnya');
+            $response->assertStatus(404);
+            $response->assertSee('Semua Informasi');
+            $response->assertSee('Akademik');
+            $response->assertSee('Info Pembayaran');
+            $response->assertSee('Ke Beranda Informasi');
+            $response->assertSee('Kembali Sebelumnya');
+        }
     }
 
     public function test_throttling_protects_public_endpoints_from_rate_abuse(): void
