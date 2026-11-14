@@ -9,6 +9,21 @@
     },
     "routes": [
         {
+            "src": "/(.*)",
+            "headers": {
+                "X-Frame-Options": "SAMEORIGIN",
+                "X-Content-Type-Options": "nosniff",
+                "Referrer-Policy": "strict-origin-when-cross-origin",
+                "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+                "Content-Security-Policy": "default-src 'self' https: data: 'unsafe-inline' 'unsafe-eval'; img-src 'self' https: data: blob:; font-src 'self' https: data:;"
+            },
+            "continue": true
+        },
+        {
+            "src": "^/(composer\\.json|composer\\.lock|package\\.json|package-lock\\.json|artisan|phpunit\\.xml|\\.env(?:\\..*)?|\\.git(?:/.*)?)$",
+            "status": 404
+        },
+        {
             "src": "/(build|assets|vendor|favicon.ico|robots.txt|googlecbb8cd52a43470c8\\.html|css|js|images|uploads)(.*)",
             "dest": "/public/$1$2"
         },
