@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class AuthController extends Controller
@@ -33,18 +34,48 @@ class AuthController extends Controller
 
         $remember = $request->boolean('remember');
 
-        if (Auth::attempt($credentials, $remember)) {
-            $request->session()->regenerate();
+        $provider = Auth::getProvider();
+        $user = $provider->retrieveByCredentials($credentials);
 
-            $defaultRoute = Auth::user()->isAdminChat() ? route('admin.live-chat.index') : route('admin.dashboard');
-
-            return redirect()->intended($defaultRoute)
-                ->with('success', 'Berhasil masuk ke Dashboard Admin CRM.');
+        if (! $user || ! $provider->validateCredentials($user, $credentials)) {
+            return back()
+                ->withErrors(['email' => 'Email atau kata sandi tidak sesuai.'])
+                ->onlyInput('email');
         }
 
-        return back()
-            ->withErrors(['email' => 'Email atau kata sandi tidak sesuai.'])
-            ->onlyInput('email');
+        // Opsi 2: Tolak login baru jika akun masih memiliki sesi aktif di perangkat/browser lain
+        if (config('session.driver') === 'database') {
+            $sessionTable = (string) config('session.table', 'sessions');
+            $lifetimeMinutes = (int) config('session.lifetime', 120);
+            $expiryThreshold = now()->subMinutes($lifetimeMinutes)->getTimestamp();
+            $currentSessionId = $request->session()->getId();
+
+            // Bersihkan sesi yang sudah kedaluwarsa untuk akun ini agar tidak mengunci permanen
+            DB::table($sessionTable)
+                ->where('user_id', $user->getAuthIdentifier())
+                ->where('last_activity', '<', $expiryThreshold)
+                ->delete();
+
+            $hasActiveOtherSession = DB::table($sessionTable)
+                ->where('user_id', $user->getAuthIdentifier())
+                ->where('id', '!=', $currentSessionId)
+                ->where('last_activity', '>=', $expiryThreshold)
+                ->exists();
+
+            if ($hasActiveOtherSession) {
+                return back()
+                    ->withErrors(['email' => 'Akun ini sedang aktif digunakan di perangkat atau browser lain. Silakan keluar terlebih dahulu dari sesi sebelumnya.'])
+                    ->onlyInput('email');
+            }
+        }
+
+        Auth::login($user, $remember);
+        $request->session()->regenerate();
+
+        $defaultRoute = Auth::user()->isAdminChat() ? route('admin.live-chat.index') : route('admin.dashboard');
+
+        return redirect()->intended($defaultRoute)
+            ->with('success', 'Berhasil masuk ke Dashboard Admin CRM.');
     }
 
     public function logout(Request $request): RedirectResponse

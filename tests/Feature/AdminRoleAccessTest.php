@@ -204,6 +204,48 @@ class AdminRoleAccessTest extends TestCase
         $this->actingAs($adminChat)->get(route('admin.users.index'))->assertForbidden();
     }
 
+    public function test_concurrent_login_is_rejected_when_active_session_exists_and_allowed_when_expired(): void
+    {
+        config(['session.driver' => 'database']);
+
+        $admin = User::factory()->create([
+            'email' => 'concurrent@unpam.ac.id',
+            'password' => bcrypt('password123'),
+            'role' => User::ROLE_ADMIN,
+        ]);
+
+        // Simulasikan sesi aktif milik perangkat lain di tabel sessions
+        \Illuminate\Support\Facades\DB::table('sessions')->insert([
+            'id' => 'other-device-session-id-123',
+            'user_id' => $admin->id,
+            'ip_address' => '127.0.0.1',
+            'user_agent' => 'OtherBrowser',
+            'payload' => base64_encode(serialize([])),
+            'last_activity' => now()->timestamp,
+        ]);
+
+        // 1. Login kedua dengan akun yang sama wajib ditolak
+        $blockedRes = $this->post(route('login.attempt'), [
+            'email' => 'concurrent@unpam.ac.id',
+            'password' => 'password123',
+        ]);
+        $blockedRes->assertSessionHasErrors('email');
+        $this->assertGuest();
+
+        // 2. Jika sesi sebelumnya sudah kedaluwarsa, login diizinkan dan sesi lama dibersihkan
+        \Illuminate\Support\Facades\DB::table('sessions')
+            ->where('id', 'other-device-session-id-123')
+            ->update(['last_activity' => now()->subMinutes(180)->timestamp]);
+
+        $allowedRes = $this->post(route('login.attempt'), [
+            'email' => 'concurrent@unpam.ac.id',
+            'password' => 'password123',
+        ]);
+        $allowedRes->assertRedirect(route('admin.dashboard'));
+        $this->assertAuthenticatedAs($admin);
+        $this->assertDatabaseMissing('sessions', ['id' => 'other-device-session-id-123']);
+    }
+
     public function test_admin_routes_and_logout_include_no_cache_security_headers(): void
     {
         $admin = User::factory()->create([
