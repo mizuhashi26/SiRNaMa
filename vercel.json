@@ -44,6 +44,8 @@
         "LOG_CHANNEL": "null",
         "CACHE_STORE": "database",
         "SESSION_DRIVER": "database",
+        "SESSION_LIFETIME": "30",
+        "ADMIN_IDLE_TIMEOUT": "30",
         "QUEUE_CONNECTION": "sync"
     }
 }

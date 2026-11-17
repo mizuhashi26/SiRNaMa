@@ -781,6 +781,101 @@
                     return false;
                 }
             }, true);
+
+            // Auto-logout otomatis setelah idle (default 30 menit tanpa aktivitas pengguna)
+            (function initAdminIdleAutoLogout() {
+                const IDLE_TIMEOUT_MS = {{ max(1, (int) config('session.admin_idle_timeout', 30)) * 60 * 1000 }};
+                const SERVER_ELAPSED_MS = {{ max(0, now()->timestamp - (int) session(\App\Http\Middleware\EnforceAdminIdleTimeout::SESSION_ACTIVITY_KEY, now()->timestamp)) * 1000 }};
+                const LOGOUT_URL = @json(route('logout'));
+                const LOGIN_EXPIRED_URL = @json(route('login', ['idle_timeout' => 1]));
+                const ACTIVITY_STORAGE_KEY = 'sirnama_admin_last_activity';
+                const LOGOUT_STORAGE_KEY = 'sirnama_admin_force_logout';
+
+                let lastActivityAt = Date.now() - Math.min(IDLE_TIMEOUT_MS, SERVER_ELAPSED_MS);
+                let lastStorageSyncAt = 0;
+                let isLoggingOut = false;
+
+                try {
+                    localStorage.setItem(ACTIVITY_STORAGE_KEY, String(lastActivityAt));
+                } catch (err) {
+                    // Abaikan jika storage diblokir browser
+                }
+
+                function markActivity() {
+                    if (isLoggingOut) return;
+                    const nowMs = Date.now();
+                    lastActivityAt = nowMs;
+                    if (nowMs - lastStorageSyncAt >= 5000) {
+                        lastStorageSyncAt = nowMs;
+                        try {
+                            localStorage.setItem(ACTIVITY_STORAGE_KEY, String(nowMs));
+                        } catch (err) {
+                            // Abaikan error quota/storage
+                        }
+                    }
+                }
+
+                async function performAutoLogout() {
+                    if (isLoggingOut) return;
+                    isLoggingOut = true;
+
+                    try {
+                        localStorage.setItem(LOGOUT_STORAGE_KEY, String(Date.now()));
+                    } catch (err) {
+                        // Abaikan error storage
+                    }
+
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                    try {
+                        await fetch(LOGOUT_URL, {
+                            method: 'POST',
+                            credentials: 'same-origin',
+                            headers: {
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+                            },
+                            body: 'auto_logout=1',
+                        });
+                    } catch (err) {
+                        // Tetap alihkan ke halaman login jika sesi server sudah kedaluwarsa atau offline
+                    } finally {
+                        window.location.replace(LOGIN_EXPIRED_URL);
+                    }
+                }
+
+                function checkIdleExpiration() {
+                    if (isLoggingOut) return;
+                    if (Date.now() - lastActivityAt >= IDLE_TIMEOUT_MS) {
+                        performAutoLogout();
+                    }
+                }
+
+                ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart', 'click', 'pointerdown'].forEach(function (eventName) {
+                    window.addEventListener(eventName, markActivity, { passive: true });
+                });
+
+                window.addEventListener('storage', function (ev) {
+                    if (ev.key === ACTIVITY_STORAGE_KEY && ev.newValue) {
+                        const synced = parseInt(ev.newValue, 10);
+                        if (!Number.isNaN(synced) && synced > lastActivityAt) {
+                            lastActivityAt = synced;
+                        }
+                    } else if (ev.key === LOGOUT_STORAGE_KEY && !isLoggingOut) {
+                        isLoggingOut = true;
+                        window.location.replace(LOGIN_EXPIRED_URL);
+                    }
+                });
+
+                document.addEventListener('visibilitychange', function () {
+                    if (!document.hidden) {
+                        checkIdleExpiration();
+                    }
+                });
+
+                window.addEventListener('focus', checkIdleExpiration);
+                window.setInterval(checkIdleExpiration, 15000);
+            })();
         });
     </script>
 </body>

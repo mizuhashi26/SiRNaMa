@@ -429,7 +429,23 @@
 
                 setInterval(async function () {
                     try {
-                        const res = await fetch(pollUrl, { headers: { 'Accept': 'application/json' } });
+                        const res = await fetch(pollUrl, {
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-Background-Poll': '1'
+                            }
+                        });
+                        if (res.status === 401) {
+                            let redirectUrl = @json(route('login', ['idle_timeout' => 1]));
+                            try {
+                                const errData = await res.json();
+                                if (errData && errData.redirect) redirectUrl = errData.redirect;
+                            } catch (parseErr) {
+                                // Gunakan URL login default
+                            }
+                            window.location.replace(redirectUrl);
+                            return;
+                        }
                         if (!res.ok) return;
                         const data = await res.json();
                         if (statusBadge && data.status_label) {

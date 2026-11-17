@@ -127,6 +127,13 @@
                 </div>
             @endif
 
+            @if(session('warning') || !empty($idleWarning))
+                <div role="alert"
+                    class="bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-700 text-amber-950 dark:text-amber-200 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm">
+                    {{ session('warning') ?? $idleWarning }}
+                </div>
+            @endif
+
             @if($errors->any())
                 <div role="alert"
                     class="bg-red-50 dark:bg-red-950/60 border border-red-300 dark:border-red-700 text-red-950 dark:text-red-200 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm space-y-1">

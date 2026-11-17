@@ -317,4 +317,133 @@ class AdminRoleAccessTest extends TestCase
         ])->assertRedirect(route('admin.users.index'));
         $this->assertSame(User::ROLE_ADMIN_CHAT, $chatUser->fresh()->role);
     }
+
+    public function test_admin_auto_logs_out_after_30_minutes_idle_and_purges_session(): void
+    {
+        config([
+            'session.driver' => 'database',
+            'session.admin_idle_timeout' => 30,
+        ]);
+
+        $admin = User::factory()->create([
+            'email' => 'idle.admin@unpam.ac.id',
+            'password' => bcrypt('password123'),
+            'role' => User::ROLE_ADMIN,
+        ]);
+
+        // 1. Login mengisi timestamp aktivitas awal dan halaman admin merender timer client-side 30 menit
+        $this->post(route('login.attempt'), [
+            'email' => 'idle.admin@unpam.ac.id',
+            'password' => 'password123',
+        ])->assertRedirect(route('admin.dashboard'));
+
+        $dashboardRes = $this->get(route('admin.dashboard'));
+        $dashboardRes->assertOk();
+        $dashboardRes->assertSee('IDLE_TIMEOUT_MS = 1800000', false);
+
+        // 2. Aktivitas sebelum 30 menit (20 menit idle) masih diperbolehkan dan memperbarui timestamp
+        $this->withSession([
+            \App\Http\Middleware\EnforceAdminIdleTimeout::SESSION_ACTIVITY_KEY => now()->subMinutes(20)->timestamp,
+        ])->get(route('admin.dashboard'))->assertOk();
+        $this->assertAuthenticatedAs($admin);
+
+        // 3. Idle >= 30 menit memaksa logout, hapus sesi DB, dan alihkan ke halaman login dengan peringatan
+        \Illuminate\Support\Facades\DB::table('sessions')->insert([
+            'id' => 'idle-expired-session-789',
+            'user_id' => $admin->id,
+            'ip_address' => '127.0.0.1',
+            'user_agent' => 'IdleBrowser',
+            'payload' => base64_encode(serialize([])),
+            'last_activity' => now()->subMinutes(31)->timestamp,
+        ]);
+
+        $expiredRes = $this->withSession([
+            \App\Http\Middleware\EnforceAdminIdleTimeout::SESSION_ACTIVITY_KEY => now()->subMinutes(31)->timestamp,
+        ])->get(route('admin.dashboard'));
+
+        $expiredRes->assertRedirect(route('login', ['idle_timeout' => 1]));
+        $expiredRes->assertSessionHas('warning');
+        $this->assertStringContainsString('no-cache', (string) $expiredRes->headers->get('Cache-Control'));
+        $this->assertGuest();
+        $this->assertDatabaseMissing('sessions', ['user_id' => $admin->id]);
+
+        // 4. Halaman login menampilkan pesan idle timeout jika diakses dengan ?idle_timeout=1
+        $this->get(route('login', ['idle_timeout' => 1]))
+            ->assertOk()
+            ->assertSee('tidak ada aktivitas selama 30 menit');
+    }
+
+    public function test_live_chat_poll_does_not_extend_idle_timeout_and_returns_401_when_expired(): void
+    {
+        config(['session.admin_idle_timeout' => 30]);
+
+        $adminChat = User::factory()->create([
+            'role' => User::ROLE_ADMIN_CHAT,
+        ]);
+
+        $conversation = Conversation::create([
+            'channel' => 'website',
+            'external_user_id' => 'web-idle-poll-1',
+            'session_id' => 'web-idle-poll-1',
+            'user_name' => 'Mahasiswa Idle',
+            'status' => Conversation::STATUS_WAITING_ADMIN,
+            'last_message_at' => now(),
+        ]);
+
+        $staleTimestamp = now()->subMinutes(15)->timestamp;
+
+        // 1. Poll saat belum 30 menit: berhasil 200 tetapi TIDAK memperbarui timestamp idle
+        $pollOk = $this->actingAs($adminChat)
+            ->withSession([\App\Http\Middleware\EnforceAdminIdleTimeout::SESSION_ACTIVITY_KEY => $staleTimestamp])
+            ->withHeaders(['X-Background-Poll' => '1', 'Accept' => 'application/json'])
+            ->get(route('admin.live-chat.poll', $conversation));
+
+        $pollOk->assertOk();
+        $this->assertSame(
+            $staleTimestamp,
+            session(\App\Http\Middleware\EnforceAdminIdleTimeout::SESSION_ACTIVITY_KEY)
+        );
+
+        // 2. Poll setelah >= 30 menit idle: langsung 401 JSON + logout
+        $pollExpired = $this->actingAs($adminChat)
+            ->withSession([\App\Http\Middleware\EnforceAdminIdleTimeout::SESSION_ACTIVITY_KEY => now()->subMinutes(31)->timestamp])
+            ->withHeaders(['X-Background-Poll' => '1', 'Accept' => 'application/json'])
+            ->get(route('admin.live-chat.poll', $conversation));
+
+        $pollExpired->assertStatus(401)
+            ->assertJsonStructure(['message', 'redirect']);
+        $this->assertGuest();
+    }
+
+    public function test_concurrent_login_unlocks_after_30_minutes_even_if_session_lifetime_is_higher(): void
+    {
+        config([
+            'session.driver' => 'database',
+            'session.lifetime' => 120,
+            'session.admin_idle_timeout' => 30,
+        ]);
+
+        $admin = User::factory()->create([
+            'email' => 'concurrent30@unpam.ac.id',
+            'password' => bcrypt('password123'),
+            'role' => User::ROLE_ADMIN,
+        ]);
+
+        \Illuminate\Support\Facades\DB::table('sessions')->insert([
+            'id' => 'stale-after-35-mins',
+            'user_id' => $admin->id,
+            'ip_address' => '127.0.0.1',
+            'user_agent' => 'OtherBrowser',
+            'payload' => base64_encode(serialize([])),
+            'last_activity' => now()->subMinutes(35)->timestamp,
+        ]);
+
+        $this->post(route('login.attempt'), [
+            'email' => 'concurrent30@unpam.ac.id',
+            'password' => 'password123',
+        ])->assertRedirect(route('admin.dashboard'));
+
+        $this->assertAuthenticatedAs($admin);
+        $this->assertDatabaseMissing('sessions', ['id' => 'stale-after-35-mins']);
+    }
 }

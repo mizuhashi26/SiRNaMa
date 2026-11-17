@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Middleware\EnforceAdminIdleTimeout;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -10,7 +12,13 @@ use Illuminate\View\View;
 
 class AuthController extends Controller
 {
-    public function showLogin(): View|RedirectResponse
+    public const NO_CACHE_HEADERS = [
+        'Cache-Control' => 'no-cache, no-store, max-age=0, must-revalidate',
+        'Pragma' => 'no-cache',
+        'Expires' => 'Sun, 02 Jan 1990 00:00:00 GMT',
+    ];
+
+    public function showLogin(Request $request): View|RedirectResponse
     {
         if (Auth::check()) {
             $redirectRoute = Auth::user()->isAdminChat() ? route('admin.live-chat.index') : route('admin.dashboard');
@@ -18,7 +26,13 @@ class AuthController extends Controller
             return redirect($redirectRoute);
         }
 
-        return view('auth.login');
+        $idleWarning = null;
+        if ($request->boolean('idle_timeout') && ! session()->has('warning')) {
+            $idleMinutes = max(1, (int) config('session.admin_idle_timeout', 30));
+            $idleWarning = "Sesi Admin telah berakhir otomatis karena tidak ada aktivitas selama {$idleMinutes} menit. Silakan login kembali.";
+        }
+
+        return view('auth.login', compact('idleWarning'));
     }
 
     public function login(Request $request): RedirectResponse
@@ -46,7 +60,10 @@ class AuthController extends Controller
         // Opsi 2: Tolak login baru jika akun masih memiliki sesi aktif di perangkat/browser lain
         if (config('session.driver') === 'database') {
             $sessionTable = (string) config('session.table', 'sessions');
-            $lifetimeMinutes = (int) config('session.lifetime', 120);
+            $lifetimeMinutes = min(
+                max(1, (int) config('session.lifetime', 30)),
+                max(1, (int) config('session.admin_idle_timeout', 30))
+            );
             $expiryThreshold = now()->subMinutes($lifetimeMinutes)->getTimestamp();
             $currentSessionId = $request->session()->getId();
 
@@ -71,6 +88,7 @@ class AuthController extends Controller
 
         Auth::login($user, $remember);
         $request->session()->regenerate();
+        $request->session()->put(EnforceAdminIdleTimeout::SESSION_ACTIVITY_KEY, now()->timestamp);
 
         $defaultRoute = Auth::user()->isAdminChat() ? route('admin.live-chat.index') : route('admin.dashboard');
 
@@ -78,9 +96,28 @@ class AuthController extends Controller
             ->with('success', 'Berhasil masuk ke Dashboard Admin CRM.');
     }
 
-    public function logout(Request $request): RedirectResponse
+    public function logout(Request $request): RedirectResponse|JsonResponse
     {
-        $userId = Auth::id();
+        self::terminateUserSession($request);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Anda telah keluar dari sesi Admin.',
+                'redirect' => route('login', $request->boolean('auto_logout') ? ['idle_timeout' => 1] : []),
+            ])->withHeaders(self::NO_CACHE_HEADERS);
+        }
+
+        return redirect()->route('login')
+            ->with('success', 'Anda telah keluar dari sesi Admin.')
+            ->withHeaders(self::NO_CACHE_HEADERS);
+    }
+
+    /**
+     * Log out the current user, invalidate session + CSRF token, and purge database session rows.
+     */
+    public static function terminateUserSession(Request $request, ?int $userId = null): void
+    {
+        $resolvedUserId = $userId ?? Auth::id();
 
         Auth::logout();
 
@@ -88,19 +125,11 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
 
         // Bersihkan seluruh sisa sesi milik akun ini di tabel sessions agar perangkat lain langsung bisa masuk
-        if ($userId && config('session.driver') === 'database') {
+        if ($resolvedUserId && config('session.driver') === 'database') {
             DB::table((string) config('session.table', 'sessions'))
-                ->where('user_id', $userId)
+                ->where('user_id', $resolvedUserId)
                 ->delete();
         }
-
-        return redirect()->route('login')
-            ->with('success', 'Anda telah keluar dari sesi Admin.')
-            ->withHeaders([
-                'Cache-Control' => 'no-cache, no-store, max-age=0, must-revalidate',
-                'Pragma' => 'no-cache',
-                'Expires' => 'Sun, 02 Jan 1990 00:00:00 GMT',
-            ]);
     }
 }
 
