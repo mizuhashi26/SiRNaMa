@@ -387,5 +387,114 @@ class CrmMvpEndToEndTest extends TestCase
         $this->assertSame(3, $reminderSelected->total_targets);
         $this->assertSame(3, $reminderSelected->sent_count);
     }
+
+    public function test_bulk_10_reminders_use_fonnte_data_batch_with_varying_random_delays(): void
+    {
+        for ($i = 1; $i <= 10; $i++) {
+            Student::create([
+                'nim' => sprintf('24101140%04d', $i),
+                'name' => "Mahasiswa Ke {$i}",
+                'study_program' => 'Teknik Informatika S1',
+                'semester' => 4,
+                'whatsapp_number' => sprintf('62812345000%02d', $i),
+                'is_active' => true,
+            ]);
+        }
+
+        $reminder = PaymentReminder::create([
+            'title' => 'Tagihan UKT Gelombang 1',
+            'category' => 'pembayaran',
+            'message' => 'Mohon segera melunasi pembayaran sebelum jatuh tempo.',
+            'target_type' => 'all',
+            'status' => 'scheduled',
+            'scheduled_at' => now()->subMinute(),
+        ]);
+
+        config([
+            'services.fonnte.token' => 'valid-fonnte-token',
+            'services.fonnte.min_delay' => 2,
+            'services.fonnte.max_delay' => 8,
+        ]);
+
+        Http::fake([
+            'https://api.fonnte.com/*' => Http::response([
+                'status' => true,
+                'process' => 'pending',
+                'detail' => 'success! message in queue',
+            ], 200),
+        ]);
+
+        $admin = User::factory()->create();
+        $this->actingAs($admin)
+            ->post("/admin/reminders/{$reminder->id}/send-now")
+            ->assertRedirect("/admin/reminders/{$reminder->id}");
+
+        $reminder->refresh();
+        $this->assertSame('sent', $reminder->status);
+        $this->assertSame(10, $reminder->total_targets);
+        $this->assertSame(10, $reminder->sent_count);
+        $this->assertSame(0, $reminder->failed_count);
+
+        $capturedBatch = null;
+        Http::assertSent(function (\Illuminate\Http\Client\Request $request) use (&$capturedBatch) {
+            if ($request->url() !== 'https://api.fonnte.com/send') {
+                return false;
+            }
+            $data = $request->data();
+            if (! isset($data['data'])) {
+                return false;
+            }
+            $decoded = json_decode((string) $data['data'], true);
+            $capturedBatch = $decoded;
+
+            return is_array($decoded) && count($decoded) === 10;
+        });
+
+        $this->assertIsArray($capturedBatch);
+        $this->assertCount(10, $capturedBatch);
+
+        $delays = [];
+        foreach ($capturedBatch as $idx => $entry) {
+            $this->assertIsString($entry['delay']);
+            $delayInt = (int) $entry['delay'];
+            $this->assertGreaterThanOrEqual(2, $delayInt);
+            $this->assertLessThanOrEqual(8, $delayInt);
+            $this->assertSame('62', $entry['countryCode']);
+            $this->assertStringContainsString('Mahasiswa Ke ' . ($idx + 1), $entry['message']);
+
+            if ($idx > 0) {
+                $this->assertNotSame(
+                    $capturedBatch[$idx - 1]['delay'],
+                    $entry['delay'],
+                    'Jeda antara dua kontak berurutan tidak boleh sama persis.'
+                );
+            }
+
+            $delays[] = $entry['delay'];
+        }
+
+        // Pastikan variasi delay benar-benar acak (> 1 nilai unik untuk 10 kontak)
+        $this->assertGreaterThan(1, count(array_unique($delays)));
+        $this->assertSame(10, $reminder->logs()->count());
+    }
+
+    public function test_fonnte_bulk_handles_invalid_numbers_and_records_unverified_without_token(): void
+    {
+        $fonnte = app(\App\Services\FonnteService::class);
+
+        config(['services.fonnte.token' => '']);
+        $noTokenResults = $fonnte->sendBulkMessages([
+            ['target' => '081234567890', 'message' => 'Pesan A'],
+            ['target' => '081234567891', 'message' => 'Pesan B'],
+            ['target' => 'invalid-phone', 'message' => 'Pesan C'],
+        ]);
+
+        $this->assertCount(3, $noTokenResults);
+        $this->assertSame('unverified_no_token', $noTokenResults[0]['status']);
+        $this->assertSame('unverified_no_token', $noTokenResults[1]['status']);
+        $this->assertSame('failed', $noTokenResults[2]['status']);
+        $this->assertGreaterThanOrEqual(2, (int) $noTokenResults[0]['delay']);
+        $this->assertNotSame($noTokenResults[0]['delay'], $noTokenResults[1]['delay']);
+    }
 }
 

@@ -39,6 +39,8 @@ return [
         'token' => env('FONNTE_TOKEN'),
         'api_url' => env('FONNTE_API_URL', 'https://api.fonnte.com/send'),
         'webhook_secret' => env('FONNTE_WEBHOOK_SECRET'),
+        'min_delay' => (int) env('FONNTE_MIN_DELAY', 3),
+        'max_delay' => (int) env('FONNTE_MAX_DELAY', 12),
     ],
 
 ];

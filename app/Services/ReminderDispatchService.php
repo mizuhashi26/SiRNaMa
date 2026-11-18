@@ -51,18 +51,34 @@ class ReminderDispatchService
         $lastError = null;
         $unverifiedNoToken = false;
 
+        $institution = AppSetting::getValue('app_institution_name', 'Universitas Pamulang');
+        $batchMessages = [];
+
         foreach ($recipients as $recipient) {
             $studentGreeting = !empty($recipient['nim'])
                 ? "Yth. {$recipient['name']} ({$recipient['nim']}),\n\n"
                 : "Yth. {$recipient['name']},\n\n";
 
-            $institution = AppSetting::getValue('app_institution_name', 'Universitas Pamulang');
             $formattedMessage = $studentGreeting
                 . "*{$reminder->title}*\n"
                 . "{$reminder->message}\n\n"
                 . "SiRNaMa • Layanan Informasi & Kemahasiswaan {$institution}";
 
-            $result = $this->fonnteService->sendMessage($recipient['whatsapp_number'], $formattedMessage);
+            $batchMessages[] = [
+                'target' => $recipient['whatsapp_number'],
+                'message' => $formattedMessage,
+            ];
+        }
+
+        $results = $this->fonnteService->sendBulkMessages($batchMessages);
+
+        foreach ($recipients as $index => $recipient) {
+            $result = $results[$index] ?? [
+                'success' => false,
+                'status' => 'failed',
+                'message' => 'Respons pengiriman tidak ditemukan.',
+                'response' => null,
+            ];
 
             if ($result['success']) {
                 $sentCount++;
@@ -88,7 +104,13 @@ class ReminderDispatchService
 
         if ($sentCount === $totalTargets) {
             $finalStatus = 'sent';
-            $notice = "Reminder berhasil dikirim via Fonnte ke {$sentCount} nomor WhatsApp mahasiswa.";
+            if ($totalTargets > 1) {
+                $minDelay = max(1, (int) config('services.fonnte.min_delay', FonnteService::DEFAULT_MIN_DELAY_SECONDS));
+                $maxDelay = max($minDelay, (int) config('services.fonnte.max_delay', FonnteService::DEFAULT_MAX_DELAY_SECONDS));
+                $notice = "Reminder berhasil dikirim via Fonnte ke {$sentCount} nomor WhatsApp mahasiswa dengan jeda acak {$minDelay}-{$maxDelay} detik antar kontak.";
+            } else {
+                $notice = "Reminder berhasil dikirim via Fonnte ke {$sentCount} nomor WhatsApp mahasiswa.";
+            }
         } elseif ($sentCount > 0) {
             $finalStatus = 'partial';
             $notice = "Reminder terkirim sebagian: {$sentCount} berhasil, {$failedCount} gagal.";
