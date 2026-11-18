@@ -34,7 +34,7 @@ return [
 
     'lifetime' => (int) env('SESSION_LIFETIME', 30),
 
-    'admin_idle_timeout' => (int) env('ADMIN_IDLE_TIMEOUT', 30),
+    'admin_idle_timeout' => (int) env('ADMIN_IDLE_TIMEOUT', 15),
 
     'expire_on_close' => env('SESSION_EXPIRE_ON_CLOSE', false),
 
@@ -131,7 +131,7 @@ return [
 
     'cookie' => env(
         'SESSION_COOKIE',
-        Str::slug(env('APP_NAME', 'laravel'), '_').'_session'
+        Str::slug(env('APP_NAME', 'laravel'), '_') . '_session'
     ),
 
     /*
