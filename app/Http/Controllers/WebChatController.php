@@ -111,7 +111,7 @@ class WebChatController extends Controller
                 'sender_type' => $msg->sender_type,
                 'sender_name' => $msg->sender_name,
                 'message' => $msg->message,
-                'time' => $msg->created_at?->format('H:i'),
+                'time' => $msg->created_at?->format('d M Y H:i'),
             ])->values(),
         ];
     }

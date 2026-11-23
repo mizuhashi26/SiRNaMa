@@ -292,7 +292,11 @@
                                             </p>
                                         @endif
                                         <div class="text-[11px] text-slate-400 mt-0.5">
-                                            {{ $conv->last_message_at?->diffForHumans() ?? '-' }}
+                                            @if($conv->last_message_at)
+                                                {{ $conv->last_message_at->format('d M Y H:i') }} ({{ $conv->last_message_at->diffForHumans() }})
+                                            @else
+                                                -
+                                            @endif
                                         </div>
                                     </td>
                                     <td class="py-3.5 px-4 text-right">

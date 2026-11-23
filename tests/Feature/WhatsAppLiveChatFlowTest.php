@@ -393,5 +393,71 @@ class WhatsAppLiveChatFlowTest extends TestCase
         ])->assertStatus(422)
           ->assertJsonPath('ok', false);
     }
+
+    public function test_chat_views_and_json_endpoints_include_message_date_with_time(): void
+    {
+        $admin = User::factory()->superadmin()->create(['name' => 'Admin Tanggal']);
+        $historicalTime = \Carbon\Carbon::create(2026, 11, 10, 9, 45, 0);
+
+        $conversation = Conversation::create([
+            'channel' => 'whatsapp',
+            'external_user_id' => '6281234560099',
+            'contact_number' => '6281234560099',
+            'user_name' => 'Dewi Tanggal',
+            'status' => Conversation::STATUS_ADMIN_ACTIVE,
+            'assigned_admin_id' => $admin->id,
+            'last_message_at' => $historicalTime,
+        ]);
+
+        $userMsg = $conversation->messages()->create([
+            'sender_type' => 'user',
+            'sender_name' => 'Dewi Tanggal',
+            'message' => 'Halo bot tanggal',
+            'delivery_status' => 'received',
+        ]);
+        $userMsg->forceFill([
+            'created_at' => $historicalTime,
+            'updated_at' => $historicalTime,
+        ])->save();
+
+        $adminMsg = $conversation->messages()->create([
+            'sender_type' => 'admin',
+            'sender_name' => 'Admin Tanggal',
+            'message' => 'Siap, ini balasan CS.',
+            'delivery_status' => 'sent_gateway',
+        ]);
+        $adminMsg->forceFill([
+            'created_at' => $historicalTime->copy()->addMinute(),
+            'updated_at' => $historicalTime->copy()->addMinute(),
+        ])->save();
+
+        $expectedUserDateTime = '10 Nov 2026 09:45';
+        $expectedAdminDateTime = '10 Nov 2026 09:46';
+
+        // 1. Live chat menampilkan tanggal + jam di daftar kontak dan gelembung pesan
+        $liveChatRes = $this->actingAs($admin)
+            ->get(route('admin.live-chat.index', ['conversation_id' => $conversation->id]));
+        $liveChatRes->assertOk();
+        $liveChatRes->assertSee($expectedUserDateTime);
+        $liveChatRes->assertSee($expectedAdminDateTime);
+
+        // 2. Endpoint polling Live Chat mengembalikan tanggal + jam
+        $pollRes = $this->actingAs($admin)
+            ->getJson(route('admin.live-chat.poll', $conversation));
+        $pollRes->assertOk()
+            ->assertJsonPath('messages.0.time', $expectedUserDateTime)
+            ->assertJsonPath('messages.1.time', $expectedAdminDateTime);
+
+        // 3. Dashboard Live Chat queue menampilkan tanggal + jam bersama waktu relatif
+        $dashboardRes = $this->actingAs($admin)->get(route('admin.dashboard'));
+        $dashboardRes->assertOk();
+        $dashboardRes->assertSee($expectedUserDateTime);
+
+        // 4. Web chatbot session mengembalikan format tanggal + jam (d M Y H:i)
+        $webChatRes = $this->getJson(route('webchat.session'));
+        $webChatRes->assertOk();
+        $webTime = (string) $webChatRes->json('messages.0.time');
+        $this->assertMatchesRegularExpression('/^\d{2} [A-Za-z]{3} \d{4} \d{2}:\d{2}$/', $webTime);
+    }
 }
 

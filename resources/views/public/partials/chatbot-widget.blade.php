@@ -602,7 +602,7 @@
                         }
 
                         const header = document.createElement('div');
-                        header.className = 'flex items-center justify-between gap-2 mb-1 text-[11px] ' + (isUser ? 'text-amber-200' : 'text-slate-600 dark:text-slate-400');
+                        header.className = 'flex flex-wrap items-center justify-between gap-2 mb-1 text-[11px] ' + (isUser ? 'text-amber-200' : 'text-slate-600 dark:text-slate-400');
                         header.innerHTML = '<span class="font-bold">' + (item.sender_name || item.sender_type) + '</span><span>' + (item.time || '') + '</span>';
 
                         const body = document.createElement('div');

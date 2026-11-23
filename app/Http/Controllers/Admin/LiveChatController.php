@@ -230,7 +230,7 @@ class LiveChatController extends Controller
                 'sender_name' => $msg->sender_name,
                 'message' => $msg->message,
                 'delivery_status' => $msg->delivery_status,
-                'time' => $msg->created_at?->format('H:i'),
+                'time' => $msg->created_at?->format('d M Y H:i'),
             ])->values(),
         ]);
     }

@@ -127,7 +127,7 @@
                                         @endif
                                     </h2>
                                     <span class="text-[10px] text-slate-400 font-mono shrink-0 pt-0.5">
-                                        {{ $item->last_message_at?->format('H:i') ?? '-' }}
+                                        {{ $item->last_message_at?->format('d M Y H:i') ?? '-' }}
                                     </span>
                                 </div>
 
@@ -285,7 +285,7 @@
                                 <div class="max-w-full sm:max-w-lg bg-unpam-navy dark:bg-slate-800 text-white rounded-2xl rounded-tr-xs px-3.5 sm:px-4 py-3 shadow-xs space-y-1">
                                     <div class="flex flex-wrap items-center justify-between gap-2 text-[10px] text-slate-300">
                                         <span class="font-bold text-unpam-gold">{{ $msg->sender_name ?: 'CS Layanan' }} (ADMIN)</span>
-                                        <span class="font-mono">{{ $msg->created_at?->format('H:i') }}</span>
+                                        <span class="font-mono">{{ $msg->created_at?->format('d M Y H:i') }}</span>
                                     </div>
                                     <div class="text-xs sm:text-sm whitespace-pre-line leading-relaxed break-words">
                                         {{ $msg->message }}
@@ -302,7 +302,7 @@
                                 <div class="max-w-full sm:max-w-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-2xl rounded-tl-xs px-3.5 sm:px-4 py-3 shadow-xs space-y-1">
                                     <div class="flex flex-wrap items-center justify-between gap-2 text-[10px] text-slate-400">
                                         <span class="font-bold text-slate-700 dark:text-slate-300">{{ $msg->sender_name ?: 'Mahasiswa' }} (MAHASISWA)</span>
-                                        <span class="font-mono">{{ $msg->created_at?->format('H:i') }}</span>
+                                        <span class="font-mono">{{ $msg->created_at?->format('d M Y H:i') }}</span>
                                     </div>
                                     <div class="text-xs sm:text-sm whitespace-pre-line leading-relaxed break-words text-slate-800 dark:text-slate-200">
                                         {{ $msg->message }}
