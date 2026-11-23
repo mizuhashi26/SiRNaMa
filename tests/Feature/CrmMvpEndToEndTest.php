@@ -412,8 +412,6 @@ class CrmMvpEndToEndTest extends TestCase
 
         config([
             'services.fonnte.token' => 'valid-fonnte-token',
-            'services.fonnte.min_delay' => 2,
-            'services.fonnte.max_delay' => 8,
         ]);
 
         Http::fake([
@@ -457,8 +455,8 @@ class CrmMvpEndToEndTest extends TestCase
         foreach ($capturedBatch as $idx => $entry) {
             $this->assertIsString($entry['delay']);
             $delayInt = (int) $entry['delay'];
-            $this->assertGreaterThanOrEqual(2, $delayInt);
-            $this->assertLessThanOrEqual(8, $delayInt);
+            $this->assertGreaterThanOrEqual(5, $delayInt);
+            $this->assertLessThanOrEqual(30, $delayInt);
             $this->assertSame('62', $entry['countryCode']);
             $this->assertStringContainsString('Mahasiswa Ke ' . ($idx + 1), $entry['message']);
 
@@ -493,8 +491,60 @@ class CrmMvpEndToEndTest extends TestCase
         $this->assertSame('unverified_no_token', $noTokenResults[0]['status']);
         $this->assertSame('unverified_no_token', $noTokenResults[1]['status']);
         $this->assertSame('failed', $noTokenResults[2]['status']);
-        $this->assertGreaterThanOrEqual(2, (int) $noTokenResults[0]['delay']);
+        $this->assertGreaterThanOrEqual(5, (int) $noTokenResults[0]['delay']);
+        $this->assertLessThanOrEqual(30, (int) $noTokenResults[0]['delay']);
         $this->assertNotSame($noTokenResults[0]['delay'], $noTokenResults[1]['delay']);
+    }
+
+    public function test_ktm_replacement_guide_works_in_seeder_portal_and_chatbots(): void
+    {
+        // 1. Sebelum seeder dijalankan pun, kata kunci ktm hilang tetap dijawab chatbot (fallback)
+        $fallbackChat = $this->postJson(route('webchat.message'), [
+            'message' => 'ktm hilang',
+        ]);
+        $fallbackChat->assertOk();
+        $fallbackMessages = $fallbackChat->json('messages');
+        $lastReply = end($fallbackMessages)['message'] ?? '';
+        $this->assertStringContainsString('Surat Keterangan Mahasiswa (SKM)', $lastReply);
+        $this->assertStringContainsString('Rp100.000', $lastReply);
+
+        // 2. Jalankan seeder artikel KTM -> muncul di Portal Publik & sub-menu 1.6 Administrasi
+        $this->seed(\Database\Seeders\KtmInformationSeeder::class);
+        $this->assertDatabaseHas('campus_informations', [
+            'slug' => \Database\Seeders\KtmInformationSeeder::SLUG,
+            'category' => 'administrasi',
+            'is_published' => true,
+        ]);
+
+        $this->get(route('public.show', \Database\Seeders\KtmInformationSeeder::SLUG))
+            ->assertOk()
+            ->assertSee('Alur dan Syarat Pembuatan KTM Baru')
+            ->assertSee('Polsek Pamulang')
+            ->assertSee('Gedung C Lt. 10')
+            ->assertSee('tanpa Surat Keterangan Kehilangan Kepolisian');
+
+        // 3. Chatbot menu 1.6 Administrasi & kata kunci ktm baru / cetak ulang ktm
+        $adminMenuRes = $this->postJson(route('webchat.message'), [
+            'message' => '1.6',
+        ]);
+        $adminMenuRes->assertOk();
+        $adminMenuMessages = $adminMenuRes->json('messages');
+        $this->assertStringContainsString('Alur dan Syarat Pembuatan KTM Baru', end($adminMenuMessages)['message'] ?? '');
+
+        $ktmNewRes = $this->postJson(route('webchat.message'), [
+            'message' => 'cara bikin ktm baru',
+        ]);
+        $ktmNewRes->assertOk();
+        $ktmNewMessages = $ktmNewRes->json('messages');
+        $this->assertStringContainsString('tanpa Surat Keterangan Kehilangan Kepolisian', end($ktmNewMessages)['message'] ?? '');
+
+        $waRes = $this->postJson(route('webhook.fonnte'), [
+            'sender' => '6281234567801',
+            'message' => 'cara urus cetak ulang ktm',
+            'name' => 'Raka',
+        ]);
+        $waRes->assertOk();
+        $this->assertStringContainsString('IT Support', (string) $waRes->json('bot_reply'));
     }
 }
 

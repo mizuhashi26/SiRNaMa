@@ -6,7 +6,9 @@ use App\Http\Middleware\EnforceAdminIdleTimeout;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
@@ -18,6 +20,11 @@ class AuthController extends Controller
         'Expires' => 'Sun, 02 Jan 1990 00:00:00 GMT',
     ];
 
+    public static function closingCacheKey(int $userId): string
+    {
+        return "admin_closing:{$userId}";
+    }
+
     public function showLogin(Request $request): View|RedirectResponse
     {
         if (Auth::check()) {
@@ -27,9 +34,14 @@ class AuthController extends Controller
         }
 
         $idleWarning = null;
-        if ($request->boolean('idle_timeout') && ! session()->has('warning')) {
-            $idleMinutes = max(1, (int) config('session.admin_idle_timeout', 30));
-            $idleWarning = "Sesi Admin telah berakhir otomatis karena tidak ada aktivitas selama {$idleMinutes} menit. Silakan login kembali.";
+        if (! session()->has('warning')) {
+            if ($request->boolean('close_timeout')) {
+                $closeGraceSeconds = max(10, (int) config('session.admin_close_grace_seconds', 60));
+                $idleWarning = "Sesi Admin telah berakhir otomatis karena halaman admin ditutup lebih dari {$closeGraceSeconds} detik. Silakan login kembali.";
+            } elseif ($request->boolean('idle_timeout')) {
+                $idleMinutes = max(1, (int) config('session.admin_idle_timeout', 15));
+                $idleWarning = "Sesi Admin telah berakhir otomatis karena tidak ada aktivitas selama {$idleMinutes} menit. Silakan login kembali.";
+            }
         }
 
         return view('auth.login', compact('idleWarning'));
@@ -61,20 +73,37 @@ class AuthController extends Controller
         if (config('session.driver') === 'database') {
             $sessionTable = (string) config('session.table', 'sessions');
             $lifetimeMinutes = min(
-                max(1, (int) config('session.lifetime', 30)),
-                max(1, (int) config('session.admin_idle_timeout', 30))
+                max(1, (int) config('session.lifetime', 15)),
+                max(1, (int) config('session.admin_idle_timeout', 15))
             );
             $expiryThreshold = now()->subMinutes($lifetimeMinutes)->getTimestamp();
             $currentSessionId = $request->session()->getId();
 
+            // Jika perangkat sebelumnya sudah menutup tab admin > 60 detik, bebaskan sesi lamanya
+            $userId = (int) $user->getAuthIdentifier();
+            $closingInfo = Cache::get(self::closingCacheKey($userId));
+            $closeGraceSeconds = max(10, (int) config('session.admin_close_grace_seconds', 60));
+            if (
+                is_array($closingInfo)
+                && ! empty($closingInfo['session_id'])
+                && isset($closingInfo['closed_at'])
+                && (now()->timestamp - (int) $closingInfo['closed_at']) >= $closeGraceSeconds
+            ) {
+                DB::table($sessionTable)
+                    ->where('user_id', $userId)
+                    ->where('id', (string) $closingInfo['session_id'])
+                    ->delete();
+                Cache::forget(self::closingCacheKey($userId));
+            }
+
             // Bersihkan sesi yang sudah kedaluwarsa untuk akun ini agar tidak mengunci permanen
             DB::table($sessionTable)
-                ->where('user_id', $user->getAuthIdentifier())
+                ->where('user_id', $userId)
                 ->where('last_activity', '<', $expiryThreshold)
                 ->delete();
 
             $hasActiveOtherSession = DB::table($sessionTable)
-                ->where('user_id', $user->getAuthIdentifier())
+                ->where('user_id', $userId)
                 ->where('id', '!=', $currentSessionId)
                 ->where('last_activity', '>=', $expiryThreshold)
                 ->exists();
@@ -88,7 +117,11 @@ class AuthController extends Controller
 
         Auth::login($user, $remember);
         $request->session()->regenerate();
-        $request->session()->put(EnforceAdminIdleTimeout::SESSION_ACTIVITY_KEY, now()->timestamp);
+        $loginNow = now()->timestamp;
+        $request->session()->put(EnforceAdminIdleTimeout::SESSION_ACTIVITY_KEY, $loginNow);
+        $request->session()->put(EnforceAdminIdleTimeout::SESSION_LOGIN_AT_KEY, $loginNow);
+        $request->session()->forget(EnforceAdminIdleTimeout::SESSION_CLOSING_KEY);
+        Cache::forget(self::closingCacheKey((int) $user->getAuthIdentifier()));
 
         $defaultRoute = Auth::user()->isAdminChat() ? route('admin.live-chat.index') : route('admin.dashboard');
 
@@ -96,14 +129,51 @@ class AuthController extends Controller
             ->with('success', 'Berhasil masuk ke Dashboard Admin CRM.');
     }
 
+    public function sessionClosing(Request $request): HttpResponse
+    {
+        $now = now()->timestamp;
+        $request->session()->put(EnforceAdminIdleTimeout::SESSION_CLOSING_KEY, $now);
+
+        if (Auth::id()) {
+            $ttlSeconds = max(120, (int) config('session.admin_idle_timeout', 15) * 60);
+            Cache::put(
+                self::closingCacheKey((int) Auth::id()),
+                [
+                    'session_id' => $request->session()->getId(),
+                    'closed_at' => $now,
+                ],
+                $ttlSeconds
+            );
+        }
+
+        return response()->noContent()->withHeaders(self::NO_CACHE_HEADERS);
+    }
+
+    public function sessionActive(Request $request): JsonResponse
+    {
+        $request->session()->forget(EnforceAdminIdleTimeout::SESSION_CLOSING_KEY);
+        if (Auth::id()) {
+            Cache::forget(self::closingCacheKey((int) Auth::id()));
+        }
+
+        return response()->json(['ok' => true])->withHeaders(self::NO_CACHE_HEADERS);
+    }
+
     public function logout(Request $request): RedirectResponse|JsonResponse
     {
         self::terminateUserSession($request);
 
         if ($request->expectsJson()) {
+            $query = [];
+            if ($request->boolean('close_timeout')) {
+                $query = ['close_timeout' => 1];
+            } elseif ($request->boolean('auto_logout')) {
+                $query = ['idle_timeout' => 1];
+            }
+
             return response()->json([
                 'message' => 'Anda telah keluar dari sesi Admin.',
-                'redirect' => route('login', $request->boolean('auto_logout') ? ['idle_timeout' => 1] : []),
+                'redirect' => route('login', $query),
             ])->withHeaders(self::NO_CACHE_HEADERS);
         }
 
@@ -124,11 +194,15 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        // Bersihkan seluruh sisa sesi milik akun ini di tabel sessions agar perangkat lain langsung bisa masuk
-        if ($resolvedUserId && config('session.driver') === 'database') {
-            DB::table((string) config('session.table', 'sessions'))
-                ->where('user_id', $resolvedUserId)
-                ->delete();
+        if ($resolvedUserId) {
+            Cache::forget(self::closingCacheKey((int) $resolvedUserId));
+
+            // Bersihkan seluruh sisa sesi milik akun ini di tabel sessions agar perangkat lain langsung bisa masuk
+            if (config('session.driver') === 'database') {
+                DB::table((string) config('session.table', 'sessions'))
+                    ->where('user_id', $resolvedUserId)
+                    ->delete();
+            }
         }
     }
 }

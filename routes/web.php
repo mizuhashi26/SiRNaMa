@@ -59,6 +59,10 @@ Route::prefix('admin')
                 ->name('reminders.send-now');
         });
 
+        // === Penanda Kehadiran Tab Admin (Untuk Semua Peran Admin) ===
+        Route::post('session/closing', [AuthController::class, 'sessionClosing'])->name('session.closing');
+        Route::post('session/active', [AuthController::class, 'sessionActive'])->name('session.active');
+
         // === Akses Semua Peran Admin (Termasuk Admin Chat): Live Chat Terpusat ===
         Route::post('live-chat/simulate-whatsapp', [LiveChatController::class, 'simulateWebhook'])
             ->name('live-chat.simulate-whatsapp');

@@ -243,6 +243,14 @@ class ChatbotMenuService
             ];
         }
 
+        // Kata kunci khusus: Alur pembuatan ulang KTM yang hilang
+        if ($this->matchesKtmLostQuery($normalized)) {
+            return [
+                'text' => $this->buildKtmReplacementGuideText(),
+                'options' => $this->getCampusCategoryOptions(),
+            ];
+        }
+
         // Jika user sedang berada di dalam Sub-Menu 1 (Informasi Kampus) dan belum menekan 0/keluar, tetap di Sub-Menu 1
         if ($previousContext === 'campus') {
             return [
@@ -398,6 +406,10 @@ class ChatbotMenuService
                 }
                 return 'campus';
             }
+
+            if ($this->matchesKtmLostQuery($input)) {
+                return 'campus';
+            }
         }
 
         return 'main';
@@ -468,7 +480,7 @@ class ChatbotMenuService
             $lines[] = "\nBelum ada informasi kampus yang dipublikasikan saat ini.";
         }
 
-        $lines[] = "\nKetik kode sub-kategori (misal *1.1*) atau tekan tombol. Anda akan tetap di menu ini sampai memilih *0* (Kembali ke Menu Layanan).";
+        $lines[] = "\nKetik kode sub-kategori (misal *1.1*), kata kunci (*KTM hilang*), atau tekan tombol. Anda akan tetap di menu ini sampai memilih *0* (Kembali ke Menu Layanan).";
 
         return implode("\n", $lines);
     }
@@ -586,6 +598,62 @@ class ChatbotMenuService
         }
 
         return "*{$item->title}*\nKategori: {$item->category_label}\n\n{$item->content}\n\nSilakan pilih sub-layanan lain pada tombol di bawah, atau tekan *0* untuk kembali ke Menu Layanan.";
+    }
+
+    protected function matchesKtmLostQuery(string $normalized): bool
+    {
+        $clean = trim($normalized);
+        if ($clean === '') {
+            return false;
+        }
+
+        if (in_array($clean, ['ktm', 'ktm hilang', 'e-student card', 'estudent card'], true)) {
+            return true;
+        }
+
+        $hasKtmKeyword = str_contains($clean, 'ktm')
+            || str_contains($clean, 'kartu tanda mahasiswa')
+            || str_contains($clean, 'e-student')
+            || str_contains($clean, 'estudent');
+
+        if (! $hasKtmKeyword) {
+            return false;
+        }
+
+        return str_contains($clean, 'hilang')
+            || str_contains($clean, 'kehilangan')
+            || str_contains($clean, 'baru')
+            || str_contains($clean, 'pembuatan')
+            || str_contains($clean, 'bikin')
+            || str_contains($clean, 'cetak')
+            || str_contains($clean, 'buat')
+            || str_contains($clean, 'ulang')
+            || str_contains($clean, 'ganti')
+            || str_contains($clean, 'syarat')
+            || str_contains($clean, 'alur')
+            || str_contains($clean, 'cara')
+            || str_contains($clean, 'urus')
+            || str_contains($clean, 'info');
+    }
+
+    protected function buildKtmReplacementGuideText(): string
+    {
+        $article = CampusInformation::published()
+            ->where(function ($q) {
+                $q->where('slug', \Database\Seeders\KtmInformationSeeder::SLUG)
+                    ->orWhere('title', 'like', '%KTM%');
+            })
+            ->orderByDesc('is_pinned')
+            ->orderByDesc('published_at')
+            ->first();
+
+        if ($article) {
+            return "*{$article->title}*\nKategori: {$article->category_label}\n\n{$article->content}\n\nSilakan pilih sub-layanan lain pada tombol di bawah, atau tekan *0* untuk kembali ke Menu Layanan.";
+        }
+
+        $fallback = \Database\Seeders\KtmInformationSeeder::articleData();
+
+        return "*{$fallback['title']}*\nKategori: Administrasi\n\n{$fallback['content']}\n\nSilakan pilih sub-layanan lain pada tombol di bawah, atau tekan *0* untuk kembali ke Menu Layanan.";
     }
 
     protected function recordBotReply(Conversation $conversation, string $message): ConversationMessage

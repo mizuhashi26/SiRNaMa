@@ -782,24 +782,146 @@
                 }
             }, true);
 
-            // Auto-logout otomatis setelah idle (default 30 menit tanpa aktivitas pengguna)
+            // Auto-logout otomatis setelah idle (default 15 menit) atau jika tab/browser admin ditutup > 60 detik
             (function initAdminIdleAutoLogout() {
-                const IDLE_TIMEOUT_MS = {{ max(1, (int) config('session.admin_idle_timeout', 30)) * 60 * 1000 }};
+                const IDLE_TIMEOUT_MS = {{ max(1, (int) config('session.admin_idle_timeout', 15)) * 60 * 1000 }};
+                const CLOSE_GRACE_MS = {{ max(10, (int) config('session.admin_close_grace_seconds', 60)) * 1000 }};
                 const SERVER_ELAPSED_MS = {{ max(0, now()->timestamp - (int) session(\App\Http\Middleware\EnforceAdminIdleTimeout::SESSION_ACTIVITY_KEY, now()->timestamp)) * 1000 }};
+                const SERVER_LOGIN_AT_MS = {{ (int) session(\App\Http\Middleware\EnforceAdminIdleTimeout::SESSION_LOGIN_AT_KEY, now()->timestamp) * 1000 }};
                 const LOGOUT_URL = @json(route('logout'));
+                const SESSION_CLOSING_URL = @json(route('admin.session.closing'));
+                const SESSION_ACTIVE_URL = @json(route('admin.session.active'));
                 const LOGIN_EXPIRED_URL = @json(route('login', ['idle_timeout' => 1]));
+                const LOGIN_CLOSED_URL = @json(route('login', ['close_timeout' => 1]));
                 const ACTIVITY_STORAGE_KEY = 'sirnama_admin_last_activity';
                 const LOGOUT_STORAGE_KEY = 'sirnama_admin_force_logout';
+                const OPEN_TABS_STORAGE_KEY = 'sirnama_admin_open_tabs';
+                const CLOSED_AT_STORAGE_KEY = 'sirnama_admin_closed_at';
+                const TAB_STALE_MS = 25000;
+
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                let tabId = '';
+                try {
+                    tabId = sessionStorage.getItem('sirnama_admin_tab_id') || '';
+                    if (!tabId) {
+                        tabId = 'tab_' + Math.random().toString(36).slice(2) + '_' + Date.now();
+                        sessionStorage.setItem('sirnama_admin_tab_id', tabId);
+                    }
+                } catch (err) {
+                    tabId = 'tab_' + Math.random().toString(36).slice(2) + '_' + Date.now();
+                }
 
                 let lastActivityAt = Date.now() - Math.min(IDLE_TIMEOUT_MS, SERVER_ELAPSED_MS);
                 let lastStorageSyncAt = 0;
                 let isLoggingOut = false;
 
+                function readOpenTabs() {
+                    try {
+                        const raw = localStorage.getItem(OPEN_TABS_STORAGE_KEY);
+                        const parsed = raw ? JSON.parse(raw) : {};
+                        const nowMs = Date.now();
+                        const cleaned = {};
+                        Object.keys(parsed || {}).forEach(function (id) {
+                            if (nowMs - Number(parsed[id] || 0) < TAB_STALE_MS) {
+                                cleaned[id] = parsed[id];
+                            }
+                        });
+                        return cleaned;
+                    } catch (err) {
+                        return {};
+                    }
+                }
+
+                function writeOpenTabs(tabs) {
+                    try {
+                        localStorage.setItem(OPEN_TABS_STORAGE_KEY, JSON.stringify(tabs));
+                    } catch (err) {
+                        // Abaikan error storage
+                    }
+                }
+
+                function registerCurrentTab() {
+                    const tabs = readOpenTabs();
+                    tabs[tabId] = Date.now();
+                    writeOpenTabs(tabs);
+                }
+
+                async function performAutoLogout(redirectUrl, isCloseTimeout) {
+                    if (isLoggingOut) return;
+                    isLoggingOut = true;
+
+                    try {
+                        localStorage.setItem(LOGOUT_STORAGE_KEY, JSON.stringify({ at: Date.now(), url: redirectUrl }));
+                        localStorage.removeItem(CLOSED_AT_STORAGE_KEY);
+                        localStorage.removeItem(OPEN_TABS_STORAGE_KEY);
+                    } catch (err) {
+                        // Abaikan error storage
+                    }
+
+                    const bodyFlag = isCloseTimeout ? 'close_timeout=1' : 'auto_logout=1';
+                    try {
+                        await fetch(LOGOUT_URL, {
+                            method: 'POST',
+                            credentials: 'same-origin',
+                            headers: {
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+                            },
+                            body: bodyFlag,
+                        });
+                    } catch (err) {
+                        // Tetap alihkan ke halaman login jika sesi server sudah kedaluwarsa atau offline
+                    } finally {
+                        window.location.replace(redirectUrl);
+                    }
+                }
+
+                // Cek apakah semua tab admin sempat ditutup melebihi batas 60 detik pada sesi login yang sama
                 try {
+                    const closedAtRaw = localStorage.getItem(CLOSED_AT_STORAGE_KEY);
+                    if (closedAtRaw) {
+                        const closedAt = parseInt(closedAtRaw, 10);
+                        localStorage.removeItem(CLOSED_AT_STORAGE_KEY);
+                        if (!Number.isNaN(closedAt) && closedAt >= SERVER_LOGIN_AT_MS && (Date.now() - closedAt) >= CLOSE_GRACE_MS) {
+                            performAutoLogout(LOGIN_CLOSED_URL, true);
+                            return;
+                        }
+                    }
                     localStorage.setItem(ACTIVITY_STORAGE_KEY, String(lastActivityAt));
                 } catch (err) {
                     // Abaikan jika storage diblokir browser
                 }
+
+                registerCurrentTab();
+
+                // Pastikan status closing dari navigasi/refresh sebelumnya bersih setelah halaman baru termuat
+                window.setTimeout(function () {
+                    if (isLoggingOut) return;
+                    fetch(SESSION_ACTIVE_URL, {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json',
+                        },
+                    }).catch(function () {
+                        // Abaikan kegagalan ringan jaringan
+                    });
+                }, 800);
+
+                // Jika admin klik logout manual, bersihkan tracking tab agar tidak memicu beacon closing
+                document.querySelectorAll('form[action="' + LOGOUT_URL + '"]').forEach(function (logoutForm) {
+                    logoutForm.addEventListener('submit', function () {
+                        isLoggingOut = true;
+                        try {
+                            localStorage.removeItem(CLOSED_AT_STORAGE_KEY);
+                            localStorage.removeItem(OPEN_TABS_STORAGE_KEY);
+                        } catch (err) {
+                            // Abaikan
+                        }
+                    });
+                });
 
                 function markActivity() {
                     if (isLoggingOut) return;
@@ -815,41 +937,34 @@
                     }
                 }
 
-                async function performAutoLogout() {
-                    if (isLoggingOut) return;
-                    isLoggingOut = true;
-
-                    try {
-                        localStorage.setItem(LOGOUT_STORAGE_KEY, String(Date.now()));
-                    } catch (err) {
-                        // Abaikan error storage
-                    }
-
-                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-                    try {
-                        await fetch(LOGOUT_URL, {
-                            method: 'POST',
-                            credentials: 'same-origin',
-                            headers: {
-                                'X-CSRF-TOKEN': csrfToken,
-                                'Accept': 'application/json',
-                                'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-                            },
-                            body: 'auto_logout=1',
-                        });
-                    } catch (err) {
-                        // Tetap alihkan ke halaman login jika sesi server sudah kedaluwarsa atau offline
-                    } finally {
-                        window.location.replace(LOGIN_EXPIRED_URL);
-                    }
-                }
-
                 function checkIdleExpiration() {
                     if (isLoggingOut) return;
                     if (Date.now() - lastActivityAt >= IDLE_TIMEOUT_MS) {
-                        performAutoLogout();
+                        performAutoLogout(LOGIN_EXPIRED_URL, false);
                     }
                 }
+
+                function handleTabLeave() {
+                    if (isLoggingOut) return;
+                    const tabs = readOpenTabs();
+                    delete tabs[tabId];
+                    writeOpenTabs(tabs);
+
+                    if (Object.keys(tabs).length === 0) {
+                        try {
+                            localStorage.setItem(CLOSED_AT_STORAGE_KEY, String(Date.now()));
+                        } catch (err) {
+                            // Abaikan
+                        }
+                        if (navigator.sendBeacon) {
+                            const payload = new URLSearchParams({ _token: csrfToken });
+                            navigator.sendBeacon(SESSION_CLOSING_URL, payload);
+                        }
+                    }
+                }
+
+                window.addEventListener('pagehide', handleTabLeave);
+                window.addEventListener('beforeunload', handleTabLeave);
 
                 ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart', 'click', 'pointerdown'].forEach(function (eventName) {
                     window.addEventListener(eventName, markActivity, { passive: true });
@@ -863,18 +978,35 @@
                         }
                     } else if (ev.key === LOGOUT_STORAGE_KEY && !isLoggingOut) {
                         isLoggingOut = true;
-                        window.location.replace(LOGIN_EXPIRED_URL);
+                        let targetUrl = LOGIN_EXPIRED_URL;
+                        try {
+                            const parsed = JSON.parse(ev.newValue || '{}');
+                            if (parsed && parsed.url) targetUrl = parsed.url;
+                        } catch (err) {
+                            // Fallback ke URL default
+                        }
+                        window.location.replace(targetUrl);
                     }
                 });
 
                 document.addEventListener('visibilitychange', function () {
                     if (!document.hidden) {
+                        registerCurrentTab();
                         checkIdleExpiration();
                     }
                 });
 
-                window.addEventListener('focus', checkIdleExpiration);
-                window.setInterval(checkIdleExpiration, 15000);
+                window.addEventListener('focus', function () {
+                    registerCurrentTab();
+                    checkIdleExpiration();
+                });
+
+                window.setInterval(function () {
+                    if (!isLoggingOut) {
+                        registerCurrentTab();
+                        checkIdleExpiration();
+                    }
+                }, 10000);
             })();
         });
     </script>

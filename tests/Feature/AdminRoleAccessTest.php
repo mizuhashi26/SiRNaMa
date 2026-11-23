@@ -318,11 +318,12 @@ class AdminRoleAccessTest extends TestCase
         $this->assertSame(User::ROLE_ADMIN_CHAT, $chatUser->fresh()->role);
     }
 
-    public function test_admin_auto_logs_out_after_30_minutes_idle_and_purges_session(): void
+    public function test_admin_auto_logs_out_after_15_minutes_idle_and_purges_session(): void
     {
         config([
             'session.driver' => 'database',
-            'session.admin_idle_timeout' => 30,
+            'session.admin_idle_timeout' => 15,
+            'session.admin_close_grace_seconds' => 60,
         ]);
 
         $admin = User::factory()->create([
@@ -331,7 +332,7 @@ class AdminRoleAccessTest extends TestCase
             'role' => User::ROLE_ADMIN,
         ]);
 
-        // 1. Login mengisi timestamp aktivitas awal dan halaman admin merender timer client-side 30 menit
+        // 1. Login mengisi timestamp aktivitas awal dan halaman admin merender timer client-side 15 menit + 60 detik tutup tab
         $this->post(route('login.attempt'), [
             'email' => 'idle.admin@unpam.ac.id',
             'password' => 'password123',
@@ -339,26 +340,27 @@ class AdminRoleAccessTest extends TestCase
 
         $dashboardRes = $this->get(route('admin.dashboard'));
         $dashboardRes->assertOk();
-        $dashboardRes->assertSee('IDLE_TIMEOUT_MS = 1800000', false);
+        $dashboardRes->assertSee('IDLE_TIMEOUT_MS = 900000', false);
+        $dashboardRes->assertSee('CLOSE_GRACE_MS = 60000', false);
 
-        // 2. Aktivitas sebelum 30 menit (20 menit idle) masih diperbolehkan dan memperbarui timestamp
+        // 2. Aktivitas sebelum 15 menit (10 menit idle) masih diperbolehkan dan memperbarui timestamp
         $this->withSession([
-            \App\Http\Middleware\EnforceAdminIdleTimeout::SESSION_ACTIVITY_KEY => now()->subMinutes(20)->timestamp,
+            \App\Http\Middleware\EnforceAdminIdleTimeout::SESSION_ACTIVITY_KEY => now()->subMinutes(10)->timestamp,
         ])->get(route('admin.dashboard'))->assertOk();
         $this->assertAuthenticatedAs($admin);
 
-        // 3. Idle >= 30 menit memaksa logout, hapus sesi DB, dan alihkan ke halaman login dengan peringatan
+        // 3. Idle >= 15 menit memaksa logout, hapus sesi DB, dan alihkan ke halaman login dengan peringatan
         \Illuminate\Support\Facades\DB::table('sessions')->insert([
             'id' => 'idle-expired-session-789',
             'user_id' => $admin->id,
             'ip_address' => '127.0.0.1',
             'user_agent' => 'IdleBrowser',
             'payload' => base64_encode(serialize([])),
-            'last_activity' => now()->subMinutes(31)->timestamp,
+            'last_activity' => now()->subMinutes(16)->timestamp,
         ]);
 
         $expiredRes = $this->withSession([
-            \App\Http\Middleware\EnforceAdminIdleTimeout::SESSION_ACTIVITY_KEY => now()->subMinutes(31)->timestamp,
+            \App\Http\Middleware\EnforceAdminIdleTimeout::SESSION_ACTIVITY_KEY => now()->subMinutes(16)->timestamp,
         ])->get(route('admin.dashboard'));
 
         $expiredRes->assertRedirect(route('login', ['idle_timeout' => 1]));
@@ -367,15 +369,15 @@ class AdminRoleAccessTest extends TestCase
         $this->assertGuest();
         $this->assertDatabaseMissing('sessions', ['user_id' => $admin->id]);
 
-        // 4. Halaman login menampilkan pesan idle timeout jika diakses dengan ?idle_timeout=1
+        // 4. Halaman login menampilkan pesan idle timeout 15 menit
         $this->get(route('login', ['idle_timeout' => 1]))
             ->assertOk()
-            ->assertSee('tidak ada aktivitas selama 30 menit');
+            ->assertSee('tidak ada aktivitas selama 15 menit');
     }
 
     public function test_live_chat_poll_does_not_extend_idle_timeout_and_returns_401_when_expired(): void
     {
-        config(['session.admin_idle_timeout' => 30]);
+        config(['session.admin_idle_timeout' => 15]);
 
         $adminChat = User::factory()->create([
             'role' => User::ROLE_ADMIN_CHAT,
@@ -390,9 +392,9 @@ class AdminRoleAccessTest extends TestCase
             'last_message_at' => now(),
         ]);
 
-        $staleTimestamp = now()->subMinutes(15)->timestamp;
+        $staleTimestamp = now()->subMinutes(10)->timestamp;
 
-        // 1. Poll saat belum 30 menit: berhasil 200 tetapi TIDAK memperbarui timestamp idle
+        // 1. Poll saat belum 15 menit: berhasil 200 tetapi TIDAK memperbarui timestamp idle
         $pollOk = $this->actingAs($adminChat)
             ->withSession([\App\Http\Middleware\EnforceAdminIdleTimeout::SESSION_ACTIVITY_KEY => $staleTimestamp])
             ->withHeaders(['X-Background-Poll' => '1', 'Accept' => 'application/json'])
@@ -404,9 +406,9 @@ class AdminRoleAccessTest extends TestCase
             session(\App\Http\Middleware\EnforceAdminIdleTimeout::SESSION_ACTIVITY_KEY)
         );
 
-        // 2. Poll setelah >= 30 menit idle: langsung 401 JSON + logout
+        // 2. Poll setelah >= 15 menit idle: langsung 401 JSON + logout
         $pollExpired = $this->actingAs($adminChat)
-            ->withSession([\App\Http\Middleware\EnforceAdminIdleTimeout::SESSION_ACTIVITY_KEY => now()->subMinutes(31)->timestamp])
+            ->withSession([\App\Http\Middleware\EnforceAdminIdleTimeout::SESSION_ACTIVITY_KEY => now()->subMinutes(16)->timestamp])
             ->withHeaders(['X-Background-Poll' => '1', 'Accept' => 'application/json'])
             ->get(route('admin.live-chat.poll', $conversation));
 
@@ -415,35 +417,148 @@ class AdminRoleAccessTest extends TestCase
         $this->assertGuest();
     }
 
-    public function test_concurrent_login_unlocks_after_30_minutes_even_if_session_lifetime_is_higher(): void
+    public function test_concurrent_login_unlocks_after_15_minutes_even_if_session_lifetime_is_higher(): void
     {
         config([
             'session.driver' => 'database',
             'session.lifetime' => 120,
-            'session.admin_idle_timeout' => 30,
+            'session.admin_idle_timeout' => 15,
         ]);
 
         $admin = User::factory()->create([
-            'email' => 'concurrent30@unpam.ac.id',
+            'email' => 'concurrent15@unpam.ac.id',
             'password' => bcrypt('password123'),
             'role' => User::ROLE_ADMIN,
         ]);
 
         \Illuminate\Support\Facades\DB::table('sessions')->insert([
-            'id' => 'stale-after-35-mins',
+            'id' => 'stale-after-20-mins',
             'user_id' => $admin->id,
             'ip_address' => '127.0.0.1',
             'user_agent' => 'OtherBrowser',
             'payload' => base64_encode(serialize([])),
-            'last_activity' => now()->subMinutes(35)->timestamp,
+            'last_activity' => now()->subMinutes(20)->timestamp,
         ]);
 
         $this->post(route('login.attempt'), [
-            'email' => 'concurrent30@unpam.ac.id',
+            'email' => 'concurrent15@unpam.ac.id',
             'password' => 'password123',
         ])->assertRedirect(route('admin.dashboard'));
 
         $this->assertAuthenticatedAs($admin);
-        $this->assertDatabaseMissing('sessions', ['id' => 'stale-after-35-mins']);
+        $this->assertDatabaseMissing('sessions', ['id' => 'stale-after-20-mins']);
+    }
+
+    public function test_admin_closes_browser_auto_logs_out_after_60_seconds_and_stays_active_before_60_seconds(): void
+    {
+        config([
+            'session.driver' => 'database',
+            'session.admin_idle_timeout' => 15,
+            'session.admin_close_grace_seconds' => 60,
+        ]);
+
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+
+        // 1. Beacon closing menandai sesi sedang ditutup (204) dan active ping membatalkannya
+        $this->actingAs($admin)
+            ->post(route('admin.session.closing'))
+            ->assertNoContent();
+        $this->assertNotNull(session(\App\Http\Middleware\EnforceAdminIdleTimeout::SESSION_CLOSING_KEY));
+        $this->assertNotNull(\Illuminate\Support\Facades\Cache::get(\App\Http\Controllers\AuthController::closingCacheKey($admin->id)));
+
+        $this->actingAs($admin)
+            ->postJson(route('admin.session.active'))
+            ->assertOk();
+        $this->assertNull(session(\App\Http\Middleware\EnforceAdminIdleTimeout::SESSION_CLOSING_KEY));
+        $this->assertNull(\Illuminate\Support\Facades\Cache::get(\App\Http\Controllers\AuthController::closingCacheKey($admin->id)));
+
+        // 2. Kembali masuk dalam 45 detik (< 60 detik): tetap login
+        $this->actingAs($admin)
+            ->withSession([
+                \App\Http\Middleware\EnforceAdminIdleTimeout::SESSION_ACTIVITY_KEY => now()->timestamp,
+                \App\Http\Middleware\EnforceAdminIdleTimeout::SESSION_CLOSING_KEY => now()->subSeconds(45)->timestamp,
+            ])
+            ->get(route('admin.dashboard'))
+            ->assertOk();
+        $this->assertAuthenticatedAs($admin);
+
+        // 3. Kembali masuk setelah >= 60 detik (65 detik) penutupan: otomatis logout + hapus sesi DB
+        \Illuminate\Support\Facades\DB::table('sessions')->insert([
+            'id' => 'closed-browser-session-111',
+            'user_id' => $admin->id,
+            'ip_address' => '127.0.0.1',
+            'user_agent' => 'ClosedBrowser',
+            'payload' => base64_encode(serialize([])),
+            'last_activity' => now()->subSeconds(65)->timestamp,
+        ]);
+
+        $closedExpiredRes = $this->actingAs($admin)
+            ->withSession([
+                \App\Http\Middleware\EnforceAdminIdleTimeout::SESSION_ACTIVITY_KEY => now()->timestamp,
+                \App\Http\Middleware\EnforceAdminIdleTimeout::SESSION_CLOSING_KEY => now()->subSeconds(65)->timestamp,
+            ])
+            ->get(route('admin.dashboard'));
+
+        $closedExpiredRes->assertRedirect(route('login', ['close_timeout' => 1]));
+        $closedExpiredRes->assertSessionHas('warning');
+        $this->assertGuest();
+        $this->assertDatabaseMissing('sessions', ['user_id' => $admin->id]);
+
+        $this->get(route('login', ['close_timeout' => 1]))
+            ->assertOk()
+            ->assertSee('halaman admin ditutup lebih dari 60 detik');
+    }
+
+    public function test_concurrent_login_unlocks_after_60_seconds_when_previous_session_closed_browser(): void
+    {
+        config([
+            'session.driver' => 'database',
+            'session.lifetime' => 15,
+            'session.admin_idle_timeout' => 15,
+            'session.admin_close_grace_seconds' => 60,
+        ]);
+
+        $admin = User::factory()->create([
+            'email' => 'closegrace@unpam.ac.id',
+            'password' => bcrypt('password123'),
+            'role' => User::ROLE_ADMIN,
+        ]);
+
+        \Illuminate\Support\Facades\DB::table('sessions')->insert([
+            'id' => 'device-a-closed-sess',
+            'user_id' => $admin->id,
+            'ip_address' => '127.0.0.1',
+            'user_agent' => 'DeviceA',
+            'payload' => base64_encode(serialize([])),
+            'last_activity' => now()->subSeconds(30)->timestamp,
+        ]);
+
+        // 1. Baru ditutup 30 detik (< 60 detik): login kedua masih ditolak
+        \Illuminate\Support\Facades\Cache::put(
+            \App\Http\Controllers\AuthController::closingCacheKey($admin->id),
+            ['session_id' => 'device-a-closed-sess', 'closed_at' => now()->subSeconds(30)->timestamp],
+            300
+        );
+
+        $this->post(route('login.attempt'), [
+            'email' => 'closegrace@unpam.ac.id',
+            'password' => 'password123',
+        ])->assertSessionHasErrors('email');
+        $this->assertGuest();
+
+        // 2. Sudah ditutup >= 60 detik (65 detik): login kedua langsung diizinkan & sesi lama dihapus
+        \Illuminate\Support\Facades\Cache::put(
+            \App\Http\Controllers\AuthController::closingCacheKey($admin->id),
+            ['session_id' => 'device-a-closed-sess', 'closed_at' => now()->subSeconds(65)->timestamp],
+            300
+        );
+
+        $this->post(route('login.attempt'), [
+            'email' => 'closegrace@unpam.ac.id',
+            'password' => 'password123',
+        ])->assertRedirect(route('admin.dashboard'));
+
+        $this->assertAuthenticatedAs($admin);
+        $this->assertDatabaseMissing('sessions', ['id' => 'device-a-closed-sess']);
     }
 }

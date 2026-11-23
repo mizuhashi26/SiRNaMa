@@ -11,9 +11,9 @@ use Throwable;
 
 class FonnteService
 {
-    public const DEFAULT_MIN_DELAY_SECONDS = 2;
+    public const DEFAULT_MIN_DELAY_SECONDS = 5;
 
-    public const DEFAULT_MAX_DELAY_SECONDS = 8;
+    public const DEFAULT_MAX_DELAY_SECONDS = 30;
 
     public const MAX_BATCH_SIZE = 50;
     public function getToken(): string

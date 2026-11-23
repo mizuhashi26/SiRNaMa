@@ -431,4 +431,29 @@ class StudentBulkAndImportTest extends TestCase
             $sidebarHtml
         );
     }
+
+    public function test_students_index_has_pddikti_unpam_filter_controls_and_public_portal_does_not(): void
+    {
+        $superAdmin = \App\Models\User::factory()->create(['role' => 'superadmin']);
+        $student = Student::create([
+            'nim' => '241011409999',
+            'name' => 'Rafi PDDikti',
+            'study_program' => Student::STUDY_PROGRAMS[0],
+            'regular_class' => array_key_first(Student::REGULAR_CLASSES),
+            'semester' => 4,
+            'whatsapp_number' => '6281299998888',
+            'is_active' => true,
+        ]);
+
+        $adminRes = $this->actingAs($superAdmin)->get(route('admin.students.index'));
+        $adminRes->assertOk();
+        $adminRes->assertSee('Cek PDDikti (Filter Otomatis: Universitas Pamulang)');
+        $adminRes->assertSee('Profil UNPAM (041033) di PDDikti');
+        $adminRes->assertSee('https://pddikti.kemdiktisaintek.go.id/search/' . rawurlencode($student->nim . ' Universitas Pamulang'));
+
+        // Sesuai pilihan user, portal publik tidak menampilkan link/bagian PDDikti
+        $publicRes = $this->get(route('public.index'));
+        $publicRes->assertOk();
+        $publicRes->assertDontSee('pddikti.kemdiktisaintek.go.id');
+    }
 }

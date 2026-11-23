@@ -84,6 +84,40 @@
         </div>
     </form>
 
+    <!-- Panel Cek PDDikti Terfilter Mahasiswa Universitas Pamulang -->
+    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-xs flex flex-col lg:flex-row lg:items-end justify-between gap-3">
+        <div class="flex-1 min-w-0">
+            <label for="pddiktiSearchInput" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                Cek PDDikti (Filter Otomatis: Universitas Pamulang)
+            </label>
+            <div class="flex flex-col sm:flex-row gap-2.5">
+                <input type="search"
+                       id="pddiktiSearchInput"
+                       value="{{ $search }}"
+                       placeholder="Ketik NIM atau Nama Mahasiswa UNPAM untuk dicek di PDDikti..."
+                       class="flex-1 min-w-0 min-h-[44px] px-3.5 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-unpam-navy">
+                <button type="button"
+                        id="pddiktiSearchBtn"
+                        class="min-h-[44px] px-4 py-2 rounded-lg bg-blue-700 hover:bg-blue-800 text-white text-xs sm:text-sm font-bold shadow-xs transition-colors inline-flex items-center justify-center gap-1.5 shrink-0 cursor-pointer">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    <span>Cari Mahasiswa UNPAM di PDDikti</span>
+                </button>
+            </div>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5">
+                Pencarian langsung menyertakan filter <strong>Universitas Pamulang</strong> dan dibuka di tab baru laman resmi <span class="font-mono">pddikti.kemdiktisaintek.go.id</span>.
+            </p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2 shrink-0">
+            <a href="https://pddikti.kemdiktisaintek.go.id/search/{{ rawurlencode('Universitas Pamulang') }}"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="min-h-[44px] inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-blue-300 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 dark:hover:bg-blue-900/60 text-blue-900 dark:text-blue-200 text-xs sm:text-sm font-bold transition-colors">
+                <span>Profil UNPAM (041033) di PDDikti</span>
+                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+            </a>
+        </div>
+    </div>
+
     <!-- Form Pembungkus Bulk Delete -->
     <form id="bulkDeleteForm" action="{{ route('admin.students.bulk-delete') }}" method="POST">
         @csrf
@@ -201,7 +235,14 @@
                                         @endif
                                     </td>
                                     <td class="py-3.5 px-4 text-right">
-                                        <div class="inline-flex items-center gap-1.5">
+                                        <div class="inline-flex flex-wrap items-center justify-end gap-1.5">
+                                            <a href="https://pddikti.kemdiktisaintek.go.id/search/{{ rawurlencode($student->nim . ' Universitas Pamulang') }}"
+                                               target="_blank"
+                                               rel="noopener noreferrer"
+                                               title="Cek mahasiswa {{ $student->nim }} (Universitas Pamulang) di PDDikti"
+                                               class="min-h-[38px] inline-flex items-center px-3 py-1.5 rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 dark:hover:bg-blue-900/60 text-blue-800 dark:text-blue-200 text-xs font-bold transition-colors whitespace-nowrap">
+                                                Cek PDDikti
+                                            </a>
                                             <a href="{{ route('admin.students.edit', $student) }}"
                                                class="min-h-[38px] inline-flex items-center px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 text-xs font-bold transition-colors">
                                                 Ubah
@@ -372,6 +413,25 @@
             document.addEventListener('keydown', function (ev) {
                 if (ev.key === 'Escape' && !importModal.classList.contains('hidden')) {
                     importModal.classList.add('hidden');
+                }
+            });
+        }
+
+        const pddiktiInput = document.getElementById('pddiktiSearchInput');
+        const pddiktiBtn = document.getElementById('pddiktiSearchBtn');
+        function openPddiktiUnpamSearch() {
+            const raw = pddiktiInput ? pddiktiInput.value.trim() : '';
+            const query = raw !== '' ? `${raw} Universitas Pamulang` : 'Universitas Pamulang';
+            window.open('https://pddikti.kemdiktisaintek.go.id/search/' + encodeURIComponent(query), '_blank', 'noopener,noreferrer');
+        }
+        if (pddiktiBtn) {
+            pddiktiBtn.addEventListener('click', openPddiktiUnpamSearch);
+        }
+        if (pddiktiInput) {
+            pddiktiInput.addEventListener('keydown', function (ev) {
+                if (ev.key === 'Enter') {
+                    ev.preventDefault();
+                    openPddiktiUnpamSearch();
                 }
             });
         }

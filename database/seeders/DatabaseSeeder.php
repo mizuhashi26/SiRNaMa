@@ -215,6 +215,8 @@ class DatabaseSeeder extends Seeder
             );
         }
 
+        $this->call(KtmInformationSeeder::class);
+
         // 4. Jadwal Reminder Pembayaran
         PaymentReminder::updateOrCreate(
             ['title' => 'Pengingat Pembayaran Angsuran Kuliah & Registrasi Ujian'],
