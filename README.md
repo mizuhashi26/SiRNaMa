@@ -86,3 +86,13 @@ Seluruh alur fitur, keamanan role, validasi webhook, dan isolasi data telah dive
 php artisan test
 ```
 Hasil: **40 pengujian lulus 100% (321 assertions pass)**.
+
+---
+
+## 6. Lisensi & Hak Cipta
+
+Proyek **SiRNaMa (Sistem Informasi Reminder dan Layanan Mahasiswa)** dilindungi oleh *Academic & Personal Use License (Non-Commercial)* &copy; 2026 Muhammad Hilmi Aaqilah (MHA-Project).
+
+- **Diperbolehkan:** Menggunakan, mempelajari, menyalin, dan memodifikasi kode sumber untuk keperluan akademik, pembelajaran, evaluasi tugas kuliah, maupun penggunaan pribadi (non-komersial).
+- **Dilarang:** Menjual, menyewakan, melisensikan ulang, atau menggunakan sebagian/seluruh perangkat lunak ini (termasuk hasil modifikasi) untuk tujuan komersial maupun operasional bisnis tanpa izin tertulis dari Pemegang Hak Cipta.
+- **Teks Lengkap:** Lihat file [LICENSE](LICENSE).
